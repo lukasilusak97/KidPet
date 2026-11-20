@@ -8,14 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
 <style>
-/* Layout: one-screen app — status meters on top, forest meadow scene in the middle, four big care buttons at the bottom. Single deliberate daylight-meadow look (night is an in-game state). */
+/* Layout: one-screen app — status meters on top, meadow scene in the middle (shop, games, trips and album open as panels over it), big care buttons at the bottom. Single deliberate daylight-meadow look; night is an in-game state. */
 :root {
   --sky-top: #bfe6f5;
   --sky-bottom: #eaf7e4;
   --night-top: #1d2a4d;
   --night-bottom: #3c4f7a;
-  --grass: #7cbf5a;
-  --grass-dark: #5a9e3e;
   --ink: #3a2618;
   --paper: #fffaf0;
   --bark: #8a5a3b;
@@ -23,57 +21,40 @@
   --sun: #ffc83d;
   --leaf: #4f9a3a;
   --soft: #f3e6cf;
+  --sea: #5aa7e0;
   --font: "Baloo 2", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   color-scheme: light;
 }
 html, body { height: 100%; }
 body {
-  margin: 0;
-  background: var(--sky-bottom);
-  color: var(--ink);
-  font-family: var(--font);
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-  overflow: hidden;
+  margin: 0; background: var(--sky-bottom); color: var(--ink); font-family: var(--font);
+  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; overflow: hidden;
 }
+button { font-family: inherit; color: var(--ink); }
 .app {
-  height: 100%;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  max-width: 720px;
-  margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 10px;
-  gap: 10px;
-  box-sizing: border-box;
+  height: 100%; display: grid; grid-template-rows: auto 1fr auto; max-width: 720px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px; gap: 10px; box-sizing: border-box;
 }
 
 /* ---------- top bar ---------- */
 .top { display: grid; gap: 8px; }
-.titlebar { display: flex; align-items: center; gap: 8px; }
-.titlebar h1 {
-  margin: 0; font-size: 1.9rem; font-weight: 800; line-height: 1;
-  color: var(--bark); letter-spacing: .5px; flex: 1;
-}
+.titlebar { display: flex; align-items: center; gap: 6px; }
+.titlebar h1 { margin: 0; font-size: 1.9rem; font-weight: 800; line-height: 1; color: var(--bark); flex: 1; }
 .chip {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--paper); border: 3px solid var(--bark); border-radius: 999px;
-  padding: 2px 12px; font-weight: 800; font-size: 1.05rem; color: var(--ink);
-  font-variant-numeric: tabular-nums;
+  display: inline-flex; align-items: center; gap: 4px; background: var(--paper); border: 3px solid var(--bark);
+  border-radius: 999px; padding: 2px 12px; font-weight: 800; font-size: 1.05rem; font-variant-numeric: tabular-nums;
 }
+.chip.bump { animation: bump .4s; }
+@keyframes bump { 50% { transform: scale(1.25); } }
 .iconbtn {
-  font: inherit; font-size: 1.3rem; width: 44px; height: 44px; border-radius: 50%;
-  border: 3px solid var(--bark); background: var(--paper); cursor: pointer; padding: 0;
-  display: grid; place-items: center;
+  font-size: 1.3rem; width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--bark);
+  background: var(--paper); cursor: pointer; padding: 0; display: grid; place-items: center; flex: none;
 }
-.iconbtn:focus-visible, .act:focus-visible, .food:focus-visible { outline: 4px solid var(--sun); outline-offset: 2px; }
+.iconbtn:disabled { opacity: .45; cursor: default; }
+button:focus-visible, [tabindex]:focus-visible { outline: 4px solid var(--sun); outline-offset: 2px; }
 .meters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.meter {
-  background: var(--paper); border: 3px solid var(--bark); border-radius: 14px;
-  padding: 4px 8px 6px; display: grid; gap: 2px; min-width: 0;
-}
+.meter { background: var(--paper); border: 3px solid var(--bark); border-radius: 14px; padding: 4px 8px 6px; display: grid; gap: 2px; min-width: 0; }
 .meter .lbl { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: .9rem; white-space: nowrap; overflow: hidden; }
 .meter .lbl b { font-size: 1.1rem; }
 .bar { height: 12px; border-radius: 99px; background: var(--soft); overflow: hidden; }
@@ -86,10 +67,8 @@ body {
 /* ---------- scene ---------- */
 .scene {
   position: relative; border-radius: 24px; overflow: hidden; min-height: 0;
-  background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%);
-  border: 4px solid var(--bark);
-  transition: background .8s;
-  touch-action: none;
+  background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%); border: 4px solid var(--bark);
+  transition: background .8s; touch-action: none;
 }
 .scene.night { background: linear-gradient(var(--night-top), var(--night-bottom) 75%); }
 .scene .sun, .scene .moon { position: absolute; top: 14px; right: 18px; width: 54px; height: 54px; border-radius: 50%; transition: opacity .8s, transform .8s; }
@@ -105,104 +84,211 @@ body {
 .ground svg { width: 100%; height: 100%; display: block; }
 .night-veil { position: absolute; inset: 0; background: #0b1230; opacity: 0; pointer-events: none; transition: opacity .8s; }
 .scene.night .night-veil { opacity: .28; }
-
-.hogwrap {
-  position: absolute; left: 50%; bottom: 8%; width: min(78%, 420px); transform: translateX(-50%);
-  aspect-ratio: 340 / 260; max-width: 100%; cursor: pointer;
-}
+.hogwrap { position: absolute; left: 50%; bottom: 8%; width: min(78%, 420px); transform: translateX(-50%); aspect-ratio: 340 / 260; max-width: 100%; cursor: pointer; }
 .hogwrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
-#hog { transform-origin: 160px 240px; animation: breathe 3s ease-in-out infinite; }
-#hog.jump { animation: jump .55s ease-out; }
-#hog.wiggle { animation: wiggle .5s ease-in-out; }
-#hog.chew { animation: chew .25s ease-in-out 4; }
-.night #hog { animation: breathe 4.5s ease-in-out infinite; }
+svg .hogg { transform-origin: 160px 240px; }
+#hogsvg .hogg { animation: breathe 3s ease-in-out infinite; }
+#hogsvg .hogg.jump { animation: jump .55s ease-out; }
+#hogsvg .hogg.wiggle { animation: wiggle .5s ease-in-out; }
+#hogsvg .hogg.chew { animation: chew .25s ease-in-out 4; }
+.night #hogsvg .hogg { animation: breathe 4.5s ease-in-out infinite; }
 @keyframes breathe { 50% { transform: scale(1.015, 1.035); } }
 @keyframes jump { 40% { transform: translateY(-34px) scale(.98,1.04); } 75% { transform: translateY(0) scale(1.05,.95); } }
 @keyframes wiggle { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
 @keyframes chew { 50% { transform: scale(1.02, .97); } }
-#eyesClosed { display: none; }
-.sleepy #eyesOpen, .blink #eyesOpen { display: none; }
-.sleepy #eyesClosed, .blink #eyesClosed { display: inline; }
-#mouthOpen { display: none; }
-.eating #mouthOpen { display: inline; }
-.eating #mouth { display: none; }
+.eyes-closed, .mouth-open { display: none; }
+.sleepy .eyes-open, .blink .eyes-open { display: none; }
+.sleepy .eyes-closed, .blink .eyes-closed { display: inline; }
+.eating .mouth-open { display: inline; }
+.eating .mouth { display: none; }
 
 .bubble {
-  position: absolute; left: 50%; top: 6%; transform: translateX(-50%);
-  background: var(--paper); border: 3px solid var(--bark); border-radius: 20px;
-  padding: 6px 16px; font-weight: 800; font-size: 1.25rem; white-space: nowrap; max-width: 90%;
-  overflow: hidden; text-overflow: ellipsis;
-  transition: opacity .3s;
+  position: absolute; left: 50%; top: 6%; transform: translateX(-50%); background: var(--paper);
+  border: 3px solid var(--bark); border-radius: 20px; padding: 6px 16px; font-weight: 800; font-size: 1.25rem;
+  white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis;
 }
 .bubble::after {
-  content: ""; position: absolute; left: 50%; bottom: -12px; width: 18px; height: 18px;
-  background: var(--paper); border-right: 3px solid var(--bark); border-bottom: 3px solid var(--bark);
-  transform: translateX(-50%) rotate(45deg);
+  content: ""; position: absolute; left: 50%; bottom: -12px; width: 18px; height: 18px; background: var(--paper);
+  border-right: 3px solid var(--bark); border-bottom: 3px solid var(--bark); transform: translateX(-50%) rotate(45deg);
 }
 .bubble.pop { animation: popin .35s ease-out; }
 @keyframes popin { from { transform: translateX(-50%) scale(.6); } }
-
-.fx { position: absolute; pointer-events: none; font-size: 2rem; animation: floatup 1.4s ease-out forwards; z-index: 5; }
+.fx { position: absolute; pointer-events: none; font-size: 2rem; animation: floatup 1.4s ease-out forwards; z-index: 30; }
 @keyframes floatup { to { transform: translateY(-110px) scale(1.3); opacity: 0; } }
 .fx.bub { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ffffff; background: rgba(190,230,255,.55); font-size: 0; }
-
-.target {
-  position: absolute; font-size: 2.6rem; border: 0; background: none; cursor: pointer; padding: 6px;
-  animation: appear .3s ease-out; z-index: 6; line-height: 1;
-}
+.target { position: absolute; font-size: 2.6rem; border: 0; background: none; cursor: pointer; padding: 6px; animation: appear .3s ease-out; z-index: 6; line-height: 1; }
 @keyframes appear { from { transform: scale(0); } }
 .target.gone { animation: vanish .3s forwards; }
 @keyframes vanish { to { transform: scale(0); opacity: 0; } }
 .sponge { position: absolute; font-size: 2.6rem; pointer-events: none; z-index: 7; transform: translate(-50%, -50%); }
-
 .hint {
-  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
-  background: var(--paper); border: 3px solid var(--bark); border-radius: 999px;
-  padding: 4px 14px; font-weight: 800; font-size: 1.05rem; white-space: nowrap; z-index: 8;
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: var(--paper);
+  border: 3px solid var(--bark); border-radius: 999px; padding: 4px 14px; font-weight: 800; font-size: 1.05rem; white-space: nowrap; z-index: 8;
 }
-
 .foodtray {
-  position: absolute; left: 50%; top: calc(6% + 64px); transform: translateX(-50%);
-  display: flex; gap: 8px; background: var(--paper); border: 3px solid var(--bark); border-radius: 22px;
-  padding: 8px; z-index: 8; animation: popup .25s ease-out;
+  position: absolute; left: 50%; top: calc(6% + 64px); transform: translateX(-50%); display: flex; gap: 8px;
+  background: var(--paper); border: 3px solid var(--bark); border-radius: 22px; padding: 8px; z-index: 8; animation: popup .25s ease-out;
 }
 @keyframes popup { from { transform: translate(-50%, -20px); opacity: 0; } }
-.food {
-  font: inherit; display: grid; justify-items: center; gap: 0; border: 3px solid var(--soft);
-  background: #ffffff; border-radius: 16px; padding: 4px 10px; cursor: pointer; font-weight: 700; font-size: .85rem; color: var(--ink);
-}
+.food { display: grid; justify-items: center; border: 3px solid var(--soft); background: #ffffff; border-radius: 16px; padding: 4px 10px; cursor: pointer; font-weight: 700; font-size: .85rem; }
 .food span { font-size: 2.2rem; line-height: 1.1; }
 .flying { position: absolute; font-size: 2.4rem; z-index: 9; pointer-events: none; transition: left .6s ease-in, top .6s cubic-bezier(.3,-0.6,.7,1), transform .6s; }
-
-.confetti { position: absolute; width: 10px; height: 14px; top: -20px; z-index: 10; pointer-events: none; animation: fall 2.4s linear forwards; }
+.confetti { position: fixed; width: 10px; height: 14px; top: -20px; z-index: 100; pointer-events: none; animation: fall 2.4s linear forwards; }
 @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
 
-/* ---------- actions ---------- */
-.actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.act {
-  font: inherit; font-weight: 800; font-size: 1.05rem; color: var(--ink);
-  border: 4px solid var(--bark); border-radius: 20px; background: var(--paper);
-  padding: 8px 4px 6px; display: grid; justify-items: center; gap: 0; cursor: pointer;
-  box-shadow: 0 5px 0 var(--bark); transition: transform .08s, box-shadow .08s;
-  min-width: 0;
+/* ---------- panels (shop, games, trips, album) ---------- */
+.screen { position: absolute; inset: 0; z-index: 20; background: var(--paper); display: flex; flex-direction: column; animation: slidein .25s ease-out; }
+@keyframes slidein { from { transform: translateY(30px); opacity: 0; } }
+.screen-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--soft); border-bottom: 3px solid var(--bark); }
+.screen-head h2 { margin: 0; flex: 1; font-size: 1.4rem; font-weight: 800; line-height: 1.1; color: var(--bark); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pill {
+  border: 3px solid var(--bark); background: var(--paper); border-radius: 999px; padding: 2px 12px;
+  font-weight: 800; font-size: 1rem; cursor: pointer; white-space: nowrap;
 }
-.act span { font-size: 2.2rem; line-height: 1.15; }
+.pill.go { background: var(--sun); }
+.pill:disabled { opacity: .5; cursor: default; }
+.screen-body { flex: 1; overflow: auto; padding: 12px; position: relative; min-height: 0; }
+.screen-body.flush { padding: 0; overflow: hidden; }
+.toast {
+  position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 15; background: var(--paper);
+  border: 3px solid var(--bark); border-radius: 18px; padding: 4px 14px; font-weight: 800; font-size: 1.1rem;
+  max-width: 88%; text-align: center; pointer-events: none;
+}
+.toast.pop { animation: popin .35s ease-out; }
+.minihog { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* games menu */
+.gamegrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.gamecard {
+  border: 4px solid var(--bark); border-radius: 20px; background: #ffffff; padding: 10px 8px; cursor: pointer;
+  display: grid; justify-items: center; gap: 2px; text-align: center; box-shadow: 0 4px 0 var(--bark);
+}
+.gamecard:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bark); }
+.gamecard .ico { font-size: 2.6rem; line-height: 1.1; }
+.gamecard b { font-size: 1.15rem; }
+.gamecard small { font-size: .85rem; line-height: 1.2; color: var(--bark); font-weight: 600; }
+
+/* result card */
+.result {
+  position: absolute; inset: 0; z-index: 16; display: grid; place-items: center; background: rgba(255,250,240,.86); padding: 16px;
+}
+.result .card { background: #ffffff; border: 4px solid var(--bark); border-radius: 22px; padding: 16px 20px; text-align: center; display: grid; gap: 8px; max-width: 320px; animation: popup2 .3s ease-out; }
+@keyframes popup2 { from { transform: scale(.8); opacity: 0; } }
+.result .big { font-size: 2.6rem; line-height: 1.1; }
+.result p { margin: 0; font-weight: 800; font-size: 1.2rem; }
+.result .row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+/* pexeso */
+.memo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 420px; margin: 0 auto; }
+.memo button {
+  aspect-ratio: 1; border-radius: 16px; border: 3px solid var(--bark); cursor: pointer; padding: 0; font-size: 2rem;
+  background: var(--leaf); color: transparent; position: relative; transition: transform .25s, background-color .25s;
+}
+.memo button::after { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--paper); font-weight: 800; font-size: 1.8rem; }
+.memo button.open, .memo button.done { background: #ffffff; color: var(--ink); transform: rotateY(180deg) scaleX(-1); }
+.memo button.open::after, .memo button.done::after { content: none; }
+.memo button.done { border-color: var(--leaf); }
+.memo-stat { text-align: center; font-weight: 800; margin-bottom: 8px; font-size: 1.1rem; }
+
+/* arena games */
+.arena { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(var(--sky-top), var(--sky-bottom) 75%, #9bd27a 75%); touch-action: none; }
+.gstat { position: absolute; left: 10px; top: 8px; z-index: 5; background: var(--paper); border: 3px solid var(--bark); border-radius: 999px; padding: 2px 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.arena-hog { position: absolute; bottom: 6px; width: 96px; transform: translateX(-50%); }
+.arena-hog.hit { animation: wiggle .4s; }
+.faller { position: absolute; font-size: 2.3rem; line-height: 1; transform: translate(-50%, -50%); pointer-events: none; }
+.mound { position: absolute; bottom: 22%; width: 28%; max-width: 140px; aspect-ratio: 1.1; transform: translateX(-50%); transition-property: left; transition-timing-function: ease-in-out; }
+.mound .mhog { position: absolute; left: 6%; right: 6%; bottom: 0; }
+.mound .cover {
+  position: absolute; inset: 0; border: 0; padding: 0; cursor: pointer; border-radius: 50% 50% 14px 14px / 70% 70% 14px 14px;
+  background: radial-gradient(circle at 35% 30%, #c98a4a, #8a5a3b 70%); border-bottom: 6px solid #5e3b24;
+  transition: transform .35s ease-out; font-size: 1.7rem; display: grid; place-items: center;
+}
+.mound.up .cover { transform: translateY(-75%); }
+.shell-msg { position: absolute; left: 0; right: 0; top: 46px; text-align: center; font-weight: 800; font-size: 1.25rem; z-index: 5; }
+
+/* shop */
+.shop-top { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; background: var(--soft); border-radius: 18px; padding: 8px 12px; }
+.shop-top .pv { width: 130px; flex: none; }
+.shop-top .info { display: grid; gap: 4px; min-width: 0; }
+.shop-top .info b { font-size: 1.25rem; line-height: 1.1; }
+.shop-top .info span { font-weight: 600; color: var(--bark); }
+.shopgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; }
+.item {
+  border: 3px solid var(--soft); border-radius: 16px; background: #ffffff; cursor: pointer; padding: 4px 4px 2px;
+  display: grid; justify-items: center; gap: 0; position: relative; min-width: 0;
+}
+.item.sel { border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun); }
+.item .thumb { width: 100%; aspect-ratio: 1.25; }
+.item .thumb { overflow: hidden; border-radius: 10px; background: var(--soft); }
+.item .thumb svg { width: 100%; height: 100%; overflow: hidden; }
+.flush .toast { top: 50px; }
+.item .nm { font-weight: 700; font-size: .85rem; line-height: 1.1; text-align: center; }
+.item .pr { font-weight: 800; font-size: .9rem; }
+.item .pr.owned { color: var(--leaf); }
+.item .worn { position: absolute; top: 4px; right: 4px; background: var(--leaf); color: #ffffff; border-radius: 999px; font-size: .7rem; font-weight: 800; padding: 0 6px; }
+.slot-title { font-weight: 800; color: var(--bark); margin: 10px 0 4px; font-size: 1rem; }
+
+/* map & places */
+.map { position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, #e9f7ff, transparent 40%), linear-gradient(#c9ebf7, #b6e09a 45%, #8fca6a); }
+.map svg.path { position: absolute; inset: 0; width: 100%; height: 100%; }
+.node { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 0; border: 0; background: none; cursor: pointer; padding: 0; z-index: 2; }
+.node .dot { width: 62px; height: 62px; border-radius: 50%; background: var(--paper); border: 4px solid var(--bark); display: grid; place-items: center; font-size: 2rem; box-shadow: 0 4px 0 var(--bark); }
+.node .nm { font-weight: 800; background: var(--paper); border-radius: 999px; padding: 0 8px; margin-top: 4px; font-size: .95rem; border: 2px solid var(--bark); white-space: nowrap; }
+.node.locked .dot { background: #d9d2c4; filter: grayscale(1); }
+.node.locked .nm { opacity: .7; }
+.node .cnt { font-size: .75rem; font-weight: 800; color: var(--bark); background: var(--paper); border-radius: 999px; padding: 0 6px; margin-top: 2px; }
+.map-hog { position: absolute; width: 58px; transform: translate(-50%, -110%); z-index: 3; pointer-events: none; transition: left .6s, top .6s; }
+.place { position: absolute; inset: 0; overflow: hidden; }
+.spot { position: absolute; transform: translate(-50%, -50%); font-size: 3rem; line-height: 1; border: 0; background: none; cursor: pointer; padding: 4px; z-index: 2; }
+.spot.shake { animation: wiggle .4s 2; }
+.spot.searched { opacity: .35; cursor: default; }
+.walker { position: absolute; bottom: 4%; width: 84px; transform: translateX(-50%); transition: left .6s ease-in-out; z-index: 3; pointer-events: none; }
+.walker .flip { transition: transform .2s; }
+.walker.left .flip { transform: scaleX(-1); }
+.walker.step .flip { animation: hop .3s 2; }
+@keyframes hop { 50% { translate: 0 -8px; } }
+.found { position: absolute; transform: translate(-50%, -50%); font-size: 3.4rem; z-index: 6; pointer-events: none; animation: foundpop 1.6s ease-out forwards; }
+@keyframes foundpop { 0% { scale: 0; } 20% { scale: 1.3; } 30% { scale: 1; } 80% { opacity: 1; translate: 0 -30px; } 100% { opacity: 0; translate: 0 -50px; } }
+
+/* album */
+.album-sec { margin-bottom: 12px; }
+.album-sec h3 { margin: 0 0 6px; font-size: 1.1rem; display: flex; gap: 6px; align-items: center; }
+.album-sec h3 small { color: var(--bark); font-weight: 700; }
+.stickers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.sticker { background: #ffffff; border: 3px dashed #d9c9ab; border-radius: 14px; display: grid; justify-items: center; padding: 4px 2px; min-width: 0; }
+.sticker.got { border-style: solid; border-color: var(--leaf); }
+.sticker .e { font-size: 1.9rem; line-height: 1.2; }
+.sticker .n { font-size: .72rem; font-weight: 700; text-align: center; line-height: 1.1; overflow-wrap: anywhere; }
+.sticker:not(.got) .e { filter: grayscale(1) brightness(0); opacity: .18; }
+
+/* ---------- actions ---------- */
+.actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.act {
+  font-weight: 800; font-size: 1rem; border: 4px solid var(--bark); border-radius: 20px; background: var(--paper);
+  padding: 8px 2px 6px; display: grid; justify-items: center; cursor: pointer; box-shadow: 0 5px 0 var(--bark);
+  transition: transform .08s, box-shadow .08s; min-width: 0; white-space: nowrap;
+}
+.act span { font-size: 2.1rem; line-height: 1.15; }
 .act:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--bark); }
 .act[aria-pressed="true"] { background: var(--sun); }
 .act:disabled { opacity: .45; cursor: default; }
 .act.need { animation: nudge 1.6s ease-in-out infinite; }
 @keyframes nudge { 0%, 70%, 100% { transform: none; } 80% { transform: rotate(-4deg); } 90% { transform: rotate(4deg); } }
 
-@media (max-width: 420px) {
-  .titlebar h1 { font-size: 1.6rem; }
+@media (max-width: 460px) {
+  .titlebar h1 { font-size: 1.5rem; }
+  .iconbtn { width: 40px; height: 40px; font-size: 1.15rem; }
   .meters { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-  .act { font-size: .9rem; border-radius: 16px; }
-  .act span { font-size: 1.9rem; }
+  .actions { gap: 5px; }
+  .act { font-size: .78rem; border-radius: 14px; border-width: 3px; }
+  .act span { font-size: 1.7rem; }
   .bubble { font-size: 1.05rem; }
+  .node .dot { width: 52px; height: 52px; font-size: 1.7rem; }
+  .shop-top .pv { width: 104px; }
 }
 @media (max-height: 560px) {
   .progress { display: none; }
-  .act span { font-size: 1.6rem; }
+  .act span { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -214,9 +300,10 @@ body {
   <header class="top">
     <div class="titlebar">
       <h1>Ježko</h1>
-      <span class="chip" title="Hviezdičky">⭐ <span id="starCount">0</span></span>
-      <button class="iconbtn" id="wardrobeBtn" type="button" aria-label="Prezliecť Ježka" title="Šatník">🎀</button>
-      <button class="iconbtn" id="soundBtn" type="button" aria-label="Zvuk zapnutý" title="Zvuk">🔊</button>
+      <span class="chip" id="starChip" title="Hviezdičky">⭐ <span id="starCount">0</span></span>
+      <button class="iconbtn" id="shopBtn" type="button" aria-label="Obchod s oblečením" title="Obchod">🛍️</button>
+      <button class="iconbtn" id="albumBtn" type="button" aria-label="Zbierka nálezov" title="Zbierka">📒</button>
+      <button class="iconbtn" id="soundBtn" type="button" aria-label="Vypnúť zvuk" title="Zvuk">🔊</button>
     </div>
     <div class="meters">
       <div class="meter"><div class="lbl"><b>🍎</b>Bruško</div><div class="bar"><i id="m-hunger"></i></div></div>
@@ -224,7 +311,7 @@ body {
       <div class="meter"><div class="lbl"><b>⚡</b>Energia</div><div class="bar"><i id="m-energy"></i></div></div>
       <div class="meter"><div class="lbl"><b>🫧</b>Čistota</div><div class="bar"><i id="m-clean"></i></div></div>
     </div>
-    <div class="progress" id="progress">Ešte 10 ⭐ a Ježko dostane mašľu!</div>
+    <div class="progress" id="progress"></div>
   </header>
 
   <main class="scene" id="scene">
@@ -249,9 +336,10 @@ body {
 
   <nav class="actions">
     <button class="act" id="btnFeed" type="button"><span>🍎</span>Papať</button>
-    <button class="act" id="btnPlay" type="button"><span>⚽</span>Hrať sa</button>
+    <button class="act" id="btnPlay" type="button"><span>🎲</span>Hry</button>
     <button class="act" id="btnBath" type="button"><span>🛁</span>Kúpať</button>
     <button class="act" id="btnSleep" type="button"><span>🌙</span>Spinkať</button>
+    <button class="act" id="btnTrip" type="button"><span>🗺️</span>Výlet</button>
   </nav>
 </div>
 
@@ -261,28 +349,88 @@ body {
   var $ = function (id) { return document.getElementById(id); };
   var scene = $("scene"), hogwrap = $("hogwrap"), svg = $("hogsvg"), bubble = $("bubble");
   var KEY = "jezko-save-v1";
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
-  // ---------- state ----------
-  var ACCS = [
-    { id: "bow", name: "mašľu", need: 10, icon: "🎀" },
-    { id: "hat", name: "klobúčik", need: 25, icon: "🎩" },
-    { id: "crown", name: "korunku", need: 50, icon: "👑" }
+  // ================= DATA =================
+  var STROKE = ' stroke="#3a2618" stroke-width="3" stroke-linejoin="round"';
+  var ITEMS = [
+    { id: "flower", slot: "head", name: "Kvietok", acc: "kvietok", price: 4,
+      svg: '<g transform="translate(204 112)">' + [0, 72, 144, 216, 288].map(function (a) { var r = a * Math.PI / 180; return '<circle cx="' + (Math.cos(r) * 10).toFixed(1) + '" cy="' + (Math.sin(r) * 10).toFixed(1) + '" r="8" fill="#ffffff"' + STROKE.replace("3", "2") + '/>'; }).join("") + '<circle r="6" fill="#ffc83d"' + STROKE.replace("3", "2") + '/></g>' },
+    { id: "bow", slot: "head", name: "Mašľa", acc: "mašľu", price: 6,
+      svg: '<g transform="translate(196 104)"><path d="M0 10 L-24 -6 L-22 24 Z M0 10 L24 -6 L22 24 Z" fill="#e2504c"' + STROKE + '/><circle cx="0" cy="10" r="7" fill="#ff7a72"' + STROKE + '/></g>' },
+    { id: "cap", slot: "head", name: "Šiltovka", acc: "šiltovku", price: 10,
+      svg: '<g transform="translate(228 116) rotate(8)"><path d="M24 8 Q54 4 62 16 L26 16 Z" fill="#c23b37"' + STROKE + '/><path d="M-32 14 A32 30 0 0 1 32 14 Z" fill="#e2504c"' + STROKE + '/><path d="M-6 -10 A10 10 0 0 1 14 -4" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="0" cy="-16" r="4" fill="#ffc83d"/></g>' },
+    { id: "beanie", slot: "head", name: "Zimná čiapka", acc: "zimnú čiapku", price: 12,
+      svg: '<g transform="translate(224 114) rotate(10)"><path d="M-32 14 A32 32 0 0 1 32 14 Z" fill="#5aa7e0"' + STROKE + '/><rect x="-35" y="6" width="70" height="14" rx="7" fill="#3d7fbf"' + STROKE + '/><circle cy="-22" r="10" fill="#ffffff"' + STROKE + '/></g>' },
+    { id: "tophat", slot: "head", name: "Cylinder", acc: "cylinder", price: 15,
+      svg: '<g transform="translate(222 96) rotate(12)"><rect x="-34" y="18" width="68" height="10" rx="5" fill="#2f3a6b"' + STROKE + '/><rect x="-22" y="-26" width="44" height="46" rx="6" fill="#2f3a6b"' + STROKE + '/><rect x="-22" y="6" width="44" height="9" fill="#ffc83d"/></g>' },
+    { id: "wizard", slot: "head", name: "Čarodejný klobúk", acc: "čarodejný klobúk", price: 20,
+      svg: '<g transform="translate(222 100) rotate(14)"><path d="M-26 20 L4 -60 L28 20 Z" fill="#7d4cc0"' + STROKE + '/><ellipse cy="22" rx="42" ry="9" fill="#6b3fa0"' + STROKE + '/><path d="M2 -14 l3 6 6 1 -5 4 1 6 -5 -3 -5 3 1 -6 -5 -4 6 -1 Z" fill="#ffc83d"/><circle cx="-8" cy="6" r="3" fill="#ffc83d"/><circle cx="12" cy="-34" r="2.5" fill="#ffc83d"/></g>' },
+    { id: "crown", slot: "head", name: "Korunka", acc: "korunku", price: 30,
+      svg: '<g transform="translate(222 98) rotate(10)"><path d="M-30 22 L-30 -8 L-16 6 L0 -18 L16 6 L30 -8 L30 22 Z" fill="#ffc83d"' + STROKE + '/><circle cx="0" cy="8" r="5" fill="#e2504c"/><circle cx="-18" cy="12" r="3.5" fill="#4f9a3a"/><circle cx="18" cy="12" r="3.5" fill="#4f9a3a"/></g>' },
+    { id: "glasses", slot: "face", name: "Okuliare", acc: "okuliare", price: 8,
+      svg: '<g><path d="M236 156 L214 142" stroke="#3a2618" stroke-width="4" stroke-linecap="round"/><path d="M265 158 Q272 152 280 158" stroke="#3a2618" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="250" cy="160" r="15" fill="#ffffff" fill-opacity=".3" stroke="#3a2618" stroke-width="4"/></g>' },
+    { id: "shades", slot: "face", name: "Slnečné okuliare", acc: "slnečné okuliare", price: 14,
+      svg: '<g><path d="M236 156 L214 142" stroke="#3a2618" stroke-width="4" stroke-linecap="round"/><path d="M265 158 Q272 152 280 158" stroke="#3a2618" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M234 152 H268 Q268 176 251 176 Q234 176 234 152 Z" fill="#1d1d2e" stroke="#3a2618" stroke-width="3"/><path d="M241 157 L248 157" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></g>' },
+    { id: "bowtie", slot: "neck", name: "Motýlik", acc: "motýlik", price: 6,
+      svg: '<g transform="translate(212 226)"><path d="M0 0 L-18 -11 L-18 11 Z M0 0 L18 -11 L18 11 Z" fill="#5aa7e0"' + STROKE + '/><circle r="5" fill="#3d7fbf"' + STROKE.replace("3", "2") + '/><circle cx="-11" cy="-2" r="2" fill="#ffffff"/><circle cx="11" cy="3" r="2" fill="#ffffff"/></g>' },
+    { id: "scarf", slot: "neck", name: "Šál", acc: "šál", price: 10,
+      svg: '<g fill="none" stroke-linecap="round"><path d="M196 132 Q176 182 198 232" stroke="#3a2618" stroke-width="26"/><path d="M196 132 Q176 182 198 232" stroke="#e2504c" stroke-width="20"/><path d="M196 132 Q176 182 198 232" stroke="#ffffff" stroke-width="20" stroke-dasharray="6 14" stroke-linecap="butt"/><path d="M190 214 L172 250" stroke="#3a2618" stroke-width="20"/><path d="M190 214 L172 250" stroke="#e2504c" stroke-width="14"/></g>' },
+    { id: "backpack", slot: "back", name: "Ruksak", acc: "ruksak", price: 12,
+      svg: '<g transform="translate(92 142) rotate(-18)"><rect x="-30" y="-36" width="60" height="70" rx="14" fill="#4f9a3a"' + STROKE + '/><rect x="-20" y="2" width="40" height="22" rx="6" fill="#3d7d2c"' + STROKE + '/><path d="M-30 -14 Q0 -2 30 -14" stroke="#3a2618" stroke-width="3" fill="none"/><circle cy="-6" r="4" fill="#ffc83d"/></g>' },
+    { id: "cape", slot: "back", name: "Plášť hrdinu", acc: "plášť hrdinu", price: 18,
+      svg: '<g><path d="M198 112 Q120 78 58 118 Q18 168 38 222 Q100 238 150 214 Q172 160 198 112 Z" fill="#e2504c"' + STROKE + '/><path d="M110 150 l6 12 13 2 -10 9 3 13 -12 -7 -12 7 3 -13 -10 -9 13 -2 Z" fill="#ffc83d"/><circle cx="198" cy="118" r="8" fill="#ffc83d"' + STROKE + '/></g>' }
   ];
+  var SLOTS = { head: "Na hlavu", face: "Na oči", neck: "Na krk", back: "Na chrbát" };
+  var THUMB_VB = { head: "140 40 170 136", face: "196 108 110 88", neck: "140 120 140 112", back: "10 60 210 168" };
+  function item(id) { for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
+
+  var PLACES = [
+    { id: "garden", name: "Záhrada", icon: "🥕", x: 16, y: 82, covers: ["🥬", "🪴", "🧺", "🌿", "🥬", "🌻"],
+      bg: "linear-gradient(#bfe6f5, #e3f4d2 52%, #b88457 53%, #8a5a3b)",
+      finds: [["🥕", "Mrkvička"], ["🐛", "Húsenica"], ["🐌", "Slimáčik"], ["🐜", "Mravček"], ["🐦", "Vrabček"]] },
+    { id: "meadow", name: "Lúka", icon: "🌼", x: 44, y: 64, covers: ["🌾", "🌼", "🪨", "🌿", "🌷", "🌾"],
+      bg: "linear-gradient(#bfe6f5, #eaf7e4 45%, #9bd27a 46%, #7cbf5a)",
+      finds: [["🦋", "Motýľ"], ["🐝", "Včielka"], ["🍀", "Štvorlístok"], ["🐞", "Lienka"], ["🦗", "Koník"]] },
+    { id: "forest", name: "Les", icon: "🌲", x: 78, y: 74, covers: ["🌳", "🌲", "🪵", "🍂", "🪨", "🌲"],
+      bg: "linear-gradient(#9ccfa8, #5f9e62 45%, #3f7a45 46%, #2f5f34)",
+      finds: [["🍄", "Hríbik"], ["🌰", "Žaluď"], ["🪶", "Pierko"], ["🦊", "Líška"], ["🐿️", "Veverička"]] },
+    { id: "pond", name: "Rybník", icon: "🦆", x: 70, y: 38, covers: ["🌿", "🪨", "🍃", "🪵", "🌾", "🌿"],
+      bg: "linear-gradient(#bfe6f5, #dff1f7 35%, #6cb8de 36%, #3f8fc0 80%, #9bd27a 80%)",
+      finds: [["🐸", "Žabka"], ["🐟", "Rybka"], ["🦆", "Kačička"], ["🐚", "Mušľa"], ["🐢", "Korytnačka"]] },
+    { id: "hills", name: "Hory", icon: "⛰️", x: 30, y: 24, covers: ["🪨", "🌲", "🪵", "🌿", "🪨", "🌲"],
+      bg: "linear-gradient(#cfe4f7, #ffffff 30%, #c9ccd6 31%, #9aa1b2 60%, #7d8b72)",
+      finds: [["💎", "Kryštál"], ["❄️", "Vločka"], ["🐐", "Kamzík"], ["🫐", "Čučoriedky"], ["🦉", "Sova"]] }
+  ];
+  function findId(p, i) { return p.id + ":" + i; }
+  function placeCount(p) { var n = 0; for (var i = 0; i < 5; i++) if (S.finds[findId(p, i)]) n++; return n; }
+  function placeUnlocked(i) { return i === 0 || placeCount(PLACES[i - 1]) >= 2; }
+  function totalFinds() { return PLACES.reduce(function (s, p) { return s + placeCount(p); }, 0); }
+
+  // ================= STATE =================
   function fresh() {
-    return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 0, acc: "", sleeping: false, sound: true, last: Date.now() };
+    return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 3, sound: true, last: Date.now(),
+             owned: [], wear: {}, finds: {}, visited: {} };
   }
   var S = fresh();
   function load(data) {
-    if (data && typeof data.hunger === "number") { S = Object.assign(fresh(), data); return true; }
-    return false;
+    if (!data || typeof data.hunger !== "number") return;
+    S = Object.assign(fresh(), data);
+    S.owned = Array.isArray(S.owned) ? S.owned : [];
+    S.wear = S.wear && typeof S.wear === "object" ? S.wear : {};
+    S.finds = S.finds && typeof S.finds === "object" ? S.finds : {};
+    S.visited = S.visited && typeof S.visited === "object" ? S.visited : {};
+    // older version had reward accessories instead of a shop
+    var old = { bow: "bow", hat: "tophat", crown: "crown" }[S.acc];
+    if (old) { if (S.owned.indexOf(old) < 0) S.owned.push(old); S.wear.head = old; }
+    if (S.stars >= 10 && S.owned.indexOf("bow") < 0 && S.acc !== undefined) S.owned.push("bow");
+    delete S.acc; delete S.sleeping;
   }
-  try {
-    var raw = localStorage.getItem(KEY);
-    if (raw) load(JSON.parse(raw));
-  } catch (e) {}
-  if (window.claude && window.claude.hot && window.claude.hot.data) load(window.claude.hot.data.S);
+  try { var raw = localStorage.getItem(KEY); if (raw) load(JSON.parse(raw)); } catch (e) {}
+  if (window.claude && window.claude.hot && window.claude.hot.data && window.claude.hot.data.S) load(window.claude.hot.data.S);
 
-  // Time away: needs drop slowly, but Ježko is never left in a bad state.
   (function catchUp() {
     var away = Math.max(0, (Date.now() - (S.last || Date.now())) / 1000);
     if (away > 30) {
@@ -290,33 +438,25 @@ body {
       S.hunger = Math.max(25, S.hunger - k);
       S.happy = Math.max(25, S.happy - k * 0.8);
       S.clean = Math.max(25, S.clean - k * 0.6);
-      S.energy = S.sleeping ? 100 : Math.max(30, S.energy - k * 0.5);
-      if (S.sleeping) S.sleeping = false;
+      S.energy = Math.max(30, S.energy - k * 0.5);
     }
   })();
-
-  function save() {
-    S.last = Date.now();
-    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
-  }
+  function save() { S.last = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
     try { window.claude.hot.snapshot(function () { return { S: S }; }); } catch (e) {}
   }
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
 
-  // ---------- sound ----------
+  // ================= SOUND =================
   var actx = null;
   function tone(freq, dur, type, delay, vol) {
     if (!S.sound) return;
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      var t = actx.currentTime + (delay || 0);
-      var o = actx.createOscillator(), g = actx.createGain();
+      var t = actx.currentTime + (delay || 0), o = actx.createOscillator(), g = actx.createGain();
       o.type = type || "sine"; o.frequency.setValueAtTime(freq, t);
-      g.gain.setValueAtTime(vol || 0.15, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      o.connect(g); g.connect(actx.destination);
-      o.start(t); o.stop(t + dur + 0.02);
+      g.gain.setValueAtTime(vol || 0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
     } catch (e) {}
   }
   var sfx = {
@@ -325,84 +465,79 @@ body {
     pop: function () { tone(520 + Math.random() * 300, .1, "triangle"); },
     bub: function () { tone(900 + Math.random() * 600, .05, "sine", 0, .05); },
     star: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, .18, "triangle", i * .09, .12); }); },
+    buy: function () { [392, 523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, .16, "triangle", i * .07, .12); }); },
     sleep: function () { tone(392, .4, "sine", 0, .1); tone(330, .5, "sine", .35, .1); },
     wake: function () { tone(330, .2, "sine", 0, .1); tone(523, .3, "sine", .18, .1); },
-    no: function () { tone(220, .15, "sawtooth", 0, .05); tone(180, .2, "sawtooth", .12, .05); }
+    no: function () { tone(220, .15, "sawtooth", 0, .05); tone(180, .2, "sawtooth", .12, .05); },
+    step: function () { tone(300, .05, "triangle", 0, .06); tone(360, .05, "triangle", .15, .06); },
+    flip: function () { tone(700, .06, "sine", 0, .08); }
   };
 
-  // ---------- draw Ježko ----------
+  // ================= DRAW JEŽKO =================
   function ell(cx, cy, rx, ry, a) { return [cx + rx * Math.cos(a), cy - ry * Math.sin(a)]; }
-  function spikes() {
+  var SPIKES = (function () {
     var cx = 160, cy = 168, rx = 112, ry = 80, a0 = 200 * Math.PI / 180, a1 = 28 * Math.PI / 180, n = 24;
     var p = ell(cx, cy, rx, ry, a0), d = "M" + p[0].toFixed(1) + " " + p[1].toFixed(1);
     for (var k = 0; k < n; k++) {
-      var am = a0 + (a1 - a0) * (k + 0.5) / n, ae = a0 + (a1 - a0) * (k + 1) / n;
-      var r = k % 2 ? 1.27 : 1.36;
+      var am = a0 + (a1 - a0) * (k + 0.5) / n, ae = a0 + (a1 - a0) * (k + 1) / n, r = k % 2 ? 1.27 : 1.36;
       var t = ell(cx, cy, rx * r, ry * r, am), e = ell(cx, cy, rx, ry, ae);
       d += " L" + t[0].toFixed(1) + " " + t[1].toFixed(1) + " L" + e[0].toFixed(1) + " " + e[1].toFixed(1);
     }
     return d + " L160 215 Z";
-  }
-  function texture() {
+  })();
+  var TEXTURE = (function () {
     var out = "", seed = 7;
-    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    function r() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
     for (var i = 0; i < 34; i++) {
-      var a = (40 + rnd() * 140) * Math.PI / 180, r = 0.35 + rnd() * 0.55;
-      var p = ell(150, 168, 100 * r, 70 * r, a);
+      var a = (40 + r() * 140) * Math.PI / 180, k = 0.35 + r() * 0.55, p = ell(150, 168, 100 * k, 70 * k, a);
       if (p[0] > 205 && p[1] > 140) continue;
-      out += '<path d="M' + p[0].toFixed(1) + " " + p[1].toFixed(1) + " l-7 -9" + '"/>';
+      out += '<path d="M' + p[0].toFixed(1) + " " + p[1].toFixed(1) + ' l-7 -9"/>';
     }
     return out;
-  }
-  svg.innerHTML =
-    '<g id="hog">' +
-      '<g fill="#5e3b24">' +
-        '<ellipse cx="108" cy="234" rx="17" ry="10"/><ellipse cx="148" cy="240" rx="17" ry="10"/>' +
-        '<ellipse cx="200" cy="240" rx="17" ry="10"/><ellipse cx="236" cy="234" rx="16" ry="10"/>' +
-      '</g>' +
-      '<path d="' + spikes() + '" fill="#5b3a24" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
+  })();
+  function wearSvg(wear, slot) { var it = wear && wear[slot] ? item(wear[slot]) : null; return it ? it.svg : ""; }
+  function hogInner(wear, withDirt) {
+    return '<g class="hogg">' +
+      '<g fill="#5e3b24"><ellipse cx="108" cy="234" rx="17" ry="10"/><ellipse cx="148" cy="240" rx="17" ry="10"/><ellipse cx="200" cy="240" rx="17" ry="10"/><ellipse cx="236" cy="234" rx="16" ry="10"/></g>' +
+      '<path d="' + SPIKES + '" fill="#5b3a24" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
       '<ellipse cx="158" cy="170" rx="104" ry="72" fill="#8a5a3b"/>' +
-      '<g stroke="#6b4329" stroke-width="4" stroke-linecap="round" fill="none">' + texture() + '</g>' +
+      '<g stroke="#6b4329" stroke-width="4" stroke-linecap="round" fill="none">' + TEXTURE + '</g>' +
+      wearSvg(wear, "back") +
       '<ellipse cx="168" cy="210" rx="82" ry="28" fill="#e8c9a0"/>' +
       '<ellipse cx="236" cy="178" rx="58" ry="47" fill="#f0d3a8"/>' +
       '<ellipse cx="284" cy="188" rx="30" ry="19" fill="#f0d3a8" transform="rotate(8 284 188)"/>' +
       '<circle cx="214" cy="134" r="14" fill="#e8c9a0"/><circle cx="214" cy="134" r="7" fill="#d99a8a"/>' +
       '<circle cx="309" cy="185" r="11" fill="#2b1a12"/><circle cx="305" cy="181" r="3.5" fill="#ffffff"/>' +
-      '<g id="eyesOpen"><circle cx="250" cy="160" r="10" fill="#2b1a12"/><circle cx="253.5" cy="156.5" r="3.5" fill="#ffffff"/></g>' +
-      '<path id="eyesClosed" d="M240 162 Q250 171 260 162" stroke="#2b1a12" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<g class="eyes-open"><circle cx="250" cy="160" r="10" fill="#2b1a12"/><circle cx="253.5" cy="156.5" r="3.5" fill="#ffffff"/></g>' +
+      '<path class="eyes-closed" d="M240 162 Q250 171 260 162" stroke="#2b1a12" stroke-width="4" fill="none" stroke-linecap="round"/>' +
       '<ellipse cx="262" cy="190" rx="11" ry="7" fill="#f2a2a2" opacity=".75"/>' +
-      '<path id="mouth" d="M272 203 Q283 213 294 203" stroke="#2b1a12" stroke-width="4" fill="none" stroke-linecap="round"/>' +
-      '<ellipse id="mouthOpen" cx="284" cy="205" rx="8" ry="7" fill="#7a2e2a" stroke="#2b1a12" stroke-width="3"/>' +
-      '<g id="dirt" fill="#6d5532">' +
-        '<ellipse cx="120" cy="150" rx="13" ry="8"/><ellipse cx="178" cy="118" rx="10" ry="6"/>' +
-        '<ellipse cx="236" cy="200" rx="9" ry="6"/><ellipse cx="140" cy="205" rx="12" ry="6"/>' +
-        '<ellipse cx="86" cy="182" rx="9" ry="6"/><circle cx="270" cy="168" r="4"/>' +
-      '</g>' +
-      '<g id="acc-bow" display="none" transform="translate(196 104)">' +
-        '<path d="M0 10 L-24 -6 L-22 24 Z M0 10 L24 -6 L22 24 Z" fill="#e2504c" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
-        '<circle cx="0" cy="10" r="7" fill="#ff7a72" stroke="#3a2618" stroke-width="3"/>' +
-      '</g>' +
-      '<g id="acc-hat" display="none" transform="translate(222 96) rotate(12)">' +
-        '<rect x="-34" y="18" width="68" height="10" rx="5" fill="#2f3a6b" stroke="#3a2618" stroke-width="3"/>' +
-        '<rect x="-22" y="-26" width="44" height="46" rx="6" fill="#2f3a6b" stroke="#3a2618" stroke-width="3"/>' +
-        '<rect x="-22" y="6" width="44" height="9" fill="#ffc83d"/>' +
-      '</g>' +
-      '<g id="acc-crown" display="none" transform="translate(222 98) rotate(10)">' +
-        '<path d="M-30 22 L-30 -8 L-16 6 L0 -18 L16 6 L30 -8 L30 22 Z" fill="#ffc83d" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
-        '<circle cx="0" cy="8" r="5" fill="#e2504c"/><circle cx="-18" cy="12" r="3.5" fill="#4f9a3a"/><circle cx="18" cy="12" r="3.5" fill="#4f9a3a"/>' +
-      '</g>' +
+      '<path class="mouth" d="M272 203 Q283 213 294 203" stroke="#2b1a12" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<ellipse class="mouth-open" cx="284" cy="205" rx="8" ry="7" fill="#7a2e2a" stroke="#2b1a12" stroke-width="3"/>' +
+      (withDirt ? '<g class="dirt" fill="#6d5532" opacity="0"><ellipse cx="120" cy="150" rx="13" ry="8"/><ellipse cx="178" cy="118" rx="10" ry="6"/><ellipse cx="236" cy="200" rx="9" ry="6"/><ellipse cx="140" cy="205" rx="12" ry="6"/><ellipse cx="86" cy="182" rx="9" ry="6"/><circle cx="270" cy="168" r="4"/></g>' : "") +
+      wearSvg(wear, "neck") + wearSvg(wear, "face") + wearSvg(wear, "head") +
     '</g>';
-  var hog = $("hog"), dirt = $("dirt"), mouth = $("mouth");
+  }
+  function miniHog(wear, vb) {
+    return '<svg class="minihog" viewBox="' + (vb || "0 40 340 220") + '" aria-hidden="true">' + hogInner(wear || S.wear, false) + '</svg>';
+  }
+  var dressedKey = null;
+  function dressMain() {
+    var k = JSON.stringify(S.wear);
+    if (k === dressedKey) return;
+    dressedKey = k;
+    svg.innerHTML = hogInner(S.wear, true);
+    svg.querySelector(".hogg").addEventListener("animationend", function (e) { e.currentTarget.classList.remove("jump", "wiggle", "chew"); });
+  }
+  dressMain();
 
-  // night sky stars
   (function () {
     var html = "";
     for (var i = 0; i < 22; i++) html += '<span style="left:' + (Math.random() * 96) + "%;top:" + (Math.random() * 55) + "%;animation-delay:" + (Math.random() * 2) + 's"></span>';
     $("skyStars").innerHTML = html;
   })();
 
-  // ---------- helpers ----------
-  var mode = "idle"; // idle | feed | play | bath | sleep
+  // ================= HELPERS =================
+  var mode = "idle"; // idle | feed | play | bath | sleep | screen
   var lastSay = 0;
   function say(text, hold) {
     bubble.textContent = text;
@@ -410,90 +545,78 @@ body {
     lastSay = Date.now() + (hold || 3500);
   }
   function anim(name) {
-    hog.classList.remove("jump", "wiggle", "chew"); void hog.getBoundingClientRect();
-    hog.classList.add(name);
+    var g = svg.querySelector(".hogg");
+    g.classList.remove("jump", "wiggle", "chew"); void g.getBoundingClientRect(); g.classList.add(name);
   }
-  hog.addEventListener("animationend", function () { hog.classList.remove("jump", "wiggle", "chew"); });
-
-  function hogPoint(fx, fy) { // fraction of hog box -> scene px
+  function hogPoint(fx, fy) {
     var s = scene.getBoundingClientRect(), h = hogwrap.getBoundingClientRect();
     return { x: h.left - s.left + h.width * fx, y: h.top - s.top + h.height * fy };
   }
-  function fx(content, x, y, cls) {
+  function fx(content, x, y, cls, parent) {
     var el = document.createElement("div");
-    el.className = "fx" + (cls ? " " + cls : "");
-    el.textContent = content;
+    el.className = "fx" + (cls ? " " + cls : ""); el.textContent = content;
     el.style.left = (x - 16) + "px"; el.style.top = (y - 16) + "px";
-    scene.appendChild(el);
+    (parent || scene).appendChild(el);
     setTimeout(function () { el.remove(); }, 1500);
   }
   function confetti() {
     var colors = ["#e2504c", "#ffc83d", "#4f9a3a", "#5aa7e0", "#d36bd1"];
     for (var i = 0; i < 40; i++) {
       var c = document.createElement("div");
-      c.className = "confetti";
-      c.style.left = Math.random() * 100 + "%";
-      c.style.background = colors[i % colors.length];
-      c.style.animationDelay = Math.random() * .6 + "s";
+      c.className = "confetti"; c.style.left = Math.random() * 100 + "%";
+      c.style.background = colors[i % colors.length]; c.style.animationDelay = Math.random() * .6 + "s";
       document.body.appendChild(c);
       setTimeout(function (el) { el.remove(); }.bind(null, c), 3200);
     }
   }
+  function bumpStars() { var c = $("starChip"); c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump"); }
   function giveStar(n) {
-    var before = S.stars;
-    S.stars += n || 1;
-    sfx.star();
-    var p = hogPoint(.5, .1);
-    fx("⭐", p.x, p.y);
-    ACCS.forEach(function (a) {
-      if (before < a.need && S.stars >= a.need) {
-        S.acc = a.id;
-        setTimeout(function () { say("Juchú! Mám nov" + (a.id === "hat" ? "ý " : "ú ") + a.name + "!", 5000); confetti(); anim("jump"); }, 400);
-      }
-    });
+    n = n || 1;
+    S.stars += n; sfx.star(); bumpStars();
+    if (mode !== "screen") { var p = hogPoint(.5, .1); fx(n > 1 ? "⭐×" + n : "⭐", p.x, p.y); }
     render(); save();
   }
 
-  // ---------- render ----------
+  // ================= RENDER =================
   function setBar(id, v) {
     var el = $("m-" + id);
     el.style.width = Math.max(4, v) + "%";
     el.className = v < 30 ? "low" : v < 60 ? "mid" : "";
   }
+  function setBtn(id, icon, text) { var b = $(id); var h = "<span>" + icon + "</span>" + text; if (b.innerHTML !== h) b.innerHTML = h; }
   function render() {
+    dressMain();
     setBar("hunger", S.hunger); setBar("happy", S.happy); setBar("energy", S.energy); setBar("clean", S.clean);
     $("starCount").textContent = S.stars;
-    dirt.setAttribute("opacity", S.clean > 70 ? 0 : ((70 - S.clean) / 70).toFixed(2));
-    ACCS.forEach(function (a) { $("acc-" + a.id).setAttribute("display", S.acc === a.id ? "inline" : "none"); });
-    var next = ACCS.filter(function (a) { return S.stars < a.need; })[0];
-    $("progress").textContent = next
-      ? "Ešte " + (next.need - S.stars) + " ⭐ a Ježko dostane " + next.name + "!"
-      : "Ježko má všetky odmeny! Si super opatrovateľ!";
-    var low = Math.min(S.hunger, S.happy, S.energy, S.clean);
-    if (mode === "sleep") mouth.setAttribute("d", "M274 205 Q283 209 292 205");
-    else if (low < 30) mouth.setAttribute("d", "M272 209 Q283 199 294 209");
-    else if (low < 55) mouth.setAttribute("d", "M273 205 L293 205");
-    else mouth.setAttribute("d", "M272 203 Q283 213 294 203");
+    var dirt = svg.querySelector(".dirt");
+    if (dirt) dirt.setAttribute("opacity", S.clean > 70 ? 0 : ((70 - S.clean) / 70).toFixed(2));
+    var unowned = ITEMS.filter(function (it) { return S.owned.indexOf(it.id) < 0; }).sort(function (a, b) { return a.price - b.price; });
+    var cheap = unowned[0];
+    $("progress").textContent = !cheap ? "Ježko má celý šatník! Výborne!"
+      : S.stars >= cheap.price ? "Máš dosť ⭐ na " + cheap.acc + "! Choď do obchodu 🛍️"
+      : "Ešte " + (cheap.price - S.stars) + " ⭐ a kúpiš Ježkovi " + cheap.acc + ".";
+    var low = Math.min(S.hunger, S.happy, S.energy, S.clean), mouth = svg.querySelector(".mouth");
+    mouth.setAttribute("d", mode === "sleep" ? "M274 205 Q283 209 292 205" : low < 30 ? "M272 209 Q283 199 294 209" : low < 55 ? "M273 205 L293 205" : "M272 203 Q283 213 294 203");
     svg.classList.toggle("sleepy", mode === "sleep");
     scene.classList.toggle("night", mode === "sleep");
-    $("btnFeed").classList.toggle("need", mode === "idle" && S.hunger < 35);
-    $("btnPlay").classList.toggle("need", mode === "idle" && S.happy < 35);
-    $("btnBath").classList.toggle("need", mode === "idle" && S.clean < 35);
-    $("btnSleep").classList.toggle("need", mode === "idle" && S.energy < 30);
-    ["btnFeed", "btnPlay", "btnBath", "btnSleep"].forEach(function (id) {
-      var b = $(id), mine = (id === "btnFeed" && mode === "feed") || (id === "btnPlay" && mode === "play") || (id === "btnBath" && mode === "bath") || (id === "btnSleep" && mode === "sleep");
+    var idle = mode === "idle";
+    $("btnFeed").classList.toggle("need", idle && S.hunger < 35);
+    $("btnPlay").classList.toggle("need", idle && S.happy < 35);
+    $("btnBath").classList.toggle("need", idle && S.clean < 35);
+    $("btnSleep").classList.toggle("need", idle && S.energy < 30);
+    var own = { feed: "btnFeed", play: "btnPlay", bath: "btnBath", sleep: "btnSleep" }[mode];
+    ["btnFeed", "btnPlay", "btnBath", "btnSleep", "btnTrip"].forEach(function (id) {
+      var b = $(id), mine = id === own;
       b.setAttribute("aria-pressed", mine ? "true" : "false");
-      b.disabled = mode !== "idle" && !mine && mode !== "feed";
+      b.disabled = mode === "screen" || (mode !== "idle" && mode !== "feed" && !mine);
     });
-    $("btnSleep").innerHTML = mode === "sleep" ? "<span>☀️</span>Zobudiť" : "<span>🌙</span>Spinkať";
-    $("btnBath").innerHTML = mode === "bath" ? "<span>✅</span>Hotovo" : "<span>🛁</span>Kúpať";
-    $("btnPlay").innerHTML = mode === "play" ? "<span>⏹️</span>Koniec" : "<span>⚽</span>Hrať sa";
+    $("shopBtn").disabled = $("albumBtn").disabled = !(mode === "idle" || mode === "feed");
+    setBtn("btnSleep", mode === "sleep" ? "☀️" : "🌙", mode === "sleep" ? "Zobudiť" : "Spinkať");
+    setBtn("btnBath", mode === "bath" ? "✅" : "🛁", mode === "bath" ? "Hotovo" : "Kúpať");
+    setBtn("btnPlay", mode === "play" ? "⏹️" : "🎲", mode === "play" ? "Koniec" : "Hry");
     $("soundBtn").textContent = S.sound ? "🔊" : "🔇";
     $("soundBtn").setAttribute("aria-label", S.sound ? "Vypnúť zvuk" : "Zapnúť zvuk");
-    var cur = ACCS.filter(function (a) { return a.id === S.acc; })[0];
-    $("wardrobeBtn").textContent = cur ? cur.icon : "👕";
   }
-
   function idleTalk() {
     if (mode !== "idle" || Date.now() < lastSay) return;
     var t;
@@ -502,74 +625,66 @@ body {
     else if (S.clean < 35) t = "Fuj, som celý zablatený!";
     else if (S.happy < 35) t = "Je mi smutno. Zahráme sa?";
     else {
-      var lines = ["Ľúbim ťa!", "Je mi s tebou dobre!", "Pohladkaj ma!", "Fŕŕ fŕŕ!", "Vonku je krásne!", "Si môj najlepší kamarát!"];
-      t = lines[Math.floor(Math.random() * lines.length)];
+      var lines = ["Ľúbim ťa!", "Pohladkaj ma!", "Fŕŕ fŕŕ!", "Poďme na výlet!", "Si môj najlepší kamarát!", "Pekne mi to pristane!"];
+      if (!S.owned.length) lines.push("Kúpiš mi niečo pekné?");
+      t = lines[rnd(lines.length)];
     }
     say(t, 6000);
   }
 
-  // ---------- tick ----------
+  // ================= TICK =================
   setInterval(function () {
     if (mode === "sleep") {
-      S.energy = clamp(S.energy + 3);
-      S.hunger = clamp(S.hunger - 0.03);
+      S.energy = clamp(S.energy + 3); S.hunger = clamp(S.hunger - 0.03);
       if (Math.random() < .5) { var p = hogPoint(.72, .25); fx("💤", p.x + Math.random() * 20, p.y); }
       if (S.energy >= 100) wake(true);
     } else {
       S.hunger = clamp(S.hunger - 0.09);
-      S.happy = clamp(S.happy - (mode === "play" ? 0 : 0.07));
+      S.happy = clamp(S.happy - (mode === "play" || mode === "screen" ? 0 : 0.07));
       S.energy = clamp(S.energy - 0.06);
       S.clean = clamp(S.clean - (mode === "bath" ? 0 : 0.05));
       if (Math.random() < .06 && mode === "idle") { svg.classList.add("blink"); setTimeout(function () { svg.classList.remove("blink"); }, 180); }
     }
-    idleTalk();
-    render();
+    idleTalk(); render();
     if (Math.floor(Date.now() / 1000) % 5 === 0) save();
   }, 1000);
   document.addEventListener("visibilitychange", function () { if (document.hidden) save(); });
 
-  // ---------- pet ----------
+  // ================= PET =================
   var lastPet = 0;
   function pet() {
     if (mode === "sleep") { say("Pssst... Ježko spinká.", 2000); return; }
     if (mode !== "idle" && mode !== "feed") return;
     if (Date.now() - lastPet < 350) return;
     lastPet = Date.now();
-    S.happy = clamp(S.happy + 4);
-    sfx.pet(); anim("jump");
-    var p = hogPoint(.45 + Math.random() * .3, .2);
-    fx("❤️", p.x, p.y);
-    if (Math.random() < .35) say(["Hihi, to šteklí!", "Fŕŕ!", "Ešte, ešte!", "Mňam, pohladkanie!"][Math.floor(Math.random() * 4)], 2000);
+    S.happy = clamp(S.happy + 4); sfx.pet(); anim("jump");
+    var p = hogPoint(.45 + Math.random() * .3, .2); fx("❤️", p.x, p.y);
+    if (Math.random() < .35) say(["Hihi, to šteklí!", "Fŕŕ!", "Ešte, ešte!", "Mňam, pohladkanie!"][rnd(4)], 2000);
     render();
   }
   hogwrap.addEventListener("click", function () { if (mode !== "bath") pet(); });
   hogwrap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pet(); } });
 
-  // ---------- feed ----------
+  // ================= FEED =================
   var FOODS = [
     { icon: "🍎", name: "Jablko", hunger: 20, happy: 2, line: "Mňam, jabĺčko!" },
     { icon: "🐛", name: "Húsenica", hunger: 30, happy: 6, line: "Moja obľúbená! Mňam!" },
     { icon: "🍐", name: "Hruška", hunger: 18, happy: 3, line: "Sladučká hruška!" },
     { icon: "🍓", name: "Jahoda", hunger: 12, happy: 5, line: "Jahôdka! Ďakujem!" }
   ];
-  var tray = null;
+  var tray = null, eating = false;
   function closeTray() { if (tray) { tray.remove(); tray = null; } if (mode === "feed") mode = "idle"; render(); }
   function openTray() {
     mode = "feed";
-    tray = document.createElement("div");
-    tray.className = "foodtray";
-    FOODS.forEach(function (f, i) {
+    tray = document.createElement("div"); tray.className = "foodtray";
+    FOODS.forEach(function (f) {
       var b = document.createElement("button");
-      b.className = "food"; b.type = "button";
-      b.innerHTML = "<span>" + f.icon + "</span>" + f.name;
+      b.className = "food"; b.type = "button"; b.innerHTML = "<span>" + f.icon + "</span>" + f.name;
       b.addEventListener("click", function () { feed(f, b); });
       tray.appendChild(b);
     });
-    scene.appendChild(tray);
-    say("Čo mi dáš papať?", 3000);
-    render();
+    scene.appendChild(tray); say("Čo mi dáš papať?", 3000); render();
   }
-  var eating = false;
   function feed(f, btn) {
     if (eating) return;
     if (S.hunger >= 95) { sfx.no(); anim("wiggle"); say("Už som plný! Bruško mám ako balón.", 2500); return; }
@@ -577,8 +692,7 @@ body {
     var s = scene.getBoundingClientRect(), b = btn.getBoundingClientRect();
     var fl = document.createElement("div");
     fl.className = "flying"; fl.textContent = f.icon;
-    fl.style.left = (b.left - s.left + b.width / 2 - 18) + "px";
-    fl.style.top = (b.top - s.top) + "px";
+    fl.style.left = (b.left - s.left + b.width / 2 - 18) + "px"; fl.style.top = (b.top - s.top) + "px";
     scene.appendChild(fl);
     var mp = hogPoint(.84, .78);
     requestAnimationFrame(function () { requestAnimationFrame(function () {
@@ -587,70 +701,17 @@ body {
     setTimeout(function () {
       fl.remove();
       var helped = S.hunger < 85;
-      S.hunger = clamp(S.hunger + f.hunger);
-      S.happy = clamp(S.happy + f.happy);
-      svg.classList.add("eating"); anim("chew"); sfx.eat();
-      say(f.line, 2500);
+      S.hunger = clamp(S.hunger + f.hunger); S.happy = clamp(S.happy + f.happy);
+      svg.classList.add("eating"); anim("chew"); sfx.eat(); say(f.line, 2500);
       setTimeout(function () { svg.classList.remove("eating"); eating = false; }, 1000);
       if (helped) giveStar(); else render();
     }, 650);
   }
 
-  // ---------- play ----------
-  var playTimer = null, playCaught = 0, playSpawned = 0;
-  var TARGETS = ["🍂", "🍄", "🐞", "🦋", "🌰", "🍁"];
-  function startPlay() {
-    if (S.energy < 15) { sfx.no(); say("Som príliš unavený... Najprv spinkať.", 3000); return; }
-    mode = "play"; playCaught = 0; playSpawned = 0;
-    say("Chyť čo najviac vecí!", 3000);
-    var hint = document.createElement("div"); hint.className = "hint"; hint.id = "playHint"; hint.textContent = "Chytené: 0";
-    scene.appendChild(hint);
-    playTimer = setInterval(spawnTarget, 850);
-    spawnTarget();
-    render();
-  }
-  function spawnTarget() {
-    if (playSpawned >= 15) { setTimeout(endPlay, 1800); clearInterval(playTimer); playTimer = null; return; }
-    playSpawned++;
-    var t = document.createElement("button");
-    t.type = "button"; t.className = "target";
-    t.textContent = TARGETS[Math.floor(Math.random() * TARGETS.length)];
-    t.setAttribute("aria-label", "Chytiť");
-    var w = scene.clientWidth, h = scene.clientHeight;
-    t.style.left = (10 + Math.random() * (w - 80)) + "px";
-    t.style.top = (h * 0.18 + Math.random() * h * 0.42) + "px";
-    var gone = false;
-    function remove() { if (gone) return; gone = true; t.classList.add("gone"); setTimeout(function () { t.remove(); }, 300); }
-    t.addEventListener("pointerdown", function (e) {
-      e.preventDefault(); e.stopPropagation();
-      if (gone || mode !== "play") return;
-      playCaught++;
-      S.happy = clamp(S.happy + 6); S.energy = clamp(S.energy - 2);
-      sfx.pop(); anim("jump");
-      var r = t.getBoundingClientRect(), s = scene.getBoundingClientRect();
-      fx("✨", r.left - s.left + 10, r.top - s.top);
-      var hint = $("playHint"); if (hint) hint.textContent = "Chytené: " + playCaught;
-      remove(); render();
-    });
-    scene.appendChild(t);
-    setTimeout(remove, 2300);
-  }
-  function endPlay() {
-    if (mode !== "play") return;
-    if (playTimer) { clearInterval(playTimer); playTimer = null; }
-    mode = "idle";
-    scene.querySelectorAll(".target").forEach(function (el) { el.remove(); });
-    var hint = $("playHint"); if (hint) hint.remove();
-    var stars = Math.floor(playCaught / 4);
-    say(playCaught >= 10 ? "Hurá! Chytil si " + playCaught + "! Si šampión!" : playCaught > 0 ? "Super hra! Chytil si " + playCaught + "." : "Nabudúce to chytíš!", 4000);
-    if (stars) giveStar(stars); else render();
-    save();
-  }
-
-  // ---------- bath ----------
-  var sponge = null, lastPos = null, bubbleCount = 0;
+  // ================= BATH =================
+  var sponge = null, lastPos = null, bubbleCount = 0, bathStartClean = 0;
   function startBath() {
-    mode = "bath";
+    mode = "bath"; bathStartClean = S.clean;
     sponge = document.createElement("div"); sponge.className = "sponge"; sponge.textContent = "🧽"; sponge.hidden = true;
     scene.appendChild(sponge);
     var hint = document.createElement("div"); hint.className = "hint"; hint.id = "bathHint"; hint.textContent = "Drhni Ježka prstom!";
@@ -665,7 +726,6 @@ body {
     if (done) { say("Som čistučký a voňavý!", 3500); anim("jump"); }
     render(); save();
   }
-  var bathStartClean = 0;
   scene.addEventListener("pointermove", function (e) {
     if (mode !== "bath" || !sponge) return;
     var s = scene.getBoundingClientRect(), x = e.clientX - s.left, y = e.clientY - s.top;
@@ -676,14 +736,9 @@ body {
       var d = Math.hypot(x - lastPos.x, y - lastPos.y);
       if (d > 5) {
         var before = S.clean;
-        S.clean = clamp(S.clean + Math.min(d, 40) * 0.05);
-        S.happy = clamp(S.happy + 0.05);
+        S.clean = clamp(S.clean + Math.min(d, 40) * 0.05); S.happy = clamp(S.happy + 0.05);
         if (++bubbleCount % 4 === 0) { fx("", x + (Math.random() * 40 - 20), y - 10, "bub"); sfx.bub(); }
-        if (before < 100 && S.clean >= 100) {
-          var helped = bathStartClean < 85;
-          if (helped) giveStar();
-          endBath(true);
-        }
+        if (before < 100 && S.clean >= 100) { if (bathStartClean < 85) giveStar(); endBath(true); }
         render();
       }
     }
@@ -691,18 +746,15 @@ body {
   });
   scene.addEventListener("pointerdown", function (e) {
     if (mode !== "bath") return;
-    var s = scene.getBoundingClientRect();
-    lastPos = { x: e.clientX - s.left, y: e.clientY - s.top };
+    var s = scene.getBoundingClientRect(); lastPos = { x: e.clientX - s.left, y: e.clientY - s.top };
   });
   scene.addEventListener("pointerleave", function () { if (sponge) sponge.hidden = true; lastPos = null; });
 
-  // ---------- sleep ----------
+  // ================= SLEEP =================
   var sleepStart = 0;
   function startSleep() {
     if (S.energy > 90) { say("Ešte nie som ospalý!", 2500); sfx.no(); return; }
-    mode = "sleep"; sleepStart = S.energy; sfx.sleep();
-    say("Dobrú noc...", 2500);
-    render();
+    mode = "sleep"; sleepStart = S.energy; sfx.sleep(); say("Dobrú noc...", 2500); render();
   }
   function wake(full) {
     mode = "idle"; sfx.wake();
@@ -711,31 +763,466 @@ body {
     render(); save();
   }
 
-  // ---------- buttons ----------
+  // ================= PANELS =================
+  var panel = null;
+  function openScreen(title) {
+    if (tray) closeTray();
+    closeScreen(true);
+    mode = "screen";
+    var el = document.createElement("section");
+    el.className = "screen";
+    el.innerHTML = '<div class="screen-head"><h2></h2><span class="extra"></span><button type="button" class="pill close">✕ Domov</button></div><div class="screen-body"></div>';
+    scene.appendChild(el);
+    panel = { el: el, body: el.querySelector(".screen-body"), extra: el.querySelector(".extra"), cleanup: null, onClose: null };
+    el.querySelector(".close").addEventListener("click", function () { var f = panel && panel.onClose; closeScreen(); if (f) f(); });
+    setTitle(title);
+    render();
+    return panel;
+  }
+  function setTitle(t) { if (panel) panel.el.querySelector("h2").textContent = t; }
+  function resetBody(flush) {
+    if (panel.cleanup) { panel.cleanup(); panel.cleanup = null; }
+    panel.body.innerHTML = ""; panel.extra.innerHTML = "";
+    panel.body.className = "screen-body" + (flush ? " flush" : "");
+    panel.body.scrollTop = 0;
+  }
+  function closeScreen(silent) {
+    if (!panel) return;
+    if (panel.cleanup) panel.cleanup();
+    panel.el.remove(); panel = null;
+    if (mode === "screen") mode = "idle";
+    if (!silent) { render(); save(); }
+  }
+  function toast(text, hold) {
+    if (!panel) return;
+    var t = panel.body.querySelector(".toast");
+    if (!t) { t = document.createElement("div"); t.className = "toast"; panel.body.appendChild(t); }
+    t.textContent = text; t.hidden = false;
+    t.classList.remove("pop"); void t.offsetWidth; t.classList.add("pop");
+    clearTimeout(t._h);
+    if (hold !== 0) t._h = setTimeout(function () { t.hidden = true; }, hold || 2500);
+  }
+  function extraBtn(label, fn) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "pill"; b.textContent = label;
+    b.addEventListener("click", fn); panel.extra.appendChild(b);
+  }
+  function result(big, text, stars, again, back) {
+    if (stars) giveStar(stars);
+    var r = document.createElement("div"); r.className = "result";
+    r.innerHTML = '<div class="card"><div class="big"></div><p></p><div class="row"></div></div>';
+    r.querySelector(".big").textContent = big;
+    r.querySelector("p").textContent = text + (stars ? "  +" + stars + " ⭐" : "");
+    var row = r.querySelector(".row");
+    [["🔁 Znova", again, "go"], ["🎲 Iné hry", back, ""]].forEach(function (d) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "pill " + d[2]; b.textContent = d[0];
+      b.addEventListener("click", d[1]); row.appendChild(b);
+    });
+    panel.body.appendChild(r);
+    if (stars >= 3) confetti();
+  }
+
+  // ================= SHOP =================
+  var shopSel = null;
+  function openShop() {
+    openScreen("Obchod s oblečením");
+    shopSel = S.wear.head || (ITEMS.filter(function (it) { return S.owned.indexOf(it.id) < 0; })[0] || ITEMS[0]).id;
+    drawShop();
+  }
+  function drawShop() {
+    resetBody(false);
+    var sel = item(shopSel), owned = S.owned.indexOf(sel.id) >= 0, worn = S.wear[sel.slot] === sel.id;
+    var tryWear = Object.assign({}, S.wear); tryWear[sel.slot] = sel.id;
+    var top = document.createElement("div"); top.className = "shop-top";
+    top.innerHTML = '<div class="pv">' + miniHog(tryWear) + '</div><div class="info"><b></b><span></span><div class="row"></div></div>';
+    top.querySelector("b").textContent = sel.name;
+    top.querySelector("span").textContent = owned ? (worn ? "Ježko to má oblečené!" : "Toto už máš.") : "Cena: " + sel.price + " ⭐";
+    var btn = document.createElement("button"); btn.type = "button"; btn.className = "pill go";
+    if (owned) btn.textContent = worn ? "Vyzliecť" : "Obliecť";
+    else if (S.stars >= sel.price) btn.textContent = "Kúpiť za " + sel.price + " ⭐";
+    else { btn.textContent = "Chýba ti " + (sel.price - S.stars) + " ⭐"; btn.disabled = true; }
+    btn.addEventListener("click", function () {
+      if (owned) {
+        if (worn) delete S.wear[sel.slot]; else S.wear[sel.slot] = sel.id;
+        sfx.pet();
+      } else {
+        if (S.stars < sel.price) return;
+        S.stars -= sel.price; S.owned.push(sel.id); S.wear[sel.slot] = sel.id;
+        sfx.buy(); confetti(); bumpStars();
+        S.happy = clamp(S.happy + 15);
+      }
+      save(); render(); drawShop();
+    });
+    top.querySelector(".row").appendChild(btn);
+    panel.body.appendChild(top);
+    Object.keys(SLOTS).forEach(function (slot) {
+      var h = document.createElement("div"); h.className = "slot-title"; h.textContent = SLOTS[slot];
+      var grid = document.createElement("div"); grid.className = "shopgrid";
+      ITEMS.filter(function (it) { return it.slot === slot; }).forEach(function (it) {
+        var have = S.owned.indexOf(it.id) >= 0, w = {}; w[slot] = it.id;
+        var b = document.createElement("button"); b.type = "button";
+        b.className = "item" + (it.id === shopSel ? " sel" : "");
+        b.innerHTML = '<div class="thumb">' + miniHog(w, THUMB_VB[slot]) + '</div><div class="nm"></div><div class="pr' + (have ? " owned" : "") + '"></div>' + (S.wear[slot] === it.id ? '<span class="worn">oblečené</span>' : "");
+        b.querySelector(".nm").textContent = it.name;
+        b.querySelector(".pr").textContent = have ? "✓ máš" : it.price + " ⭐";
+        b.addEventListener("click", function () { shopSel = it.id; sfx.flip(); var y = panel.body.scrollTop; drawShop(); panel.body.scrollTop = y; });
+        grid.appendChild(b);
+      });
+      panel.body.appendChild(h); panel.body.appendChild(grid);
+    });
+  }
+
+  // ================= GAMES MENU =================
+  var GAMES = [
+    { id: "catch", icon: "🦋", name: "Chytačka", desc: "Chytaj lístky a chrobáčiky", run: function () { closeScreen(); startPlay(); } },
+    { id: "memo", icon: "🃏", name: "Pexeso", desc: "Nájdi rovnaké dvojice", run: gameMemo },
+    { id: "apples", icon: "🍎", name: "Jabĺčka", desc: "Chytaj padajúce ovocie", run: gameApples },
+    { id: "shell", icon: "🍂", name: "Kde je Ježko?", desc: "Sleduj, pod ktorou kôpkou je", run: gameShell }
+  ];
+  function openGames() {
+    if (!panel) openScreen("Hry");
+    setTitle("Hry");
+    resetBody(false);
+    var g = document.createElement("div"); g.className = "gamegrid";
+    GAMES.forEach(function (gm) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "gamecard";
+      b.innerHTML = '<span class="ico"></span><b></b><small></small>';
+      b.querySelector(".ico").textContent = gm.icon; b.querySelector("b").textContent = gm.name; b.querySelector("small").textContent = gm.desc;
+      b.addEventListener("click", function () {
+        if (S.energy < 15) { sfx.no(); toast("Ježko je unavený. Najprv spinkať!", 3000); return; }
+        sfx.flip(); S.energy = clamp(S.energy - 5);
+        gm.run();
+      });
+      g.appendChild(b);
+    });
+    panel.body.appendChild(g);
+  }
+
+  // ---- catch (in the main scene) ----
+  var playTimer = null, playCaught = 0, playSpawned = 0;
+  var TARGETS = ["🍂", "🍄", "🐞", "🦋", "🌰", "🍁"];
+  function startPlay() {
+    mode = "play"; playCaught = 0; playSpawned = 0;
+    say("Chyť čo najviac vecí!", 3000);
+    var hint = document.createElement("div"); hint.className = "hint"; hint.id = "playHint"; hint.textContent = "Chytené: 0";
+    scene.appendChild(hint);
+    playTimer = setInterval(spawnTarget, 850); spawnTarget(); render();
+  }
+  function spawnTarget() {
+    if (playSpawned >= 15) { setTimeout(endPlay, 1800); clearInterval(playTimer); playTimer = null; return; }
+    playSpawned++;
+    var t = document.createElement("button");
+    t.type = "button"; t.className = "target"; t.textContent = TARGETS[rnd(TARGETS.length)]; t.setAttribute("aria-label", "Chytiť");
+    var w = scene.clientWidth, h = scene.clientHeight;
+    t.style.left = (10 + Math.random() * (w - 80)) + "px"; t.style.top = (h * 0.18 + Math.random() * h * 0.42) + "px";
+    var gone = false;
+    function remove() { if (gone) return; gone = true; t.classList.add("gone"); setTimeout(function () { t.remove(); }, 300); }
+    t.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (gone || mode !== "play") return;
+      playCaught++; S.happy = clamp(S.happy + 6); S.energy = clamp(S.energy - 1);
+      sfx.pop(); anim("jump");
+      var r = t.getBoundingClientRect(), s = scene.getBoundingClientRect();
+      fx("✨", r.left - s.left + 10, r.top - s.top);
+      var hint = $("playHint"); if (hint) hint.textContent = "Chytené: " + playCaught;
+      remove(); render();
+    });
+    scene.appendChild(t); setTimeout(remove, 2300);
+  }
+  function endPlay() {
+    if (mode !== "play") return;
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    mode = "idle";
+    scene.querySelectorAll(".target").forEach(function (el) { el.remove(); });
+    var hint = $("playHint"); if (hint) hint.remove();
+    var stars = Math.floor(playCaught / 4);
+    say(playCaught >= 10 ? "Hurá! Až " + playCaught + " chytených! Šampión!" : playCaught > 0 ? "Super hra! Chytených: " + playCaught + "." : "Nabudúce to chytíš!", 4000);
+    if (stars) giveStar(stars); else render();
+    save();
+  }
+
+  // ---- pexeso ----
+  function gameMemo() {
+    setTitle("Pexeso"); resetBody(false); extraBtn("🎲 Hry", openGames);
+    var faces = shuffle(["🍄", "🍎", "🌰", "🐞", "🦋", "🍂"]).slice(0, 6);
+    var deck = shuffle(faces.concat(faces)), open = [], moves = 0, done = 0, lock = false;
+    var stat = document.createElement("div"); stat.className = "memo-stat"; stat.textContent = "Ťahy: 0";
+    var grid = document.createElement("div"); grid.className = "memo";
+    deck.forEach(function (f) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = f; b.setAttribute("aria-label", "Kartička");
+      b.addEventListener("click", function () {
+        if (lock || b.classList.contains("open") || b.classList.contains("done")) return;
+        b.classList.add("open"); sfx.flip(); open.push(b);
+        if (open.length < 2) return;
+        moves++; stat.textContent = "Ťahy: " + moves;
+        var a = open[0], c = open[1]; open = [];
+        if (a.textContent === c.textContent) {
+          a.classList.add("done"); c.classList.add("done"); sfx.pop(); done++;
+          S.happy = clamp(S.happy + 3);
+          if (done === faces.length) setTimeout(function () {
+            var stars = moves <= 10 ? 3 : moves <= 14 ? 2 : 1;
+            result("🃏", "Hotovo za " + moves + " ťahov!", stars, gameMemo, openGames);
+          }, 500);
+        } else {
+          lock = true;
+          setTimeout(function () { a.classList.remove("open"); c.classList.remove("open"); lock = false; }, 900);
+        }
+      });
+      grid.appendChild(b);
+    });
+    panel.body.appendChild(stat); panel.body.appendChild(grid);
+  }
+
+  // ---- falling apples ----
+  function gameApples() {
+    setTitle("Jabĺčka"); resetBody(true); extraBtn("🎲 Hry", openGames);
+    var arena = document.createElement("div"); arena.className = "arena";
+    arena.innerHTML = '<div class="gstat">⏱ <b class="t">30</b> · 🍎 <b class="s">0</b></div><div class="arena-hog">' + miniHog() + '</div>';
+    panel.body.appendChild(arena);
+    var hogEl = arena.querySelector(".arena-hog"), tEl = arena.querySelector(".t"), sEl = arena.querySelector(".s");
+    var W = arena.clientWidth, H = arena.clientHeight, hx = W / 2, target = W / 2, score = 0, time = 30, items = [], alive = true, last = performance.now(), spawnIn = 0;
+    toast("Posúvaj Ježka prstom!", 2500);
+    function aim(e) { var r = arena.getBoundingClientRect(); target = Math.max(40, Math.min(W - 40, e.clientX - r.left)); }
+    arena.addEventListener("pointerdown", aim); arena.addEventListener("pointermove", aim);
+    var KINDS = ["🍎", "🍎", "🍐", "🍓", "🍎", "🪨"];
+    function loop(now) {
+      if (!alive) return;
+      var dt = Math.min(0.05, (now - last) / 1000); last = now;
+      W = arena.clientWidth; H = arena.clientHeight;
+      hx += (target - hx) * Math.min(1, dt * 12);
+      hogEl.style.left = hx + "px";
+      spawnIn -= dt;
+      if (spawnIn <= 0) {
+        spawnIn = Math.max(0.45, 0.95 - (30 - time) * 0.015);
+        var el = document.createElement("div"); el.className = "faller";
+        var k = KINDS[rnd(KINDS.length)]; el.textContent = k; arena.appendChild(el);
+        items.push({ el: el, x: 24 + Math.random() * (W - 48), y: -20, v: 110 + Math.random() * 60 + (30 - time) * 4, rock: k === "🪨" });
+      }
+      var hogTop = H - 60;
+      items = items.filter(function (it) {
+        it.y += it.v * dt;
+        it.el.style.left = it.x + "px"; it.el.style.top = it.y + "px";
+        if (it.y > hogTop && it.y < H - 10 && Math.abs(it.x - hx) < 48) {
+          it.el.remove();
+          if (it.rock) { score = Math.max(0, score - 1); sfx.no(); hogEl.classList.remove("hit"); void hogEl.offsetWidth; hogEl.classList.add("hit"); toast("Au! Kamienok!", 1200); }
+          else { score++; sfx.pop(); S.happy = clamp(S.happy + 1.5); }
+          sEl.textContent = score;
+          return false;
+        }
+        if (it.y > H + 30) { it.el.remove(); return false; }
+        return true;
+      });
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    var timer = setInterval(function () {
+      time--; tEl.textContent = time;
+      if (time <= 0) {
+        stop();
+        result("🍎", "Chytené ovocie: " + score + "!", Math.min(5, Math.floor(score / 6)), gameApples, openGames);
+      }
+    }, 1000);
+    function stop() { alive = false; clearInterval(timer); items.forEach(function (it) { it.el.remove(); }); items = []; }
+    panel.cleanup = stop;
+  }
+
+  // ---- shell game ----
+  function gameShell() {
+    setTitle("Kde je Ježko?"); resetBody(true); extraBtn("🎲 Hry", openGames);
+    var arena = document.createElement("div"); arena.className = "arena";
+    arena.innerHTML = '<div class="gstat">Kolo <b class="r">1</b>/3 · ✓ <b class="c">0</b></div><div class="shell-msg"></div>';
+    panel.body.appendChild(arena);
+    var msg = arena.querySelector(".shell-msg"), alive = true, correct = 0, round = 0, picking = false;
+    var SLOT_X = [18, 50, 82], leafs = ["🍂", "🍁", "🍂"];
+    var mounds = [0, 1, 2].map(function (i) {
+      var m = document.createElement("div"); m.className = "mound"; m.style.left = SLOT_X[i] + "%";
+      m.innerHTML = '<div class="mhog" hidden>' + miniHog() + '</div><button type="button" class="cover" aria-label="Kôpka lístia">' + leafs[i] + '</button>';
+      arena.appendChild(m);
+      var o = { el: m, slot: i, has: false };
+      m.querySelector(".cover").addEventListener("click", function () { pick(o); });
+      return o;
+    });
+    async function playRound() {
+      round++; arena.querySelector(".r").textContent = round;
+      var who = rnd(3);
+      mounds.forEach(function (m, i) { m.has = i === who; m.el.querySelector(".mhog").hidden = !m.has; m.el.classList.remove("up"); });
+      msg.textContent = "Pozri, tu som!";
+      await wait(400); if (!alive) return;
+      mounds[who].el.classList.add("up"); sfx.pet();
+      await wait(1300); if (!alive) return;
+      mounds[who].el.classList.remove("up");
+      await wait(500); if (!alive) return;
+      msg.textContent = "Miešam...";
+      var speed = [560, 420, 320][round - 1], swaps = 3 + round * 2;
+      mounds.forEach(function (m) { m.el.style.transitionDuration = speed + "ms"; });
+      for (var s = 0; s < swaps; s++) {
+        var a = mounds[rnd(3)], b; do { b = mounds[rnd(3)]; } while (b === a);
+        var t = a.slot; a.slot = b.slot; b.slot = t;
+        a.el.style.left = SLOT_X[a.slot] + "%"; b.el.style.left = SLOT_X[b.slot] + "%";
+        sfx.flip();
+        await wait(speed + 60); if (!alive) return;
+      }
+      msg.textContent = "Kde je Ježko? Ťukni!"; picking = true;
+    }
+    async function pick(o) {
+      if (!picking) return;
+      picking = false;
+      o.el.classList.add("up");
+      if (o.has) { correct++; arena.querySelector(".c").textContent = correct; msg.textContent = "Tu som! Hurá!"; sfx.star(); S.happy = clamp(S.happy + 5); }
+      else { msg.textContent = "Tu nie som... Som tamto!"; sfx.no(); mounds.forEach(function (m) { if (m.has) m.el.classList.add("up"); }); }
+      await wait(1600); if (!alive) return;
+      if (round < 3) playRound();
+      else result("🦔", correct === 3 ? "Všetky 3 správne!" : "Správne: " + correct + " z 3.", correct, gameShell, openGames);
+    }
+    panel.cleanup = function () { alive = false; };
+    playRound();
+  }
+
+  // ================= TRIPS =================
+  function openMap() {
+    if (!panel) openScreen("Výlet");
+    setTitle("Výlet: kam pôjdeme?"); resetBody(true);
+    var map = document.createElement("div"); map.className = "map";
+    var pts = PLACES.map(function (p) { return p.x + "," + p.y; }).join(" ");
+    map.innerHTML = '<svg class="path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="#fffaf0" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="' + pts + '" fill="none" stroke="#c99a63" stroke-width="1.6" stroke-dasharray="2 2.2" stroke-linecap="round"/></svg>';
+    var lastPlace = PLACES[0];
+    PLACES.forEach(function (p, i) {
+      var open = placeUnlocked(i);
+      if (open && S.visited[p.id]) lastPlace = p;
+      var b = document.createElement("button"); b.type = "button"; b.className = "node" + (open ? "" : " locked");
+      b.style.left = p.x + "%"; b.style.top = p.y + "%";
+      b.innerHTML = '<span class="dot"></span><span class="nm"></span>' + (open ? '<span class="cnt">' + placeCount(p) + "/5</span>" : "");
+      b.querySelector(".dot").textContent = open ? p.icon : "🔒";
+      b.querySelector(".nm").textContent = p.name;
+      b.addEventListener("click", function () {
+        if (!open) { sfx.no(); toast("Najprv nájdi 2 veci v mieste " + PLACES[i - 1].name + ".", 3000); return; }
+        if (S.energy < 25) { sfx.no(); toast("Ježko je unavený. Najprv spinkať! 🌙", 3000); return; }
+        if (S.hunger < 25) { sfx.no(); toast("Ježko je hladný. Najprv papať! 🍎", 3000); return; }
+        sfx.step();
+        var mh = map.querySelector(".map-hog"); mh.style.left = p.x + "%"; mh.style.top = p.y + "%";
+        setTimeout(function () { if (panel) openPlace(p); }, 650);
+      });
+      map.appendChild(b);
+    });
+    var mh = document.createElement("div"); mh.className = "map-hog"; mh.innerHTML = miniHog();
+    mh.style.left = lastPlace.x + "%"; mh.style.top = lastPlace.y + "%";
+    map.appendChild(mh);
+    panel.body.appendChild(map);
+    toast(S.energy < 25 ? "Ježko je unavený, najprv spinkať." : S.hunger < 25 ? "Ježko je hladný, najprv papať." : "Ťukni na miesto, kam pôjdeme!", 3000);
+    panel.onClose = function () { say("To bol super výlet!", 3000); anim("jump"); };
+  }
+
+  function openPlace(p) {
+    setTitle(p.icon + " " + p.name); resetBody(true); extraBtn("🗺️ Mapa", openMap);
+    S.energy = clamp(S.energy - 12); S.hunger = clamp(S.hunger - 8); S.happy = clamp(S.happy + 8);
+    S.visited[p.id] = true; save(); render();
+    var place = document.createElement("div"); place.className = "place"; place.style.background = p.bg;
+    var cnt = document.createElement("div"); cnt.className = "gstat"; place.appendChild(cnt);
+    function updCount() { cnt.textContent = "Nálezy " + placeCount(p) + "/5"; }
+    updCount();
+    // 8 hiding spots: up to 3 finds (new ones first), 1 snack, the rest empty
+    var unfound = [], found = [];
+    for (var i = 0; i < 5; i++) (S.finds[findId(p, i)] ? found : unfound).push(i);
+    var picks = shuffle(unfound).concat(shuffle(found)).slice(0, 3);
+    var contents = picks.map(function (i) { return { find: i }; }).concat([{ snack: true }, {}, {}, {}, {}]);
+    contents = shuffle(contents);
+    var walker = document.createElement("div"); walker.className = "walker"; walker.style.left = "50%";
+    walker.innerHTML = '<div class="flip">' + miniHog() + '</div>';
+    var wx = 50, busy = false, left = 8;
+    var cols = [13, 38, 62, 87], rows = [34, 60];
+    contents.forEach(function (c, idx) {
+      var x = cols[idx % 4] + (Math.random() * 8 - 4), y = rows[Math.floor(idx / 4)] + (Math.random() * 8 - 4);
+      var b = document.createElement("button"); b.type = "button"; b.className = "spot";
+      b.textContent = p.covers[idx % p.covers.length]; b.setAttribute("aria-label", "Hľadať tu");
+      b.style.left = x + "%"; b.style.top = y + "%";
+      b.addEventListener("click", function () {
+        if (busy || b.classList.contains("searched")) return;
+        busy = true;
+        walker.classList.toggle("left", x < wx); wx = x;
+        walker.style.left = x + "%";
+        walker.classList.remove("step"); void walker.offsetWidth; walker.classList.add("step");
+        sfx.step();
+        setTimeout(function () {
+          if (!panel) return;
+          b.classList.add("shake");
+          setTimeout(function () {
+            if (!panel) return;
+            b.classList.remove("shake"); b.classList.add("searched"); busy = false; left--;
+            var pop = document.createElement("div"); pop.className = "found"; pop.style.left = x + "%"; pop.style.top = (y - 8) + "%";
+            if (c.find !== undefined) {
+              var f = p.finds[c.find], id = findId(p, c.find);
+              pop.textContent = f[0];
+              if (!S.finds[id]) {
+                S.finds[id] = true; updCount();
+                toast("Nový nález: " + f[1] + "! Ide do zbierky 📒", 3000);
+                giveStar(1);
+                if (placeCount(p) === 5) setTimeout(function () { toast("Máš celú zbierku z miesta " + p.name + "! +3 ⭐", 4000); confetti(); giveStar(3); }, 1200);
+                var nextI = PLACES.indexOf(p) + 1;
+                if (placeCount(p) === 2 && PLACES[nextI]) setTimeout(function () { toast("Na mape sa otvorilo nové miesto: " + PLACES[nextI].name + "!", 3500); }, 1400);
+              } else { toast(f[1] + " – ten už máme v zbierke.", 2200); sfx.pop(); }
+            } else if (c.snack) {
+              pop.textContent = "🍎"; S.hunger = clamp(S.hunger + 10); sfx.eat();
+              toast("Ježko našiel jabĺčko a zjedol ho! Mňam!", 2500);
+            } else {
+              pop.textContent = "💨"; toast(["Nič tu nie je.", "Tu je len lístie.", "Prázdno! Skús inde."][rnd(3)], 1800);
+            }
+            place.appendChild(pop); setTimeout(function () { pop.remove(); }, 1700);
+            render(); save();
+            if (left === 0) setTimeout(function () { if (panel) toast("Všetko sme prehľadali! Choď na 🗺️ Mapu.", 0); }, 2000);
+          }, 800);
+        }, 650);
+      });
+      place.appendChild(b);
+    });
+    place.appendChild(walker);
+    panel.body.appendChild(place);
+    toast("Ťukaj na kríky a kamene a hľadaj poklady!", 3000);
+  }
+
+  // ================= ALBUM =================
+  function openAlbum() {
+    openScreen("Zbierka " + totalFinds() + "/" + PLACES.length * 5);
+    resetBody(false);
+    PLACES.forEach(function (p, pi) {
+      var sec = document.createElement("div"); sec.className = "album-sec";
+      sec.innerHTML = "<h3></h3>";
+      sec.querySelector("h3").innerHTML = '<span></span><small></small>';
+      sec.querySelector("h3 span").textContent = p.icon + " " + p.name;
+      sec.querySelector("h3 small").textContent = placeUnlocked(pi) ? placeCount(p) + "/5" : "🔒 zatiaľ zamknuté";
+      var g = document.createElement("div"); g.className = "stickers";
+      p.finds.forEach(function (f, i) {
+        var got = !!S.finds[findId(p, i)];
+        var d = document.createElement("div"); d.className = "sticker" + (got ? " got" : "");
+        d.innerHTML = '<span class="e"></span><span class="n"></span>';
+        d.querySelector(".e").textContent = f[0]; d.querySelector(".n").textContent = got ? f[1] : "?";
+        g.appendChild(d);
+      });
+      sec.appendChild(g); panel.body.appendChild(sec);
+    });
+  }
+
+  // ================= BUTTONS =================
   $("btnFeed").addEventListener("click", function () { if (mode === "feed") closeTray(); else if (mode === "idle") openTray(); });
   $("btnPlay").addEventListener("click", function () {
     if (mode === "feed") closeTray();
-    if (mode === "play") endPlay(); else if (mode === "idle") startPlay();
+    if (mode === "play") endPlay(); else if (mode === "idle") openGames();
   });
   $("btnBath").addEventListener("click", function () {
     if (mode === "feed") closeTray();
-    if (mode === "bath") endBath(false); else if (mode === "idle") { bathStartClean = S.clean; startBath(); }
+    if (mode === "bath") endBath(false); else if (mode === "idle") startBath();
   });
   $("btnSleep").addEventListener("click", function () {
     if (mode === "feed") closeTray();
     if (mode === "sleep") wake(false); else if (mode === "idle") startSleep();
   });
-  $("soundBtn").addEventListener("click", function () { S.sound = !S.sound; render(); save(); if (S.sound) sfx.pet(); });
-  $("wardrobeBtn").addEventListener("click", function () {
-    var owned = ACCS.filter(function (a) { return S.stars >= a.need; });
-    if (!owned.length) { say("Zbieraj hviezdičky a dostanem oblečenie!", 3000); return; }
-    var ids = [""].concat(owned.map(function (a) { return a.id; }));
-    S.acc = ids[(ids.indexOf(S.acc) + 1) % ids.length];
-    anim("wiggle"); sfx.pet(); render(); save();
+  $("btnTrip").addEventListener("click", function () {
+    if (mode === "feed") closeTray();
+    if (mode === "idle") openMap();
   });
+  $("shopBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openShop(); });
+  $("albumBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openAlbum(); });
+  $("soundBtn").addEventListener("click", function () { S.sound = !S.sound; render(); save(); if (S.sound) sfx.pet(); });
 
-  // ---------- start ----------
-  if (S.sleeping) S.sleeping = false;
   render();
   setTimeout(function () { say("Ahoj! Ja som Ježko! Postaráš sa o mňa?", 4000); }, 300);
 })();
