@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ježko</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: one-screen app — status meters on top, forest meadow scene in the middle, four big care buttons at the bottom. Single deliberate daylight-meadow look (night is an in-game state). */
+:root {
+  --sky-top: #bfe6f5;
+  --sky-bottom: #eaf7e4;
+  --night-top: #1d2a4d;
+  --night-bottom: #3c4f7a;
+  --grass: #7cbf5a;
+  --grass-dark: #5a9e3e;
+  --ink: #3a2618;
+  --paper: #fffaf0;
+  --bark: #8a5a3b;
+  --berry: #e2504c;
+  --sun: #ffc83d;
+  --leaf: #4f9a3a;
+  --soft: #f3e6cf;
+  --font: "Baloo 2", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--sky-bottom);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+/* ---------- top bar ---------- */
+.top { display: grid; gap: 8px; }
+.titlebar { display: flex; align-items: center; gap: 8px; }
+.titlebar h1 {
+  margin: 0; font-size: 1.9rem; font-weight: 800; line-height: 1;
+  color: var(--bark); letter-spacing: .5px; flex: 1;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--paper); border: 3px solid var(--bark); border-radius: 999px;
+  padding: 2px 12px; font-weight: 800; font-size: 1.05rem; color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.iconbtn {
+  font: inherit; font-size: 1.3rem; width: 44px; height: 44px; border-radius: 50%;
+  border: 3px solid var(--bark); background: var(--paper); cursor: pointer; padding: 0;
+  display: grid; place-items: center;
+}
+.iconbtn:focus-visible, .act:focus-visible, .food:focus-visible { outline: 4px solid var(--sun); outline-offset: 2px; }
+.meters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.meter {
+  background: var(--paper); border: 3px solid var(--bark); border-radius: 14px;
+  padding: 4px 8px 6px; display: grid; gap: 2px; min-width: 0;
+}
+.meter .lbl { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: .9rem; white-space: nowrap; overflow: hidden; }
+.meter .lbl b { font-size: 1.1rem; }
+.bar { height: 12px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 50%; border-radius: 99px; background: var(--leaf); transition: width .4s, background-color .4s; }
+.bar i.mid { background: var(--sun); }
+.bar i.low { background: var(--berry); animation: blinkbar 1s infinite; }
+@keyframes blinkbar { 50% { opacity: .45; } }
+.progress { font-size: .95rem; font-weight: 700; text-align: center; color: var(--bark); }
+
+/* ---------- scene ---------- */
+.scene {
+  position: relative; border-radius: 24px; overflow: hidden; min-height: 0;
+  background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%);
+  border: 4px solid var(--bark);
+  transition: background .8s;
+  touch-action: none;
+}
+.scene.night { background: linear-gradient(var(--night-top), var(--night-bottom) 75%); }
+.scene .sun, .scene .moon { position: absolute; top: 14px; right: 18px; width: 54px; height: 54px; border-radius: 50%; transition: opacity .8s, transform .8s; }
+.scene .sun { background: var(--sun); box-shadow: 0 0 0 10px rgba(255,200,61,.3); }
+.scene .moon { background: var(--paper); box-shadow: inset -12px -4px 0 0 #d9d2bd; opacity: 0; transform: translateY(20px); }
+.scene.night .sun { opacity: 0; transform: translateY(20px); }
+.scene.night .moon { opacity: 1; transform: none; }
+.stars-sky { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
+.scene.night .stars-sky { opacity: 1; }
+.stars-sky span { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--paper); animation: twinkle 2s infinite alternate; }
+@keyframes twinkle { to { opacity: .2; } }
+.ground { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; }
+.ground svg { width: 100%; height: 100%; display: block; }
+.night-veil { position: absolute; inset: 0; background: #0b1230; opacity: 0; pointer-events: none; transition: opacity .8s; }
+.scene.night .night-veil { opacity: .28; }
+
+.hogwrap {
+  position: absolute; left: 50%; bottom: 8%; width: min(78%, 420px); transform: translateX(-50%);
+  aspect-ratio: 340 / 260; max-width: 100%; cursor: pointer;
+}
+.hogwrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+#hog { transform-origin: 160px 240px; animation: breathe 3s ease-in-out infinite; }
+#hog.jump { animation: jump .55s ease-out; }
+#hog.wiggle { animation: wiggle .5s ease-in-out; }
+#hog.chew { animation: chew .25s ease-in-out 4; }
+.night #hog { animation: breathe 4.5s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.015, 1.035); } }
+@keyframes jump { 40% { transform: translateY(-34px) scale(.98,1.04); } 75% { transform: translateY(0) scale(1.05,.95); } }
+@keyframes wiggle { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes chew { 50% { transform: scale(1.02, .97); } }
+#eyesClosed { display: none; }
+.sleepy #eyesOpen, .blink #eyesOpen { display: none; }
+.sleepy #eyesClosed, .blink #eyesClosed { display: inline; }
+#mouthOpen { display: none; }
+.eating #mouthOpen { display: inline; }
+.eating #mouth { display: none; }
+
+.bubble {
+  position: absolute; left: 50%; top: 6%; transform: translateX(-50%);
+  background: var(--paper); border: 3px solid var(--bark); border-radius: 20px;
+  padding: 6px 16px; font-weight: 800; font-size: 1.25rem; white-space: nowrap; max-width: 90%;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: opacity .3s;
+}
+.bubble::after {
+  content: ""; position: absolute; left: 50%; bottom: -12px; width: 18px; height: 18px;
+  background: var(--paper); border-right: 3px solid var(--bark); border-bottom: 3px solid var(--bark);
+  transform: translateX(-50%) rotate(45deg);
+}
+.bubble.pop { animation: popin .35s ease-out; }
+@keyframes popin { from { transform: translateX(-50%) scale(.6); } }
+
+.fx { position: absolute; pointer-events: none; font-size: 2rem; animation: floatup 1.4s ease-out forwards; z-index: 5; }
+@keyframes floatup { to { transform: translateY(-110px) scale(1.3); opacity: 0; } }
+.fx.bub { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ffffff; background: rgba(190,230,255,.55); font-size: 0; }
+
+.target {
+  position: absolute; font-size: 2.6rem; border: 0; background: none; cursor: pointer; padding: 6px;
+  animation: appear .3s ease-out; z-index: 6; line-height: 1;
+}
+@keyframes appear { from { transform: scale(0); } }
+.target.gone { animation: vanish .3s forwards; }
+@keyframes vanish { to { transform: scale(0); opacity: 0; } }
+.sponge { position: absolute; font-size: 2.6rem; pointer-events: none; z-index: 7; transform: translate(-50%, -50%); }
+
+.hint {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  background: var(--paper); border: 3px solid var(--bark); border-radius: 999px;
+  padding: 4px 14px; font-weight: 800; font-size: 1.05rem; white-space: nowrap; z-index: 8;
+}
+
+.foodtray {
+  position: absolute; left: 50%; top: calc(6% + 64px); transform: translateX(-50%);
+  display: flex; gap: 8px; background: var(--paper); border: 3px solid var(--bark); border-radius: 22px;
+  padding: 8px; z-index: 8; animation: popup .25s ease-out;
+}
+@keyframes popup { from { transform: translate(-50%, -20px); opacity: 0; } }
+.food {
+  font: inherit; display: grid; justify-items: center; gap: 0; border: 3px solid var(--soft);
+  background: #ffffff; border-radius: 16px; padding: 4px 10px; cursor: pointer; font-weight: 700; font-size: .85rem; color: var(--ink);
+}
+.food span { font-size: 2.2rem; line-height: 1.1; }
+.flying { position: absolute; font-size: 2.4rem; z-index: 9; pointer-events: none; transition: left .6s ease-in, top .6s cubic-bezier(.3,-0.6,.7,1), transform .6s; }
+
+.confetti { position: absolute; width: 10px; height: 14px; top: -20px; z-index: 10; pointer-events: none; animation: fall 2.4s linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+/* ---------- actions ---------- */
+.actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.act {
+  font: inherit; font-weight: 800; font-size: 1.05rem; color: var(--ink);
+  border: 4px solid var(--bark); border-radius: 20px; background: var(--paper);
+  padding: 8px 4px 6px; display: grid; justify-items: center; gap: 0; cursor: pointer;
+  box-shadow: 0 5px 0 var(--bark); transition: transform .08s, box-shadow .08s;
+  min-width: 0;
+}
+.act span { font-size: 2.2rem; line-height: 1.15; }
+.act:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--bark); }
+.act[aria-pressed="true"] { background: var(--sun); }
+.act:disabled { opacity: .45; cursor: default; }
+.act.need { animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 0%, 70%, 100% { transform: none; } 80% { transform: rotate(-4deg); } 90% { transform: rotate(4deg); } }
+
+@media (max-width: 420px) {
+  .titlebar h1 { font-size: 1.6rem; }
+  .meters { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .act { font-size: .9rem; border-radius: 16px; }
+  .act span { font-size: 1.9rem; }
+  .bubble { font-size: 1.05rem; }
+}
+@media (max-height: 560px) {
+  .progress { display: none; }
+  .act span { font-size: 1.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="titlebar">
+      <h1>Ježko</h1>
+      <span class="chip" title="Hviezdičky">⭐ <span id="starCount">0</span></span>
+      <button class="iconbtn" id="wardrobeBtn" type="button" aria-label="Prezliecť Ježka" title="Šatník">🎀</button>
+      <button class="iconbtn" id="soundBtn" type="button" aria-label="Zvuk zapnutý" title="Zvuk">🔊</button>
+    </div>
+    <div class="meters">
+      <div class="meter"><div class="lbl"><b>🍎</b>Bruško</div><div class="bar"><i id="m-hunger"></i></div></div>
+      <div class="meter"><div class="lbl"><b>💛</b>Radosť</div><div class="bar"><i id="m-happy"></i></div></div>
+      <div class="meter"><div class="lbl"><b>⚡</b>Energia</div><div class="bar"><i id="m-energy"></i></div></div>
+      <div class="meter"><div class="lbl"><b>🫧</b>Čistota</div><div class="bar"><i id="m-clean"></i></div></div>
+    </div>
+    <div class="progress" id="progress">Ešte 10 ⭐ a Ježko dostane mašľu!</div>
+  </header>
+
+  <main class="scene" id="scene">
+    <div class="stars-sky" id="skyStars"></div>
+    <div class="sun"></div>
+    <div class="moon"></div>
+    <div class="ground">
+      <svg viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 30 Q100 0 200 22 T400 18 V100 H0 Z" fill="#5a9e3e"/>
+        <path d="M0 45 Q120 20 230 40 T400 36 V100 H0 Z" fill="#7cbf5a"/>
+        <g fill="#ffffff"><circle cx="40" cy="62" r="3"/><circle cx="330" cy="70" r="3"/><circle cx="270" cy="85" r="2.5"/></g>
+        <g fill="#ffc83d"><circle cx="40" cy="62" r="1.2"/><circle cx="330" cy="70" r="1.2"/><circle cx="270" cy="85" r="1"/></g>
+        <g fill="#e2504c"><circle cx="90" cy="80" r="3"/><circle cx="360" cy="54" r="2.6"/></g>
+      </svg>
+    </div>
+    <div class="hogwrap" id="hogwrap" role="button" tabindex="0" aria-label="Pohladkať Ježka">
+      <svg viewBox="0 0 340 260" id="hogsvg" aria-hidden="true"></svg>
+    </div>
+    <div class="night-veil"></div>
+    <div class="bubble" id="bubble">Ahoj! Ja som Ježko!</div>
+  </main>
+
+  <nav class="actions">
+    <button class="act" id="btnFeed" type="button"><span>🍎</span>Papať</button>
+    <button class="act" id="btnPlay" type="button"><span>⚽</span>Hrať sa</button>
+    <button class="act" id="btnBath" type="button"><span>🛁</span>Kúpať</button>
+    <button class="act" id="btnSleep" type="button"><span>🌙</span>Spinkať</button>
+  </nav>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var scene = $("scene"), hogwrap = $("hogwrap"), svg = $("hogsvg"), bubble = $("bubble");
+  var KEY = "jezko-save-v1";
+
+  // ---------- state ----------
+  var ACCS = [
+    { id: "bow", name: "mašľu", need: 10, icon: "🎀" },
+    { id: "hat", name: "klobúčik", need: 25, icon: "🎩" },
+    { id: "crown", name: "korunku", need: 50, icon: "👑" }
+  ];
+  function fresh() {
+    return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 0, acc: "", sleeping: false, sound: true, last: Date.now() };
+  }
+  var S = fresh();
+  function load(data) {
+    if (data && typeof data.hunger === "number") { S = Object.assign(fresh(), data); return true; }
+    return false;
+  }
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) load(JSON.parse(raw));
+  } catch (e) {}
+  if (window.claude && window.claude.hot && window.claude.hot.data) load(window.claude.hot.data.S);
+
+  // Time away: needs drop slowly, but Ježko is never left in a bad state.
+  (function catchUp() {
+    var away = Math.max(0, (Date.now() - (S.last || Date.now())) / 1000);
+    if (away > 30) {
+      var k = Math.min(away, 6 * 3600) * 0.02;
+      S.hunger = Math.max(25, S.hunger - k);
+      S.happy = Math.max(25, S.happy - k * 0.8);
+      S.clean = Math.max(25, S.clean - k * 0.6);
+      S.energy = S.sleeping ? 100 : Math.max(30, S.energy - k * 0.5);
+      if (S.sleeping) S.sleeping = false;
+    }
+  })();
+
+  function save() {
+    S.last = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+    try { window.claude.hot.snapshot(function () { return { S: S }; }); } catch (e) {}
+  }
+  function clamp(v) { return Math.max(0, Math.min(100, v)); }
+
+  // ---------- sound ----------
+  var actx = null;
+  function tone(freq, dur, type, delay, vol) {
+    if (!S.sound) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var t = actx.currentTime + (delay || 0);
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || "sine"; o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol || 0.15, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+  var sfx = {
+    pet: function () { tone(660, .12, "sine", 0); tone(880, .15, "sine", .1); },
+    eat: function () { for (var i = 0; i < 4; i++) tone(180 + i * 20, .07, "square", i * .14, .06); },
+    pop: function () { tone(520 + Math.random() * 300, .1, "triangle"); },
+    bub: function () { tone(900 + Math.random() * 600, .05, "sine", 0, .05); },
+    star: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, .18, "triangle", i * .09, .12); }); },
+    sleep: function () { tone(392, .4, "sine", 0, .1); tone(330, .5, "sine", .35, .1); },
+    wake: function () { tone(330, .2, "sine", 0, .1); tone(523, .3, "sine", .18, .1); },
+    no: function () { tone(220, .15, "sawtooth", 0, .05); tone(180, .2, "sawtooth", .12, .05); }
+  };
+
+  // ---------- draw Ježko ----------
+  function ell(cx, cy, rx, ry, a) { return [cx + rx * Math.cos(a), cy - ry * Math.sin(a)]; }
+  function spikes() {
+    var cx = 160, cy = 168, rx = 112, ry = 80, a0 = 200 * Math.PI / 180, a1 = 28 * Math.PI / 180, n = 24;
+    var p = ell(cx, cy, rx, ry, a0), d = "M" + p[0].toFixed(1) + " " + p[1].toFixed(1);
+    for (var k = 0; k < n; k++) {
+      var am = a0 + (a1 - a0) * (k + 0.5) / n, ae = a0 + (a1 - a0) * (k + 1) / n;
+      var r = k % 2 ? 1.27 : 1.36;
+      var t = ell(cx, cy, rx * r, ry * r, am), e = ell(cx, cy, rx, ry, ae);
+      d += " L" + t[0].toFixed(1) + " " + t[1].toFixed(1) + " L" + e[0].toFixed(1) + " " + e[1].toFixed(1);
+    }
+    return d + " L160 215 Z";
+  }
+  function texture() {
+    var out = "", seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    for (var i = 0; i < 34; i++) {
+      var a = (40 + rnd() * 140) * Math.PI / 180, r = 0.35 + rnd() * 0.55;
+      var p = ell(150, 168, 100 * r, 70 * r, a);
+      if (p[0] > 205 && p[1] > 140) continue;
+      out += '<path d="M' + p[0].toFixed(1) + " " + p[1].toFixed(1) + " l-7 -9" + '"/>';
+    }
+    return out;
+  }
+  svg.innerHTML =
+    '<g id="hog">' +
+      '<g fill="#5e3b24">' +
+        '<ellipse cx="108" cy="234" rx="17" ry="10"/><ellipse cx="148" cy="240" rx="17" ry="10"/>' +
+        '<ellipse cx="200" cy="240" rx="17" ry="10"/><ellipse cx="236" cy="234" rx="16" ry="10"/>' +
+      '</g>' +
+      '<path d="' + spikes() + '" fill="#5b3a24" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
+      '<ellipse cx="158" cy="170" rx="104" ry="72" fill="#8a5a3b"/>' +
+      '<g stroke="#6b4329" stroke-width="4" stroke-linecap="round" fill="none">' + texture() + '</g>' +
+      '<ellipse cx="168" cy="210" rx="82" ry="28" fill="#e8c9a0"/>' +
+      '<ellipse cx="236" cy="178" rx="58" ry="47" fill="#f0d3a8"/>' +
+      '<ellipse cx="284" cy="188" rx="30" ry="19" fill="#f0d3a8" transform="rotate(8 284 188)"/>' +
+      '<circle cx="214" cy="134" r="14" fill="#e8c9a0"/><circle cx="214" cy="134" r="7" fill="#d99a8a"/>' +
+      '<circle cx="309" cy="185" r="11" fill="#2b1a12"/><circle cx="305" cy="181" r="3.5" fill="#ffffff"/>' +
+      '<g id="eyesOpen"><circle cx="250" cy="160" r="10" fill="#2b1a12"/><circle cx="253.5" cy="156.5" r="3.5" fill="#ffffff"/></g>' +
+      '<path id="eyesClosed" d="M240 162 Q250 171 260 162" stroke="#2b1a12" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="262" cy="190" rx="11" ry="7" fill="#f2a2a2" opacity=".75"/>' +
+      '<path id="mouth" d="M272 203 Q283 213 294 203" stroke="#2b1a12" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<ellipse id="mouthOpen" cx="284" cy="205" rx="8" ry="7" fill="#7a2e2a" stroke="#2b1a12" stroke-width="3"/>' +
+      '<g id="dirt" fill="#6d5532">' +
+        '<ellipse cx="120" cy="150" rx="13" ry="8"/><ellipse cx="178" cy="118" rx="10" ry="6"/>' +
+        '<ellipse cx="236" cy="200" rx="9" ry="6"/><ellipse cx="140" cy="205" rx="12" ry="6"/>' +
+        '<ellipse cx="86" cy="182" rx="9" ry="6"/><circle cx="270" cy="168" r="4"/>' +
+      '</g>' +
+      '<g id="acc-bow" display="none" transform="translate(196 104)">' +
+        '<path d="M0 10 L-24 -6 L-22 24 Z M0 10 L24 -6 L22 24 Z" fill="#e2504c" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
+        '<circle cx="0" cy="10" r="7" fill="#ff7a72" stroke="#3a2618" stroke-width="3"/>' +
+      '</g>' +
+      '<g id="acc-hat" display="none" transform="translate(222 96) rotate(12)">' +
+        '<rect x="-34" y="18" width="68" height="10" rx="5" fill="#2f3a6b" stroke="#3a2618" stroke-width="3"/>' +
+        '<rect x="-22" y="-26" width="44" height="46" rx="6" fill="#2f3a6b" stroke="#3a2618" stroke-width="3"/>' +
+        '<rect x="-22" y="6" width="44" height="9" fill="#ffc83d"/>' +
+      '</g>' +
+      '<g id="acc-crown" display="none" transform="translate(222 98) rotate(10)">' +
+        '<path d="M-30 22 L-30 -8 L-16 6 L0 -18 L16 6 L30 -8 L30 22 Z" fill="#ffc83d" stroke="#3a2618" stroke-width="3" stroke-linejoin="round"/>' +
+        '<circle cx="0" cy="8" r="5" fill="#e2504c"/><circle cx="-18" cy="12" r="3.5" fill="#4f9a3a"/><circle cx="18" cy="12" r="3.5" fill="#4f9a3a"/>' +
+      '</g>' +
+    '</g>';
+  var hog = $("hog"), dirt = $("dirt"), mouth = $("mouth");
+
+  // night sky stars
+  (function () {
+    var html = "";
+    for (var i = 0; i < 22; i++) html += '<span style="left:' + (Math.random() * 96) + "%;top:" + (Math.random() * 55) + "%;animation-delay:" + (Math.random() * 2) + 's"></span>';
+    $("skyStars").innerHTML = html;
+  })();
+
+  // ---------- helpers ----------
+  var mode = "idle"; // idle | feed | play | bath | sleep
+  var lastSay = 0;
+  function say(text, hold) {
+    bubble.textContent = text;
+    bubble.classList.remove("pop"); void bubble.offsetWidth; bubble.classList.add("pop");
+    lastSay = Date.now() + (hold || 3500);
+  }
+  function anim(name) {
+    hog.classList.remove("jump", "wiggle", "chew"); void hog.getBoundingClientRect();
+    hog.classList.add(name);
+  }
+  hog.addEventListener("animationend", function () { hog.classList.remove("jump", "wiggle", "chew"); });
+
+  function hogPoint(fx, fy) { // fraction of hog box -> scene px
+    var s = scene.getBoundingClientRect(), h = hogwrap.getBoundingClientRect();
+    return { x: h.left - s.left + h.width * fx, y: h.top - s.top + h.height * fy };
+  }
+  function fx(content, x, y, cls) {
+    var el = document.createElement("div");
+    el.className = "fx" + (cls ? " " + cls : "");
+    el.textContent = content;
+    el.style.left = (x - 16) + "px"; el.style.top = (y - 16) + "px";
+    scene.appendChild(el);
+    setTimeout(function () { el.remove(); }, 1500);
+  }
+  function confetti() {
+    var colors = ["#e2504c", "#ffc83d", "#4f9a3a", "#5aa7e0", "#d36bd1"];
+    for (var i = 0; i < 40; i++) {
+      var c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "%";
+      c.style.background = colors[i % colors.length];
+      c.style.animationDelay = Math.random() * .6 + "s";
+      document.body.appendChild(c);
+      setTimeout(function (el) { el.remove(); }.bind(null, c), 3200);
+    }
+  }
+  function giveStar(n) {
+    var before = S.stars;
+    S.stars += n || 1;
+    sfx.star();
+    var p = hogPoint(.5, .1);
+    fx("⭐", p.x, p.y);
+    ACCS.forEach(function (a) {
+      if (before < a.need && S.stars >= a.need) {
+        S.acc = a.id;
+        setTimeout(function () { say("Juchú! Mám nov" + (a.id === "hat" ? "ý " : "ú ") + a.name + "!", 5000); confetti(); anim("jump"); }, 400);
+      }
+    });
+    render(); save();
+  }
+
+  // ---------- render ----------
+  function setBar(id, v) {
+    var el = $("m-" + id);
+    el.style.width = Math.max(4, v) + "%";
+    el.className = v < 30 ? "low" : v < 60 ? "mid" : "";
+  }
+  function render() {
+    setBar("hunger", S.hunger); setBar("happy", S.happy); setBar("energy", S.energy); setBar("clean", S.clean);
+    $("starCount").textContent = S.stars;
+    dirt.setAttribute("opacity", S.clean > 70 ? 0 : ((70 - S.clean) / 70).toFixed(2));
+    ACCS.forEach(function (a) { $("acc-" + a.id).setAttribute("display", S.acc === a.id ? "inline" : "none"); });
+    var next = ACCS.filter(function (a) { return S.stars < a.need; })[0];
+    $("progress").textContent = next
+      ? "Ešte " + (next.need - S.stars) + " ⭐ a Ježko dostane " + next.name + "!"
+      : "Ježko má všetky odmeny! Si super opatrovateľ!";
+    var low = Math.min(S.hunger, S.happy, S.energy, S.clean);
+    if (mode === "sleep") mouth.setAttribute("d", "M274 205 Q283 209 292 205");
+    else if (low < 30) mouth.setAttribute("d", "M272 209 Q283 199 294 209");
+    else if (low < 55) mouth.setAttribute("d", "M273 205 L293 205");
+    else mouth.setAttribute("d", "M272 203 Q283 213 294 203");
+    svg.classList.toggle("sleepy", mode === "sleep");
+    scene.classList.toggle("night", mode === "sleep");
+    $("btnFeed").classList.toggle("need", mode === "idle" && S.hunger < 35);
+    $("btnPlay").classList.toggle("need", mode === "idle" && S.happy < 35);
+    $("btnBath").classList.toggle("need", mode === "idle" && S.clean < 35);
+    $("btnSleep").classList.toggle("need", mode === "idle" && S.energy < 30);
+    ["btnFeed", "btnPlay", "btnBath", "btnSleep"].forEach(function (id) {
+      var b = $(id), mine = (id === "btnFeed" && mode === "feed") || (id === "btnPlay" && mode === "play") || (id === "btnBath" && mode === "bath") || (id === "btnSleep" && mode === "sleep");
+      b.setAttribute("aria-pressed", mine ? "true" : "false");
+      b.disabled = mode !== "idle" && !mine && mode !== "feed";
+    });
+    $("btnSleep").innerHTML = mode === "sleep" ? "<span>☀️</span>Zobudiť" : "<span>🌙</span>Spinkať";
+    $("btnBath").innerHTML = mode === "bath" ? "<span>✅</span>Hotovo" : "<span>🛁</span>Kúpať";
+    $("btnPlay").innerHTML = mode === "play" ? "<span>⏹️</span>Koniec" : "<span>⚽</span>Hrať sa";
+    $("soundBtn").textContent = S.sound ? "🔊" : "🔇";
+    $("soundBtn").setAttribute("aria-label", S.sound ? "Vypnúť zvuk" : "Zapnúť zvuk");
+    var cur = ACCS.filter(function (a) { return a.id === S.acc; })[0];
+    $("wardrobeBtn").textContent = cur ? cur.icon : "👕";
+  }
+
+  function idleTalk() {
+    if (mode !== "idle" || Date.now() < lastSay) return;
+    var t;
+    if (S.hunger < 35) t = "Som hladný! Daj mi papať!";
+    else if (S.energy < 30) t = "Som ospalý... Uložíš ma spať?";
+    else if (S.clean < 35) t = "Fuj, som celý zablatený!";
+    else if (S.happy < 35) t = "Je mi smutno. Zahráme sa?";
+    else {
+      var lines = ["Ľúbim ťa!", "Je mi s tebou dobre!", "Pohladkaj ma!", "Fŕŕ fŕŕ!", "Vonku je krásne!", "Si môj najlepší kamarát!"];
+      t = lines[Math.floor(Math.random() * lines.length)];
+    }
+    say(t, 6000);
+  }
+
+  // ---------- tick ----------
+  setInterval(function () {
+    if (mode === "sleep") {
+      S.energy = clamp(S.energy + 3);
+      S.hunger = clamp(S.hunger - 0.03);
+      if (Math.random() < .5) { var p = hogPoint(.72, .25); fx("💤", p.x + Math.random() * 20, p.y); }
+      if (S.energy >= 100) wake(true);
+    } else {
+      S.hunger = clamp(S.hunger - 0.09);
+      S.happy = clamp(S.happy - (mode === "play" ? 0 : 0.07));
+      S.energy = clamp(S.energy - 0.06);
+      S.clean = clamp(S.clean - (mode === "bath" ? 0 : 0.05));
+      if (Math.random() < .06 && mode === "idle") { svg.classList.add("blink"); setTimeout(function () { svg.classList.remove("blink"); }, 180); }
+    }
+    idleTalk();
+    render();
+    if (Math.floor(Date.now() / 1000) % 5 === 0) save();
+  }, 1000);
+  document.addEventListener("visibilitychange", function () { if (document.hidden) save(); });
+
+  // ---------- pet ----------
+  var lastPet = 0;
+  function pet() {
+    if (mode === "sleep") { say("Pssst... Ježko spinká.", 2000); return; }
+    if (mode !== "idle" && mode !== "feed") return;
+    if (Date.now() - lastPet < 350) return;
+    lastPet = Date.now();
+    S.happy = clamp(S.happy + 4);
+    sfx.pet(); anim("jump");
+    var p = hogPoint(.45 + Math.random() * .3, .2);
+    fx("❤️", p.x, p.y);
+    if (Math.random() < .35) say(["Hihi, to šteklí!", "Fŕŕ!", "Ešte, ešte!", "Mňam, pohladkanie!"][Math.floor(Math.random() * 4)], 2000);
+    render();
+  }
+  hogwrap.addEventListener("click", function () { if (mode !== "bath") pet(); });
+  hogwrap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pet(); } });
+
+  // ---------- feed ----------
+  var FOODS = [
+    { icon: "🍎", name: "Jablko", hunger: 20, happy: 2, line: "Mňam, jabĺčko!" },
+    { icon: "🐛", name: "Húsenica", hunger: 30, happy: 6, line: "Moja obľúbená! Mňam!" },
+    { icon: "🍐", name: "Hruška", hunger: 18, happy: 3, line: "Sladučká hruška!" },
+    { icon: "🍓", name: "Jahoda", hunger: 12, happy: 5, line: "Jahôdka! Ďakujem!" }
+  ];
+  var tray = null;
+  function closeTray() { if (tray) { tray.remove(); tray = null; } if (mode === "feed") mode = "idle"; render(); }
+  function openTray() {
+    mode = "feed";
+    tray = document.createElement("div");
+    tray.className = "foodtray";
+    FOODS.forEach(function (f, i) {
+      var b = document.createElement("button");
+      b.className = "food"; b.type = "button";
+      b.innerHTML = "<span>" + f.icon + "</span>" + f.name;
+      b.addEventListener("click", function () { feed(f, b); });
+      tray.appendChild(b);
+    });
+    scene.appendChild(tray);
+    say("Čo mi dáš papať?", 3000);
+    render();
+  }
+  var eating = false;
+  function feed(f, btn) {
+    if (eating) return;
+    if (S.hunger >= 95) { sfx.no(); anim("wiggle"); say("Už som plný! Bruško mám ako balón.", 2500); return; }
+    eating = true;
+    var s = scene.getBoundingClientRect(), b = btn.getBoundingClientRect();
+    var fl = document.createElement("div");
+    fl.className = "flying"; fl.textContent = f.icon;
+    fl.style.left = (b.left - s.left + b.width / 2 - 18) + "px";
+    fl.style.top = (b.top - s.top) + "px";
+    scene.appendChild(fl);
+    var mp = hogPoint(.84, .78);
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      fl.style.left = (mp.x - 18) + "px"; fl.style.top = (mp.y - 22) + "px"; fl.style.transform = "scale(.5)";
+    }); });
+    setTimeout(function () {
+      fl.remove();
+      var helped = S.hunger < 85;
+      S.hunger = clamp(S.hunger + f.hunger);
+      S.happy = clamp(S.happy + f.happy);
+      svg.classList.add("eating"); anim("chew"); sfx.eat();
+      say(f.line, 2500);
+      setTimeout(function () { svg.classList.remove("eating"); eating = false; }, 1000);
+      if (helped) giveStar(); else render();
+    }, 650);
+  }
+
+  // ---------- play ----------
+  var playTimer = null, playCaught = 0, playSpawned = 0;
+  var TARGETS = ["🍂", "🍄", "🐞", "🦋", "🌰", "🍁"];
+  function startPlay() {
+    if (S.energy < 15) { sfx.no(); say("Som príliš unavený... Najprv spinkať.", 3000); return; }
+    mode = "play"; playCaught = 0; playSpawned = 0;
+    say("Chyť čo najviac vecí!", 3000);
+    var hint = document.createElement("div"); hint.className = "hint"; hint.id = "playHint"; hint.textContent = "Chytené: 0";
+    scene.appendChild(hint);
+    playTimer = setInterval(spawnTarget, 850);
+    spawnTarget();
+    render();
+  }
+  function spawnTarget() {
+    if (playSpawned >= 15) { setTimeout(endPlay, 1800); clearInterval(playTimer); playTimer = null; return; }
+    playSpawned++;
+    var t = document.createElement("button");
+    t.type = "button"; t.className = "target";
+    t.textContent = TARGETS[Math.floor(Math.random() * TARGETS.length)];
+    t.setAttribute("aria-label", "Chytiť");
+    var w = scene.clientWidth, h = scene.clientHeight;
+    t.style.left = (10 + Math.random() * (w - 80)) + "px";
+    t.style.top = (h * 0.18 + Math.random() * h * 0.42) + "px";
+    var gone = false;
+    function remove() { if (gone) return; gone = true; t.classList.add("gone"); setTimeout(function () { t.remove(); }, 300); }
+    t.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (gone || mode !== "play") return;
+      playCaught++;
+      S.happy = clamp(S.happy + 6); S.energy = clamp(S.energy - 2);
+      sfx.pop(); anim("jump");
+      var r = t.getBoundingClientRect(), s = scene.getBoundingClientRect();
+      fx("✨", r.left - s.left + 10, r.top - s.top);
+      var hint = $("playHint"); if (hint) hint.textContent = "Chytené: " + playCaught;
+      remove(); render();
+    });
+    scene.appendChild(t);
+    setTimeout(remove, 2300);
+  }
+  function endPlay() {
+    if (mode !== "play") return;
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    mode = "idle";
+    scene.querySelectorAll(".target").forEach(function (el) { el.remove(); });
+    var hint = $("playHint"); if (hint) hint.remove();
+    var stars = Math.floor(playCaught / 4);
+    say(playCaught >= 10 ? "Hurá! Chytil si " + playCaught + "! Si šampión!" : playCaught > 0 ? "Super hra! Chytil si " + playCaught + "." : "Nabudúce to chytíš!", 4000);
+    if (stars) giveStar(stars); else render();
+    save();
+  }
+
+  // ---------- bath ----------
+  var sponge = null, lastPos = null, bubbleCount = 0;
+  function startBath() {
+    mode = "bath";
+    sponge = document.createElement("div"); sponge.className = "sponge"; sponge.textContent = "🧽"; sponge.hidden = true;
+    scene.appendChild(sponge);
+    var hint = document.createElement("div"); hint.className = "hint"; hint.id = "bathHint"; hint.textContent = "Drhni Ježka prstom!";
+    scene.appendChild(hint);
+    say(S.clean > 90 ? "Som čistý, ale kúpanie je zábava!" : "Hurá, kúpanie!", 3000);
+    render();
+  }
+  function endBath(done) {
+    mode = "idle";
+    if (sponge) { sponge.remove(); sponge = null; }
+    var hint = $("bathHint"); if (hint) hint.remove();
+    if (done) { say("Som čistučký a voňavý!", 3500); anim("jump"); }
+    render(); save();
+  }
+  var bathStartClean = 0;
+  scene.addEventListener("pointermove", function (e) {
+    if (mode !== "bath" || !sponge) return;
+    var s = scene.getBoundingClientRect(), x = e.clientX - s.left, y = e.clientY - s.top;
+    sponge.hidden = false; sponge.style.left = x + "px"; sponge.style.top = y + "px";
+    var h = hogwrap.getBoundingClientRect();
+    var over = e.clientX > h.left && e.clientX < h.right && e.clientY > h.top + h.height * .1 && e.clientY < h.bottom;
+    if (lastPos && over) {
+      var d = Math.hypot(x - lastPos.x, y - lastPos.y);
+      if (d > 5) {
+        var before = S.clean;
+        S.clean = clamp(S.clean + Math.min(d, 40) * 0.05);
+        S.happy = clamp(S.happy + 0.05);
+        if (++bubbleCount % 4 === 0) { fx("", x + (Math.random() * 40 - 20), y - 10, "bub"); sfx.bub(); }
+        if (before < 100 && S.clean >= 100) {
+          var helped = bathStartClean < 85;
+          if (helped) giveStar();
+          endBath(true);
+        }
+        render();
+      }
+    }
+    lastPos = { x: x, y: y };
+  });
+  scene.addEventListener("pointerdown", function (e) {
+    if (mode !== "bath") return;
+    var s = scene.getBoundingClientRect();
+    lastPos = { x: e.clientX - s.left, y: e.clientY - s.top };
+  });
+  scene.addEventListener("pointerleave", function () { if (sponge) sponge.hidden = true; lastPos = null; });
+
+  // ---------- sleep ----------
+  var sleepStart = 0;
+  function startSleep() {
+    if (S.energy > 90) { say("Ešte nie som ospalý!", 2500); sfx.no(); return; }
+    mode = "sleep"; sleepStart = S.energy; sfx.sleep();
+    say("Dobrú noc...", 2500);
+    render();
+  }
+  function wake(full) {
+    mode = "idle"; sfx.wake();
+    if (full) { say("Dobré ráno! Som plný energie!", 3500); anim("jump"); if (sleepStart < 70) giveStar(); }
+    else say("Ešte som chcel spinkať...", 2500);
+    render(); save();
+  }
+
+  // ---------- buttons ----------
+  $("btnFeed").addEventListener("click", function () { if (mode === "feed") closeTray(); else if (mode === "idle") openTray(); });
+  $("btnPlay").addEventListener("click", function () {
+    if (mode === "feed") closeTray();
+    if (mode === "play") endPlay(); else if (mode === "idle") startPlay();
+  });
+  $("btnBath").addEventListener("click", function () {
+    if (mode === "feed") closeTray();
+    if (mode === "bath") endBath(false); else if (mode === "idle") { bathStartClean = S.clean; startBath(); }
+  });
+  $("btnSleep").addEventListener("click", function () {
+    if (mode === "feed") closeTray();
+    if (mode === "sleep") wake(false); else if (mode === "idle") startSleep();
+  });
+  $("soundBtn").addEventListener("click", function () { S.sound = !S.sound; render(); save(); if (S.sound) sfx.pet(); });
+  $("wardrobeBtn").addEventListener("click", function () {
+    var owned = ACCS.filter(function (a) { return S.stars >= a.need; });
+    if (!owned.length) { say("Zbieraj hviezdičky a dostanem oblečenie!", 3000); return; }
+    var ids = [""].concat(owned.map(function (a) { return a.id; }));
+    S.acc = ids[(ids.indexOf(S.acc) + 1) % ids.length];
+    anim("wiggle"); sfx.pet(); render(); save();
+  });
+
+  // ---------- start ----------
+  if (S.sleeping) S.sleeping = false;
+  render();
+  setTimeout(function () { say("Ahoj! Ja som Ježko! Postaráš sa o mňa?", 4000); }, 300);
+})();
+</script>
+</body>
+</html>
