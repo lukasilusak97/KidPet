@@ -1,27 +1,26 @@
 # Ježko
 
-Jednoduchá hra pre deti: staraj sa o ježka Ježka.
+Jednoduchá hra pre deti: staraj sa o ježka Ježka v jeho domčeku.
 
 Otvor `index.html` v prehliadači (funguje aj na mobile a tablete, bez inštalácie).
 
-**Starostlivosť**
-- **Papať** – Ježko je to, čo máš v zásobách (nazbierané na výletoch). Granule sú vždy, ale Ježko ich nemá veľmi rád.
-- **Kúpať** – štyri kroky: napusti vaničku 🚰, namydli 🧼, opláchni sprchou 🚿 a usuš fénom 🌬️. Môžeš praskať bublinky a stláčať gumenú kačičku.
-- **Spinkať** – Ježko si oddýchne a nabije energiu
-- Klikni na Ježka a pohladkáš ho
+**Izby** (dole sa medzi nimi prepína):
+- 🛋️ **Obývačka** – ťukni na hračky alebo „Hry“ a zahráš sa (Chytačka, Pexeso, Jabĺčka, Kde je Ježko?)
+- 🍳 **Kuchyňa** – ťukni na chladničku a daj Ježkovi papať zo zásob
+- 🛏️ **Spálňa** – ťukni na posteľ a Ježko ide spinkať; „Šatník“ na obliekanie
+- 🛁 **Kúpeľňa** – ťukni na Ježka a začne kúpanie:
+  1. ťukaním na Ježka napustíš vodu,
+  2. šúchaním ho namydlíš,
+  3. šúchaním opláchneš penu,
+  4. šúchaním ho usušíš.
+- 🌳 **Dvor** – cez bránku ide Ježko na výlet na náhodné miesto, zbiera jedlo a stretáva zvieratká
 
-**Výlet** (🎒) – Ježko ide vždy na náhodné miesto (Záhrada, Lúka, Les, Rybník, Ovocný sad, Hory).
-Na každom výlete je 5 zastávok, napríklad:
-- kríček s jahodami alebo čučoriedkami – natrhaj ich
-- strom – zatras ním a pozbieraj ovocie
-- kôpka hliny – hrabaj a nájdeš hríbiky, mrkvu alebo húsenice
-- zvieratko – zajko, veverička, sova, líška, žabka, kačička, medvedík a ďalší. Pohladkaj ho, pomôž mu niečo nájsť, chytiť alebo mu daruj jedlo. Zvieratko sa odvďačí.
-- mláka (preskočiť alebo čľupnúť), dážď, blyštiaci sa poklad
+**Obchod** (🛍️) – za hviezdičky ⭐:
+- 👕 oblečenie pre Ježka
+- 🛋️ nábytok a dekorácie do každej izby aj na dvor
+- 🎨 tapety na steny
+- 🟫 podlahy
 
-Všetko nazbierané jedlo ide do zásob. Kamaráti a poklady sa ukladajú do **zbierky** (📒).
-
-**Hry** (🎲) – Chytačka, Pexeso, Jabĺčka, Kde je Ježko?
-
-**Obchod** (🛍️) – za hviezdičky ⭐ kúp Ježkovi oblečenie.
+**Zbierka** (📒) – kamaráti z výletov, poklady a zásoby jedla.
 
 Hra sa ukladá v prehliadači.

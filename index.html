@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
 <style>
-/* Layout: one-screen app — status meters on top, meadow scene in the middle (shop, games, trips and album open as panels over it), big care buttons at the bottom. Single deliberate daylight-meadow look; night is an in-game state. */
+/* Layout: one-screen app — status meters on top, Ježko's home in the middle (five rooms: each room's furniture triggers its own care action), room tabs at the bottom. Shop, games, trips and album open as panels over the room. Single deliberate warm, toy-like look; night is an in-game state. */
 :root {
   --sky-top: #bfe6f5;
   --sky-bottom: #eaf7e4;
@@ -64,27 +64,63 @@ button:focus-visible, [tabindex]:focus-visible { outline: 4px solid var(--sun); 
 @keyframes blinkbar { 50% { opacity: .45; } }
 .progress { font-size: .95rem; font-weight: 700; text-align: center; color: var(--bark); }
 
-/* ---------- scene ---------- */
+/* ---------- scene & rooms ---------- */
 .scene {
-  position: relative; border-radius: 24px; overflow: hidden; min-height: 0;
-  background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%); border: 4px solid var(--bark);
-  transition: background .8s; touch-action: none;
+  position: relative; border-radius: 24px; overflow: hidden; min-height: 0; container-type: inline-size;
+  background: var(--soft); border: 4px solid var(--bark); touch-action: none;
 }
-.scene.night { background: linear-gradient(var(--night-top), var(--night-bottom) 75%); }
-.scene .sun, .scene .moon { position: absolute; top: 14px; right: 18px; width: 54px; height: 54px; border-radius: 50%; transition: opacity .8s, transform .8s; }
+.room, .pvroom { position: absolute; inset: 0; }
+.wall { position: absolute; left: 0; right: 0; top: 0; height: 64%; }
+.floor { position: absolute; left: 0; right: 0; bottom: 0; height: 36%; box-shadow: inset 0 14px 16px -10px rgba(58,38,24,.35); }
+.baseboard { position: absolute; left: 0; right: 0; bottom: 36%; height: 9px; background: var(--paper); border-top: 2px solid rgba(58,38,24,.25); border-bottom: 3px solid rgba(58,38,24,.4); }
+.furn { position: absolute; transform: translateX(-50%); line-height: 1; border: 0; background: none; padding: 0; cursor: pointer; filter: drop-shadow(0 3px 0 rgba(58,38,24,.25)); }
+.furn.wig, .base.wig { animation: wig2 .4s; }
+@keyframes wig2 { 25% { rotate: -8deg; } 75% { rotate: 8deg; } }
+.base { position: absolute; transform: translateX(-50%); cursor: pointer; padding: 0; }
+.fridge {
+  left: 88%; bottom: 5%; width: 19cqw; height: 44cqw; border: 3px solid var(--bark); border-radius: 12px;
+  background: linear-gradient(#f7fbff 0 38%, var(--bark) 38% calc(38% + 3px), #eef6fb calc(38% + 3px));
+}
+.fridge i { position: absolute; left: 12%; width: 5px; height: 16%; background: #9aa9b5; border-radius: 3px; }
+.fridge i.h1 { top: 12%; } .fridge i.h2 { top: 48%; }
+.fridge span { position: absolute; right: 10%; top: 8%; font-size: 5cqw; }
+.toybox {
+  left: 87%; bottom: 5%; width: 21cqw; height: 14cqw; border: 3px solid var(--bark); border-radius: 8px;
+  background: linear-gradient(var(--berry) 0 30%, var(--sun) 30% 44%, var(--berry) 44%);
+}
+.toybox .toys { position: absolute; left: 0; right: 0; top: -8cqw; font-size: 8cqw; line-height: 1; text-align: center; }
+.bed {
+  left: 50%; bottom: 3%; width: 72cqw; height: 15cqw; border: 3px solid var(--bark); border-radius: 10px 10px 4px 4px;
+  background: linear-gradient(90deg, #7d9fe0 0 70%, #ffffff 70%);
+}
+.bed::before { content: ""; position: absolute; right: -3px; bottom: -3px; width: 5cqw; height: 30cqw; background: var(--bark); border-radius: 10px 10px 2px 2px; }
+.bed::after { content: ""; position: absolute; right: 7cqw; top: -4cqw; width: 14cqw; height: 6cqw; background: #ffffff; border: 3px solid var(--bark); border-radius: 50%; }
+.showerhead { position: absolute; left: 50%; top: 24%; width: 15cqw; height: 4.5cqw; transform: translateX(-50%); background: #c9d6de; border: 3px solid var(--bark); border-radius: 0 0 60% 60% / 0 0 100% 100%; }
+.showerhead::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: 2.2cqw; height: 26cqw; transform: translateX(-50%); background: #c9d6de; border: 3px solid var(--bark); border-bottom: 0; }
+.yard-sky { position: absolute; inset: 0; background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%); transition: background .8s; }
+.night .yard-sky { background: linear-gradient(var(--night-top), var(--night-bottom) 75%); }
+.scene .sun, .scene .moon { position: absolute; top: 60px; right: 18px; width: 50px; height: 50px; border-radius: 50%; }
 .scene .sun { background: var(--sun); box-shadow: 0 0 0 10px rgba(255,200,61,.3); }
-.scene .moon { background: var(--paper); box-shadow: inset -12px -4px 0 0 #d9d2bd; opacity: 0; transform: translateY(20px); }
-.scene.night .sun { opacity: 0; transform: translateY(20px); }
-.scene.night .moon { opacity: 1; transform: none; }
-.stars-sky { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
-.scene.night .stars-sky { opacity: 1; }
-.stars-sky span { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--paper); animation: twinkle 2s infinite alternate; }
-@keyframes twinkle { to { opacity: .2; } }
+.scene .moon { background: var(--paper); box-shadow: inset -12px -4px 0 0 #d9d2bd; display: none; }
+.night .sun { display: none; } .night .moon { display: block; }
 .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; }
 .ground svg { width: 100%; height: 100%; display: block; }
-.night-veil { position: absolute; inset: 0; background: #0b1230; opacity: 0; pointer-events: none; transition: opacity .8s; }
-.scene.night .night-veil { opacity: .28; }
-.hogwrap { position: absolute; left: 50%; bottom: 8%; width: min(78%, 420px); transform: translateX(-50%); aspect-ratio: 340 / 260; max-width: 100%; cursor: pointer; }
+.fence {
+  position: absolute; left: 0; right: 0; bottom: 30%; height: 10cqw;
+  background: linear-gradient(#e8d9bd, #e8d9bd) 0 25% / 100% 1.6cqw no-repeat, linear-gradient(#e8d9bd, #e8d9bd) 0 75% / 100% 1.6cqw no-repeat,
+    repeating-linear-gradient(90deg, #fffaf0 0 4.5cqw, transparent 4.5cqw 8cqw);
+}
+.gate {
+  left: 84%; bottom: 27%; width: 19cqw; height: 16cqw; border: 3px solid var(--bark); border-radius: 9cqw 9cqw 4px 4px;
+  background: repeating-linear-gradient(90deg, #b9824c 0 3cqw, #a8743f 3cqw 3.4cqw); color: var(--paper);
+  font-weight: 800; font-size: 3.8cqw; display: grid; place-items: center; align-content: center; line-height: 1;
+}
+.gate span { font-size: 6cqw; }
+.night-veil { position: absolute; inset: 0; background: #0b1230; opacity: 0; pointer-events: none; transition: opacity .8s; z-index: 7; }
+.scene.night .night-veil { opacity: .45; }
+.zz { position: absolute; inset: 0; pointer-events: none; z-index: 8; }
+
+.hogwrap { position: absolute; left: 50%; bottom: 4%; width: min(60%, 360px); transform: translateX(-50%); aspect-ratio: 340 / 260; max-width: 100%; cursor: pointer; z-index: 3; }
 .hogwrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
 svg .hogg { transform-origin: 160px 240px; }
 #hogsvg .hogg { animation: breathe 3s ease-in-out infinite; }
@@ -102,14 +138,17 @@ svg .hogg { transform-origin: 160px 240px; }
 .eating .mouth-open { display: inline; }
 .eating .mouth { display: none; }
 
+.roombar { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; z-index: 9; }
+.roomname { background: var(--paper); border: 3px solid var(--bark); border-radius: 999px; padding: 0 12px; font-weight: 800; font-size: 1.05rem; white-space: nowrap; }
+.roombar .sp { flex: 1; }
+.ract { border: 3px solid var(--bark); background: var(--sun); border-radius: 999px; padding: 2px 12px; font-weight: 800; font-size: 1.02rem; cursor: pointer; white-space: nowrap; box-shadow: 0 3px 0 var(--bark); }
+.ract.alt { background: var(--paper); }
+.ract:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--bark); }
+
 .bubble {
-  position: absolute; left: 50%; top: 6%; transform: translateX(-50%); background: var(--paper);
-  border: 3px solid var(--bark); border-radius: 20px; padding: 6px 16px; font-weight: 800; font-size: 1.25rem;
-  white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 10;
-}
-.bubble::after {
-  content: ""; position: absolute; left: 50%; bottom: -12px; width: 18px; height: 18px; background: var(--paper);
-  border-right: 3px solid var(--bark); border-bottom: 3px solid var(--bark); transform: translateX(-50%) rotate(45deg);
+  position: absolute; left: 50%; top: 56px; transform: translateX(-50%); background: var(--paper);
+  border: 3px solid var(--bark); border-radius: 20px; padding: 4px 14px; font-weight: 800; font-size: 1.15rem;
+  white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 10; box-sizing: border-box;
 }
 .bubble.pop { animation: popin .35s ease-out; }
 @keyframes popin { from { transform: translateX(-50%) scale(.6); } }
@@ -125,8 +164,11 @@ svg .hogg { transform-origin: 160px 240px; }
   position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: var(--paper);
   border: 3px solid var(--bark); border-radius: 999px; padding: 4px 14px; font-weight: 800; font-size: 1.05rem; white-space: nowrap; z-index: 8;
 }
+.hint.top { top: 104px; bottom: auto; }
+.hint .pb { display: inline-block; width: 70px; height: 10px; background: var(--soft); border-radius: 9px; vertical-align: middle; overflow: hidden; margin-left: 6px; border: 2px solid var(--bark); }
+.hint .pb i { display: block; height: 100%; width: 0; background: var(--sea); transition: width .2s; }
 .foodtray {
-  position: absolute; left: 50%; top: calc(6% + 64px); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center;
+  position: absolute; left: 50%; top: 104px; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center;
   gap: 6px; width: max-content; max-width: 94%; box-sizing: border-box;
   background: var(--paper); border: 3px solid var(--bark); border-radius: 22px; padding: 8px; z-index: 11; animation: popup .25s ease-out;
 }
@@ -140,19 +182,14 @@ svg .hogg { transform-origin: 160px 240px; }
 .confetti { position: fixed; width: 10px; height: 14px; top: -20px; z-index: 100; pointer-events: none; animation: fall 2.4s linear forwards; }
 @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
 
-/* ---------- bath ---------- */
-.tools { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); display: grid; gap: 8px; z-index: 9; }
-.tool { width: 58px; height: 58px; border-radius: 16px; border: 3px solid var(--bark); background: var(--paper); font-size: 1.9rem; position: relative; cursor: pointer; padding: 0; }
-.tool.cur { background: var(--sun); animation: nudge 1.6s ease-in-out infinite; }
-.tool.ok::after { content: "✓"; position: absolute; right: -7px; top: -7px; width: 22px; height: 22px; border-radius: 50%; background: var(--leaf); color: #ffffff; font-size: .85rem; font-weight: 800; display: grid; place-items: center; }
-.tool:disabled { opacity: .45; cursor: default; }
-.tool:disabled.ok { opacity: .8; }
-.tool.cur:disabled { opacity: 1; }
+/* bath */
+.steps { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); display: grid; gap: 6px; z-index: 9; pointer-events: none; }
+.stp { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--bark); background: var(--paper); font-size: 1.3rem; display: grid; place-items: center; position: relative; opacity: .55; }
+.stp.cur { background: var(--sun); opacity: 1; transform: scale(1.15); }
+.stp.ok { opacity: 1; }
+.stp.ok::after { content: "✓"; position: absolute; right: -7px; top: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--leaf); color: #ffffff; font-size: .8rem; font-weight: 800; display: grid; place-items: center; }
 .cursor { position: absolute; font-size: 2.8rem; pointer-events: none; z-index: 12; transform: translate(-50%, -50%); }
-.hint.top { top: calc(6% + 58px); bottom: auto; }
-.hint .pb { display: inline-block; width: 70px; height: 10px; background: var(--soft); border-radius: 9px; vertical-align: middle; overflow: hidden; margin-left: 6px; border: 2px solid var(--bark); }
-.hint .pb i { display: block; height: 100%; width: 0; background: var(--sea); transition: width .2s; }
-.duck { position: absolute; font-size: 2.6rem; z-index: 8; border: 0; background: none; cursor: pointer; padding: 0; line-height: 1; transform: translate(-50%, -50%); animation: float 2.2s ease-in-out infinite; }
+.duck { position: absolute; font-size: 2.4rem; z-index: 8; border: 0; background: none; cursor: pointer; padding: 0; line-height: 1; transform: translate(-50%, -50%); animation: float 2.2s ease-in-out infinite; }
 .duck.squeak { animation: squeak .35s; }
 @keyframes float { 50% { translate: 0 -5px; rotate: -6deg; } }
 @keyframes squeak { 50% { scale: 1.35 .8; } }
@@ -167,10 +204,7 @@ svg .hogg { transform-origin: 160px 240px; }
 @keyframes slidein { from { transform: translateY(30px); opacity: 0; } }
 .screen-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--soft); border-bottom: 3px solid var(--bark); }
 .screen-head h2 { margin: 0; flex: 1; font-size: 1.4rem; font-weight: 800; line-height: 1.1; color: var(--bark); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pill {
-  border: 3px solid var(--bark); background: var(--paper); border-radius: 999px; padding: 2px 12px;
-  font-weight: 800; font-size: 1rem; cursor: pointer; white-space: nowrap;
-}
+.pill { border: 3px solid var(--bark); background: var(--paper); border-radius: 999px; padding: 2px 12px; font-weight: 800; font-size: 1rem; cursor: pointer; white-space: nowrap; }
 .pill.go { background: var(--sun); }
 .pill:disabled { opacity: .5; cursor: default; }
 .screen-body { flex: 1; overflow: auto; padding: 12px; position: relative; min-height: 0; }
@@ -184,10 +218,7 @@ svg .hogg { transform-origin: 160px 240px; }
 .toast.pop { animation: popin .35s ease-out; }
 .minihog { display: block; width: 100%; height: auto; overflow: visible; }
 .gamegrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.gamecard {
-  border: 4px solid var(--bark); border-radius: 20px; background: #ffffff; padding: 10px 8px; cursor: pointer;
-  display: grid; justify-items: center; gap: 2px; text-align: center; box-shadow: 0 4px 0 var(--bark);
-}
+.gamecard { border: 4px solid var(--bark); border-radius: 20px; background: #ffffff; padding: 10px 8px; cursor: pointer; display: grid; justify-items: center; gap: 2px; text-align: center; box-shadow: 0 4px 0 var(--bark); }
 .gamecard:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bark); }
 .gamecard .ico { font-size: 2.6rem; line-height: 1.1; }
 .gamecard b { font-size: 1.15rem; }
@@ -199,10 +230,7 @@ svg .hogg { transform-origin: 160px 240px; }
 .result p { margin: 0; font-weight: 800; font-size: 1.15rem; }
 .result .row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .memo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 420px; margin: 0 auto; }
-.memo button {
-  aspect-ratio: 1; border-radius: 16px; border: 3px solid var(--bark); cursor: pointer; padding: 0; font-size: 2rem;
-  background: var(--leaf); color: transparent; position: relative; transition: transform .25s, background-color .25s;
-}
+.memo button { aspect-ratio: 1; border-radius: 16px; border: 3px solid var(--bark); cursor: pointer; padding: 0; font-size: 2rem; background: var(--leaf); color: transparent; position: relative; transition: background-color .25s; }
 .memo button::after { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--paper); font-weight: 800; font-size: 1.8rem; }
 .memo button.open, .memo button.done { background: #ffffff; color: var(--ink); }
 .memo button.open::after, .memo button.done::after { content: none; }
@@ -216,30 +244,39 @@ svg .hogg { transform-origin: 160px 240px; }
 .faller { position: absolute; font-size: 2.3rem; line-height: 1; transform: translate(-50%, -50%); pointer-events: none; }
 .mound { position: absolute; bottom: 22%; width: 28%; max-width: 140px; aspect-ratio: 1.1; transform: translateX(-50%); transition-property: left; transition-timing-function: ease-in-out; }
 .mound .mhog { position: absolute; left: 6%; right: 6%; bottom: 0; }
-.mound .cover {
-  position: absolute; inset: 0; border: 0; padding: 0; cursor: pointer; border-radius: 50% 50% 14px 14px / 70% 70% 14px 14px;
-  background: radial-gradient(circle at 35% 30%, #c98a4a, #8a5a3b 70%); border-bottom: 6px solid #5e3b24;
-  transition: transform .35s ease-out; font-size: 1.7rem; display: grid; place-items: center;
-}
+.mound .cover { position: absolute; inset: 0; border: 0; padding: 0; cursor: pointer; border-radius: 50% 50% 14px 14px / 70% 70% 14px 14px; background: radial-gradient(circle at 35% 30%, #c98a4a, #8a5a3b 70%); border-bottom: 6px solid #5e3b24; transition: transform .35s ease-out; font-size: 1.7rem; display: grid; place-items: center; }
 .mound.up .cover { transform: translateY(-75%); }
 .shell-msg { position: absolute; left: 0; right: 0; top: 46px; text-align: center; font-weight: 800; font-size: 1.25rem; z-index: 5; }
+
+/* shop */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.tabs .pill { font-size: .95rem; }
+.roomchips { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
+.roomchips .pill { font-size: .85rem; padding: 0 9px; border-width: 2px; }
 .shop-top { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; background: var(--soft); border-radius: 18px; padding: 8px 12px; }
 .shop-top .pv { width: 130px; flex: none; }
 .shop-top .info { display: grid; gap: 4px; min-width: 0; }
 .shop-top .info b { font-size: 1.25rem; line-height: 1.1; }
 .shop-top .info span { font-weight: 600; color: var(--bark); }
+.roomtop { display: grid; gap: 8px; margin-bottom: 12px; background: var(--soft); border-radius: 18px; padding: 8px; }
+.pvbox { position: relative; width: 100%; max-width: 440px; margin: 0 auto; aspect-ratio: 16 / 11; border-radius: 14px; overflow: hidden; border: 3px solid var(--bark); container-type: inline-size; pointer-events: none; background: var(--soft); }
+.pvhog { position: absolute; left: 50%; bottom: 4%; width: 60%; transform: translateX(-50%); }
+.roomtop .info { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 0 4px; }
+.roomtop .info b { font-size: 1.2rem; }
+.roomtop .info span { font-weight: 600; color: var(--bark); }
 .shopgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; }
 .item { border: 3px solid var(--soft); border-radius: 16px; background: #ffffff; cursor: pointer; padding: 4px 4px 2px; display: grid; justify-items: center; position: relative; min-width: 0; }
 .item.sel { border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun); }
-.item .thumb { width: 100%; aspect-ratio: 1.25; overflow: hidden; border-radius: 10px; background: var(--soft); }
+.item .thumb { width: 100%; aspect-ratio: 1.25; overflow: hidden; border-radius: 10px; background: var(--soft); display: grid; place-items: center; font-size: 2.6rem; line-height: 1; }
 .item .thumb svg { width: 100%; height: 100%; overflow: hidden; }
+.item .thumb.sw { border: 2px solid rgba(58,38,24,.25); box-sizing: border-box; }
 .item .nm { font-weight: 700; font-size: .85rem; line-height: 1.1; text-align: center; }
 .item .pr { font-weight: 800; font-size: .9rem; }
 .item .pr.owned { color: var(--leaf); }
 .item .worn { position: absolute; top: 4px; right: 4px; background: var(--leaf); color: #ffffff; border-radius: 999px; font-size: .7rem; font-weight: 800; padding: 0 6px; }
 .slot-title { font-weight: 800; color: var(--bark); margin: 10px 0 4px; font-size: 1rem; }
 
-/* ---------- trip ---------- */
+/* trip */
 .trip { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
 .deco span { position: absolute; transform: translateX(-50%); line-height: 1; pointer-events: none; animation: decoin .9s ease-out; transition: translate .9s ease-in; }
 .deco span.out { translate: -700px 0; }
@@ -264,7 +301,6 @@ svg .hogg { transform-origin: 160px 240px; }
 .thing.pop-in { animation: popin2 .4s ease-out; }
 @keyframes popin2 { from { scale: 0; } }
 .thing.shake { animation: wig2 .35s; }
-@keyframes wig2 { 25% { rotate: -8deg; } 75% { rotate: 8deg; } }
 .bush { width: 150px; height: 108px; border-radius: 70px 70px 26px 26px; background: radial-gradient(circle at 30% 30%, #7ccc58, #3f8a2f 70%); border: 4px solid #2f6a24; cursor: default; }
 .berry { position: absolute; font-size: 1.9rem; border: 0; background: none; padding: 0; cursor: pointer; line-height: 1; }
 .tree { width: 170px; height: 190px; }
@@ -284,10 +320,9 @@ svg .hogg { transform-origin: 160px 240px; }
 .cloud { font-size: 5rem; transition: left 1.4s ease-in, opacity 1.4s; z-index: 7; }
 .rainbow { font-size: 6rem; pointer-events: none; animation: popin2 .8s ease-out; }
 .sparkle { font-size: 2.6rem; animation: twinkle .6s infinite alternate; }
+@keyframes twinkle { to { opacity: .2; } }
 .found { position: absolute; transform: translate(-50%, -50%); font-size: 3.4rem; z-index: 6; pointer-events: none; animation: foundpop 1.6s ease-out forwards; }
 @keyframes foundpop { 0% { scale: 0; } 20% { scale: 1.3; } 30% { scale: 1; } 80% { opacity: 1; translate: 0 -30px; } 100% { opacity: 0; translate: 0 -50px; } }
-
-/* album */
 .album-sec { margin-bottom: 12px; }
 .album-sec h3 { margin: 0 0 6px; font-size: 1.1rem; display: flex; gap: 6px; align-items: baseline; }
 .album-sec h3 small { color: var(--bark); font-weight: 700; }
@@ -298,16 +333,16 @@ svg .hogg { transform-origin: 160px 240px; }
 .sticker .n { font-size: .72rem; font-weight: 700; text-align: center; line-height: 1.1; overflow-wrap: anywhere; }
 .sticker:not(.got) .e { filter: grayscale(1) brightness(0); opacity: .18; }
 
-/* ---------- actions ---------- */
+/* ---------- room tabs ---------- */
 .actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .act {
-  font-weight: 800; font-size: 1rem; border: 4px solid var(--bark); border-radius: 20px; background: var(--paper);
-  padding: 8px 2px 6px; display: grid; justify-items: center; cursor: pointer; box-shadow: 0 5px 0 var(--bark);
-  transition: transform .08s, box-shadow .08s; min-width: 0; white-space: nowrap;
+  font-weight: 800; font-size: .95rem; border: 4px solid var(--bark); border-radius: 20px; background: var(--paper);
+  padding: 6px 2px 4px; display: grid; justify-items: center; cursor: pointer; box-shadow: 0 5px 0 var(--bark);
+  transition: transform .08s, box-shadow .08s; min-width: 0; white-space: nowrap; overflow: hidden;
 }
-.act span { font-size: 2.1rem; line-height: 1.15; }
+.act span { font-size: 2rem; line-height: 1.15; }
 .act:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--bark); }
-.act[aria-pressed="true"] { background: var(--sun); }
+.act[aria-pressed="true"] { background: var(--sun); transform: translateY(3px); box-shadow: 0 2px 0 var(--bark); }
 .act:disabled { opacity: .45; cursor: default; }
 .act.need { animation: nudge 1.6s ease-in-out infinite; }
 @keyframes nudge { 0%, 70%, 100% { rotate: 0deg; } 80% { rotate: -4deg; } 90% { rotate: 4deg; } }
@@ -317,18 +352,19 @@ svg .hogg { transform-origin: 160px 240px; }
   .iconbtn { width: 40px; height: 40px; font-size: 1.15rem; }
   .meters { grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .actions { gap: 5px; }
-  .act { font-size: .78rem; border-radius: 14px; border-width: 3px; }
-  .act span { font-size: 1.7rem; }
-  .bubble { font-size: 1.05rem; }
+  .act { font-size: .72rem; border-radius: 14px; border-width: 3px; }
+  .act span { font-size: 1.6rem; }
+  .bubble { font-size: 1rem; }
   .shop-top .pv { width: 104px; }
-  .tool { width: 50px; height: 50px; font-size: 1.6rem; }
   .friend { font-size: 4.2rem; }
   .tree { width: 150px; height: 170px; }
   .tree .crown { font-size: 9.4rem; }
+  .roomname { font-size: .95rem; padding: 0 9px; }
+  .ract { font-size: .92rem; padding: 2px 9px; }
 }
 @media (max-height: 560px) {
   .progress { display: none; }
-  .act span { font-size: 1.5rem; }
+  .act span { font-size: 1.4rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -341,7 +377,7 @@ svg .hogg { transform-origin: 160px 240px; }
     <div class="titlebar">
       <h1>Ježko</h1>
       <span class="chip" id="starChip" title="Hviezdičky">⭐ <span id="starCount">0</span></span>
-      <button class="iconbtn" id="shopBtn" type="button" aria-label="Obchod s oblečením" title="Obchod">🛍️</button>
+      <button class="iconbtn" id="shopBtn" type="button" aria-label="Obchod" title="Obchod">🛍️</button>
       <button class="iconbtn" id="albumBtn" type="button" aria-label="Zbierka kamarátov a pokladov" title="Zbierka">📒</button>
       <button class="iconbtn" id="soundBtn" type="button" aria-label="Vypnúť zvuk" title="Zvuk">🔊</button>
     </div>
@@ -355,39 +391,23 @@ svg .hogg { transform-origin: 160px 240px; }
   </header>
 
   <main class="scene" id="scene">
-    <div class="stars-sky" id="skyStars"></div>
-    <div class="sun"></div>
-    <div class="moon"></div>
-    <div class="ground">
-      <svg viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 30 Q100 0 200 22 T400 18 V100 H0 Z" fill="#5a9e3e"/>
-        <path d="M0 45 Q120 20 230 40 T400 36 V100 H0 Z" fill="#7cbf5a"/>
-        <g fill="#ffffff"><circle cx="40" cy="62" r="3"/><circle cx="330" cy="70" r="3"/><circle cx="270" cy="85" r="2.5"/></g>
-        <g fill="#ffc83d"><circle cx="40" cy="62" r="1.2"/><circle cx="330" cy="70" r="1.2"/><circle cx="270" cy="85" r="1"/></g>
-        <g fill="#e2504c"><circle cx="90" cy="80" r="3"/><circle cx="360" cy="54" r="2.6"/></g>
-      </svg>
-    </div>
-    <div class="hogwrap" id="hogwrap" role="button" tabindex="0" aria-label="Pohladkať Ježka">
+    <div class="room" id="room"></div>
+    <div class="hogwrap" id="hogwrap" role="button" tabindex="0" aria-label="Ježko">
       <svg viewBox="0 0 340 260" id="hogsvg" aria-hidden="true"></svg>
     </div>
     <div class="night-veil"></div>
+    <div class="roombar" id="roombar"></div>
     <div class="bubble" id="bubble">Ahoj! Ja som Ježko!</div>
   </main>
 
-  <nav class="actions">
-    <button class="act" id="btnFeed" type="button"><span>🍎</span>Papať</button>
-    <button class="act" id="btnPlay" type="button"><span>🎲</span>Hry</button>
-    <button class="act" id="btnBath" type="button"><span>🛁</span>Kúpať</button>
-    <button class="act" id="btnSleep" type="button"><span>🌙</span>Spinkať</button>
-    <button class="act" id="btnTrip" type="button"><span>🎒</span>Výlet</button>
-  </nav>
+  <nav class="actions" id="tabs" aria-label="Izby"></nav>
 </div>
 
 <script>
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
-  var scene = $("scene"), hogwrap = $("hogwrap"), svg = $("hogsvg"), bubble = $("bubble");
+  var scene = $("scene"), hogwrap = $("hogwrap"), svg = $("hogsvg"), bubble = $("bubble"), roomEl = $("room");
   var KEY = "jezko-save-v1";
   var SVGNS = "http://www.w3.org/2000/svg";
   function rnd(n) { return Math.floor(Math.random() * n); }
@@ -402,6 +422,7 @@ svg .hogg { transform-origin: 160px 240px; }
     if (parent) parent.appendChild(el);
     return el;
   }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
   // ================= DATA =================
   var FOODS = {
@@ -417,13 +438,11 @@ svg .hogg { transform-origin: 160px 240px; }
     kibble: { e: "🥣", n: "Granule",    hunger: 10, happy: 0, line: "Granule... dobré, ale radšej niečo z výletu." }
   };
   var FOOD_ORDER = ["cater", "apple", "pear", "straw", "blue", "cherry", "mush", "carrot", "honey", "kibble"];
-
   var TREASURES = {
     crystal: { e: "💎", n: "Kryštál" }, shell: { e: "🐚", n: "Mušľa" }, feather: { e: "🪶", n: "Pierko" },
     clover: { e: "🍀", n: "Štvorlístok" }, key: { e: "🔑", n: "Kľúčik" }, orb: { e: "🔮", n: "Čarovná guľa" },
     balloon: { e: "🎈", n: "Balónik" }, compass: { e: "🧭", n: "Kompas" }
   };
-
   var FRIENDS = {
     bunny:     { e: "🐰", n: "Zajko", task: "give", item: "carrot", hi: "Ahoj Ježko! Mám veľa mrkvy. Pozbieraj si!", thanks: "Dobrú chuť, kamarát!" },
     ladybug:   { e: "🐞", n: "Lienka", task: "pet", hi: "Pohladkáš ma? Ťukaj na mňa!", thanks: "Hihi, to šteklí! Tu máš jahôdky.", reward: { food: "straw", n: 2 } },
@@ -443,7 +462,6 @@ svg .hogg { transform-origin: 160px 240px; }
     goat:      { e: "🐐", n: "Kamzík", task: "pet", hi: "Mééé! Pohladkaj ma, prosím!", thanks: "Mééé! Tu máš čučoriedky.", reward: { food: "blue", n: 2 } },
     bear:      { e: "🐻", n: "Medvedík", task: "gift", hi: "Brum! Som hladný ako medveď!", thanks: "Brum-brum, ďakujem! Tu máš med.", reward: { food: "honey", n: 2 } }
   };
-
   var PLACES = [
     { id: "garden", name: "Záhrada", icon: "🥕", deco: ["🌻", "🥬", "🪴", "🌷", "🌻"], bush: "straw", tree: ["apple"], dig: ["carrot", "cater"],
       friends: ["bunny", "ladybug", "sparrow", "snail"], bg: "linear-gradient(#bfe6f5, #e3f4d2 55%, #9bd27a 56%, #7cbf5a 75%, #a8794f 76%, #8a5a3b)" },
@@ -459,33 +477,117 @@ svg .hogg { transform-origin: 160px 240px; }
       friends: ["goat", "owl", "bear"], bg: "linear-gradient(#cfe4f7, #ffffff 30%, #c9ccd6 31%, #a3aab8 52%, #8fae79 53%, #6f9a5c)" }
   ];
 
+  // ---- home: rooms, walls, floors, furniture ----
+  var ROOMS = [
+    { id: "living",  n: "Obývačka", e: "🛋️", slots: ["wallL", "wallR", "floorL"], base: "toybox", line: "Obývačka! Zahráme sa?" },
+    { id: "kitchen", n: "Kuchyňa",  e: "🍳", slots: ["wallL", "wallR", "floorL"], base: "fridge", line: "Kuchyňa! Čo dobré máme v chladničke?" },
+    { id: "bed",     n: "Spálňa",   e: "🛏️", slots: ["wallL", "wallR", "floorR"], base: "bed", line: "Spálňa. Tu sa krásne spinká." },
+    { id: "bath",    n: "Kúpeľňa",  e: "🛁", slots: ["wallL", "wallR", "floorL", "floorR"], base: "tub", line: "Kúpeľňa! Ťukni na mňa a okúpeme sa." },
+    { id: "yard",    n: "Dvor",     e: "🌳", slots: ["farL", "floorL", "floorR"], base: "gate", line: "Dvor! Pôjdeme cez bránku na výlet?" }
+  ];
+  var ROOM = {}; ROOMS.forEach(function (r) { ROOM[r.id] = r; });
+  var SLOT_POS = {
+    wallL:  { x: 15, top: 34, size: 13 }, wallR: { x: 85, top: 34, size: 13 },
+    floorL: { x: 12, bottom: 5, size: 18 }, floorR: { x: 88, bottom: 5, size: 18 },
+    farL:   { x: 16, bottom: 36, size: 15 }
+  };
+  var SLOT_NAMES = { wallL: "Na stenu vľavo", wallR: "Na stenu vpravo", floorL: "Na zem vľavo", floorR: "Na zem vpravo", farL: "Do záhrady" };
+  function svgUrl(s) { return 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" ' + s + '</svg>') + '")'; }
+  var WALLS = {
+    cream:   { n: "Krémová", p: 0, css: "#f6ecd9" },
+    mint:    { n: "Mätová", p: 0, css: "#dcefe2" },
+    lilac:   { n: "Levanduľová", p: 0, css: "#e9e0f5" },
+    aqua:    { n: "Bledomodrá", p: 0, css: "#dff0f7" },
+    dots:    { n: "Bodky", p: 5, css: "radial-gradient(#f4a6b8 22%, transparent 24%) 0 0 / 26px 26px, #fde8ee" },
+    stripes: { n: "Pásiky", p: 5, css: "repeating-linear-gradient(90deg, #fff3c4 0 18px, #ffe28a 18px 36px)" },
+    plaid:   { n: "Károvaná", p: 6, css: "repeating-linear-gradient(0deg, rgba(79,154,58,.18) 0 10px, transparent 10px 30px), repeating-linear-gradient(90deg, rgba(79,154,58,.18) 0 10px, transparent 10px 30px), #f1f8e9" },
+    hearts:  { n: "Srdiečka", p: 8, css: svgUrl('width="40" height="40"><path d="M20 30 C8 22 6 14 12 11 C16 9 19 11 20 14 C21 11 24 9 28 11 C34 14 32 22 20 30Z" fill="#f28aa0"/>') + " 0 0 / 40px 40px, #fff0f3" },
+    stars:   { n: "Nočná obloha", p: 8, css: svgUrl('width="44" height="44"><path d="M22 8 l4 9 10 1 -8 6 3 10 -9 -6 -9 6 3 -10 -8 -6 10 -1Z" fill="#ffd75e"/><circle cx="6" cy="38" r="2" fill="#ffffff"/>') + " 0 0 / 44px 44px, #2f3a6b" },
+    flowers: { n: "Kvietky", p: 8, css: svgUrl('width="40" height="40"><g fill="#ffffff"><circle cx="20" cy="13" r="5"/><circle cx="27" cy="20" r="5"/><circle cx="20" cy="27" r="5"/><circle cx="13" cy="20" r="5"/></g><circle cx="20" cy="20" r="4" fill="#ffc83d"/>') + " 0 0 / 40px 40px, #bfe0f5" },
+    jungle:  { n: "Džungľa", p: 10, css: svgUrl('width="60" height="60"><path d="M10 50 Q20 20 40 10 Q34 34 10 50Z" fill="#4f9a3a"/><path d="M10 50 Q26 32 40 10" stroke="#2f6a24" stroke-width="2" fill="none"/>') + " 0 0 / 60px 60px, #d7efc9" }
+  };
+  var FLOORS = {
+    wood:     { n: "Drevo", p: 0, css: "repeating-linear-gradient(90deg, #c9925e 0 44px, #a8743f 44px 47px)" },
+    tiles:    { n: "Dlaždice", p: 0, css: "conic-gradient(#ffffff 25%, #d7e6ee 0 50%, #ffffff 0 75%, #d7e6ee 0) 0 0 / 44px 44px" },
+    darkwood: { n: "Tmavé drevo", p: 6, css: "repeating-linear-gradient(90deg, #7a4a2a 0 40px, #5e3720 40px 43px)" },
+    pink:     { n: "Ružový koberec", p: 6, css: "radial-gradient(#f9d3dc 20%, transparent 22%) 0 0 / 18px 18px, #f2a7b8" },
+    bluec:    { n: "Modrý koberec", p: 6, css: "repeating-linear-gradient(45deg, #8cc2e8 0 10px, #7ab4de 10px 20px)" },
+    grassc:   { n: "Zelený koberec", p: 7, css: "radial-gradient(#8ccf6a 20%, transparent 22%) 0 0 / 16px 16px, #6cb84a" },
+    chess:    { n: "Šachovnica", p: 8, css: "conic-gradient(#3a2618 25%, #f6ecd9 0 50%, #3a2618 0 75%, #f6ecd9 0) 0 0 / 50px 50px" }
+  };
+  var FURN = [
+    { id: "pic", room: "living", slot: "wallL", e: "🖼️", n: "Obraz", p: 5 },
+    { id: "clock", room: "living", slot: "wallL", e: "🕰️", n: "Hodiny", p: 6 },
+    { id: "win", room: "living", slot: "wallR", e: "🪟", n: "Okno", p: 8 },
+    { id: "tv", room: "living", slot: "wallR", e: "📺", n: "Televízor", p: 12 },
+    { id: "sofa", room: "living", slot: "floorL", e: "🛋️", n: "Gauč", p: 12 },
+    { id: "plant", room: "living", slot: "floorL", e: "🪴", n: "Kvetina", p: 4 },
+    { id: "guitar", room: "living", slot: "floorL", e: "🎸", n: "Gitara", p: 10 },
+    { id: "pan", room: "kitchen", slot: "wallL", e: "🍳", n: "Panvička", p: 4 },
+    { id: "kclock", room: "kitchen", slot: "wallL", e: "🕰️", n: "Hodiny", p: 6 },
+    { id: "kwin", room: "kitchen", slot: "wallR", e: "🪟", n: "Okno", p: 8 },
+    { id: "cal", room: "kitchen", slot: "wallR", e: "🗓️", n: "Kalendár", p: 3 },
+    { id: "chair", room: "kitchen", slot: "floorL", e: "🪑", n: "Stolička", p: 5 },
+    { id: "basket", room: "kitchen", slot: "floorL", e: "🧺", n: "Košík", p: 4 },
+    { id: "herbs", room: "kitchen", slot: "floorL", e: "🪴", n: "Bylinky", p: 4 },
+    { id: "bpic", room: "bed", slot: "wallL", e: "🖼️", n: "Obrázok", p: 5 },
+    { id: "moon", room: "bed", slot: "wallL", e: "🌙", n: "Mesiačik", p: 6 },
+    { id: "bwin", room: "bed", slot: "wallR", e: "🪟", n: "Okno", p: 8 },
+    { id: "sparks", room: "bed", slot: "wallR", e: "✨", n: "Hviezdičky", p: 6 },
+    { id: "teddy", room: "bed", slot: "floorR", e: "🧸", n: "Macko", p: 6 },
+    { id: "lamp", room: "bed", slot: "floorR", e: "💡", n: "Lampa", p: 5 },
+    { id: "books", room: "bed", slot: "floorR", e: "📚", n: "Knihy", p: 4 },
+    { id: "mirror", room: "bath", slot: "wallL", e: "🪞", n: "Zrkadlo", p: 8 },
+    { id: "bubbles", room: "bath", slot: "wallL", e: "🫧", n: "Bublinky", p: 3 },
+    { id: "bawin", room: "bath", slot: "wallR", e: "🪟", n: "Okno", p: 8 },
+    { id: "rainbow", room: "bath", slot: "wallR", e: "🌈", n: "Dúha", p: 6 },
+    { id: "bplant", room: "bath", slot: "floorL", e: "🪴", n: "Kvetina", p: 4 },
+    { id: "laundry", room: "bath", slot: "floorL", e: "🧺", n: "Kôš na prádlo", p: 4 },
+    { id: "rduck", room: "bath", slot: "floorR", e: "🦆", n: "Kačička", p: 3 },
+    { id: "soap", room: "bath", slot: "floorR", e: "🧴", n: "Šampón", p: 3 },
+    { id: "tree", room: "yard", slot: "farL", e: "🌳", n: "Strom", p: 6 },
+    { id: "sunfl", room: "yard", slot: "farL", e: "🌻", n: "Slnečnice", p: 5 },
+    { id: "kite", room: "yard", slot: "floorL", e: "🪁", n: "Šarkan", p: 6 },
+    { id: "ball", room: "yard", slot: "floorL", e: "⚽", n: "Lopta", p: 3 },
+    { id: "tent", room: "yard", slot: "floorL", e: "⛺", n: "Stan", p: 12 },
+    { id: "fountain", room: "yard", slot: "floorR", e: "⛲", n: "Fontána", p: 15 },
+    { id: "house", room: "yard", slot: "floorR", e: "🏠", n: "Domček", p: 10 },
+    { id: "tulips", room: "yard", slot: "floorR", e: "🌷", n: "Záhon", p: 4 }
+  ];
+  var FURN_BY_ID = {}; FURN.forEach(function (f) { FURN_BY_ID[f.id] = f; });
+  function defaultHome() {
+    return { living: { wall: "cream", floor: "wood" }, kitchen: { wall: "mint", floor: "tiles" },
+             bed: { wall: "lilac", floor: "wood" }, bath: { wall: "aqua", floor: "tiles" }, yard: {} };
+  }
+
+  // ---- clothes ----
   var STROKE = ' stroke="#3a2618" stroke-width="3" stroke-linejoin="round"';
   var ITEMS = [
-    { id: "flower", slot: "head", name: "Kvietok", acc: "kvietok", price: 4,
+    { id: "flower", slot: "head", name: "Kvietok", price: 4,
       svg: '<g transform="translate(204 112)">' + [0, 72, 144, 216, 288].map(function (a) { var r = a * Math.PI / 180; return '<circle cx="' + (Math.cos(r) * 10).toFixed(1) + '" cy="' + (Math.sin(r) * 10).toFixed(1) + '" r="8" fill="#ffffff"' + STROKE.replace("3", "2") + '/>'; }).join("") + '<circle r="6" fill="#ffc83d"' + STROKE.replace("3", "2") + '/></g>' },
-    { id: "bow", slot: "head", name: "Mašľa", acc: "mašľu", price: 6,
+    { id: "bow", slot: "head", name: "Mašľa", price: 6,
       svg: '<g transform="translate(196 104)"><path d="M0 10 L-24 -6 L-22 24 Z M0 10 L24 -6 L22 24 Z" fill="#e2504c"' + STROKE + '/><circle cx="0" cy="10" r="7" fill="#ff7a72"' + STROKE + '/></g>' },
-    { id: "cap", slot: "head", name: "Šiltovka", acc: "šiltovku", price: 10,
+    { id: "cap", slot: "head", name: "Šiltovka", price: 10,
       svg: '<g transform="translate(228 116) rotate(8)"><path d="M24 8 Q54 4 62 16 L26 16 Z" fill="#c23b37"' + STROKE + '/><path d="M-32 14 A32 30 0 0 1 32 14 Z" fill="#e2504c"' + STROKE + '/><path d="M-6 -10 A10 10 0 0 1 14 -4" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="0" cy="-16" r="4" fill="#ffc83d"/></g>' },
-    { id: "beanie", slot: "head", name: "Zimná čiapka", acc: "zimnú čiapku", price: 12,
+    { id: "beanie", slot: "head", name: "Zimná čiapka", price: 12,
       svg: '<g transform="translate(224 114) rotate(10)"><path d="M-32 14 A32 32 0 0 1 32 14 Z" fill="#5aa7e0"' + STROKE + '/><rect x="-35" y="6" width="70" height="14" rx="7" fill="#3d7fbf"' + STROKE + '/><circle cy="-22" r="10" fill="#ffffff"' + STROKE + '/></g>' },
-    { id: "tophat", slot: "head", name: "Cylinder", acc: "cylinder", price: 15,
+    { id: "tophat", slot: "head", name: "Cylinder", price: 15,
       svg: '<g transform="translate(222 96) rotate(12)"><rect x="-34" y="18" width="68" height="10" rx="5" fill="#2f3a6b"' + STROKE + '/><rect x="-22" y="-26" width="44" height="46" rx="6" fill="#2f3a6b"' + STROKE + '/><rect x="-22" y="6" width="44" height="9" fill="#ffc83d"/></g>' },
-    { id: "wizard", slot: "head", name: "Čarodejný klobúk", acc: "čarodejný klobúk", price: 20,
+    { id: "wizard", slot: "head", name: "Čarodejný klobúk", price: 20,
       svg: '<g transform="translate(222 100) rotate(14)"><path d="M-26 20 L4 -60 L28 20 Z" fill="#7d4cc0"' + STROKE + '/><ellipse cy="22" rx="42" ry="9" fill="#6b3fa0"' + STROKE + '/><path d="M2 -14 l3 6 6 1 -5 4 1 6 -5 -3 -5 3 1 -6 -5 -4 6 -1 Z" fill="#ffc83d"/><circle cx="-8" cy="6" r="3" fill="#ffc83d"/><circle cx="12" cy="-34" r="2.5" fill="#ffc83d"/></g>' },
-    { id: "crown", slot: "head", name: "Korunka", acc: "korunku", price: 30,
+    { id: "crown", slot: "head", name: "Korunka", price: 30,
       svg: '<g transform="translate(222 98) rotate(10)"><path d="M-30 22 L-30 -8 L-16 6 L0 -18 L16 6 L30 -8 L30 22 Z" fill="#ffc83d"' + STROKE + '/><circle cx="0" cy="8" r="5" fill="#e2504c"/><circle cx="-18" cy="12" r="3.5" fill="#4f9a3a"/><circle cx="18" cy="12" r="3.5" fill="#4f9a3a"/></g>' },
-    { id: "glasses", slot: "face", name: "Okuliare", acc: "okuliare", price: 8,
+    { id: "glasses", slot: "face", name: "Okuliare", price: 8,
       svg: '<g><path d="M236 156 L214 142" stroke="#3a2618" stroke-width="4" stroke-linecap="round"/><path d="M265 158 Q272 152 280 158" stroke="#3a2618" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="250" cy="160" r="15" fill="#ffffff" fill-opacity=".3" stroke="#3a2618" stroke-width="4"/></g>' },
-    { id: "shades", slot: "face", name: "Slnečné okuliare", acc: "slnečné okuliare", price: 14,
+    { id: "shades", slot: "face", name: "Slnečné okuliare", price: 14,
       svg: '<g><path d="M236 156 L214 142" stroke="#3a2618" stroke-width="4" stroke-linecap="round"/><path d="M265 158 Q272 152 280 158" stroke="#3a2618" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M234 152 H268 Q268 176 251 176 Q234 176 234 152 Z" fill="#1d1d2e" stroke="#3a2618" stroke-width="3"/><path d="M241 157 L248 157" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></g>' },
-    { id: "bowtie", slot: "neck", name: "Motýlik", acc: "motýlik", price: 6,
+    { id: "bowtie", slot: "neck", name: "Motýlik", price: 6,
       svg: '<g transform="translate(212 226)"><path d="M0 0 L-18 -11 L-18 11 Z M0 0 L18 -11 L18 11 Z" fill="#5aa7e0"' + STROKE + '/><circle r="5" fill="#3d7fbf"' + STROKE.replace("3", "2") + '/><circle cx="-11" cy="-2" r="2" fill="#ffffff"/><circle cx="11" cy="3" r="2" fill="#ffffff"/></g>' },
-    { id: "scarf", slot: "neck", name: "Šál", acc: "šál", price: 10,
+    { id: "scarf", slot: "neck", name: "Šál", price: 10,
       svg: '<g fill="none" stroke-linecap="round"><path d="M196 132 Q176 182 198 232" stroke="#3a2618" stroke-width="26"/><path d="M196 132 Q176 182 198 232" stroke="#e2504c" stroke-width="20"/><path d="M196 132 Q176 182 198 232" stroke="#ffffff" stroke-width="20" stroke-dasharray="6 14" stroke-linecap="butt"/><path d="M190 214 L172 250" stroke="#3a2618" stroke-width="20"/><path d="M190 214 L172 250" stroke="#e2504c" stroke-width="14"/></g>' },
-    { id: "backpack", slot: "back", name: "Ruksak", acc: "ruksak", price: 12,
+    { id: "backpack", slot: "back", name: "Ruksak", price: 12,
       svg: '<g transform="translate(92 142) rotate(-18)"><rect x="-30" y="-36" width="60" height="70" rx="14" fill="#4f9a3a"' + STROKE + '/><rect x="-20" y="2" width="40" height="22" rx="6" fill="#3d7d2c"' + STROKE + '/><path d="M-30 -14 Q0 -2 30 -14" stroke="#3a2618" stroke-width="3" fill="none"/><circle cy="-6" r="4" fill="#ffc83d"/></g>' },
-    { id: "cape", slot: "back", name: "Plášť hrdinu", acc: "plášť hrdinu", price: 18,
+    { id: "cape", slot: "back", name: "Plášť hrdinu", price: 18,
       svg: '<g><path d="M198 112 Q120 78 58 118 Q18 168 38 222 Q100 238 150 214 Q172 160 198 112 Z" fill="#e2504c"' + STROKE + '/><path d="M110 150 l6 12 13 2 -10 9 3 13 -12 -7 -12 7 3 -13 -10 -9 13 -2 Z" fill="#ffc83d"/><circle cx="198" cy="118" r="8" fill="#ffc83d"' + STROKE + '/></g>' }
   ];
   var SLOTS = { head: "Na hlavu", face: "Na oči", neck: "Na krk", back: "Na chrbát" };
@@ -495,7 +597,8 @@ svg .hogg { transform-origin: 160px 240px; }
   // ================= STATE =================
   function fresh() {
     return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 3, sound: true, last: Date.now(),
-             owned: [], wear: {}, food: { apple: 3, straw: 2, cater: 1 }, friends: {}, treasures: {}, lastPlace: "" };
+             owned: [], wear: {}, food: { apple: 3, straw: 2, cater: 1 }, friends: {}, treasures: {}, lastPlace: "",
+             room: "living", home: defaultHome(), homeOwned: [] };
   }
   var S = fresh();
   function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : null; }
@@ -504,11 +607,21 @@ svg .hogg { transform-origin: 160px 240px; }
     var hadFood = !!obj(data.food);
     S = Object.assign(fresh(), data);
     S.owned = Array.isArray(S.owned) ? S.owned : [];
+    S.homeOwned = Array.isArray(S.homeOwned) ? S.homeOwned : [];
     S.wear = obj(S.wear) || {};
     S.food = obj(S.food) || {};
     if (!hadFood) S.food = { apple: 3, straw: 2, cater: 1 };
     S.friends = obj(S.friends) || {};
     S.treasures = obj(S.treasures) || {};
+    var dh = defaultHome(), h = obj(S.home) || {};
+    ROOMS.forEach(function (r) {
+      var cur = obj(h[r.id]) || {};
+      if (r.id !== "yard") { if (!WALLS[cur.wall]) cur.wall = dh[r.id].wall; if (!FLOORS[cur.floor]) cur.floor = dh[r.id].floor; }
+      r.slots.forEach(function (sl) { if (cur[sl] && !FURN_BY_ID[cur[sl]]) delete cur[sl]; });
+      h[r.id] = cur;
+    });
+    S.home = h;
+    if (!ROOM[S.room]) S.room = "living";
     var old = { bow: "bow", hat: "tophat", crown: "crown" }[S.acc];
     if (old) { if (S.owned.indexOf(old) < 0) S.owned.push(old); S.wear.head = old; }
     delete S.acc; delete S.sleeping; delete S.finds; delete S.visited;
@@ -529,6 +642,7 @@ svg .hogg { transform-origin: 160px 240px; }
   }
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
   function foodTotal() { var n = 0; for (var k in S.food) n += S.food[k] || 0; return n; }
+  function ownsHome(key, price) { return price === 0 || S.homeOwned.indexOf(key) >= 0; }
 
   // ================= SOUND =================
   var actx = null;
@@ -561,7 +675,8 @@ svg .hogg { transform-origin: 160px 240px; }
     dig: function () { tone(140, .08, "sawtooth", 0, .06); },
     hello: function () { tone(523, .1, "triangle", 0, .1); tone(784, .15, "triangle", .1, .1); },
     splash: function () { for (var i = 0; i < 8; i++) tone(300 + Math.random() * 1200, .08, "sine", i * .03, .05); },
-    boing: function () { tone(200, .35, "sine", 0, .12, 700); }
+    boing: function () { tone(200, .35, "sine", 0, .12, 700); },
+    door: function () { tone(260, .12, "triangle", 0, .08); tone(390, .14, "triangle", .1, .08); }
   };
 
   // ================= DRAW JEŽKO =================
@@ -586,6 +701,10 @@ svg .hogg { transform-origin: 160px 240px; }
     }
     return out;
   })();
+  var TUB = '<g class="tubg"><ellipse class="tubwater" cx="170" cy="200" rx="0" ry="13" fill="#8fd0f5" stroke="#5aa7e0" stroke-width="3" opacity=".9"/>' +
+    '<path d="M12 198 H328 L306 262 Q170 276 34 262 Z" fill="#ffffff" stroke="#3a2618" stroke-width="4" stroke-linejoin="round"/>' +
+    '<path d="M24 214 H316" stroke="#cfe8f7" stroke-width="6" stroke-linecap="round"/>' +
+    '<rect x="60" y="262" width="18" height="12" rx="4" fill="#ffc83d" stroke="#3a2618" stroke-width="3"/><rect x="262" y="262" width="18" height="12" rx="4" fill="#ffc83d" stroke="#3a2618" stroke-width="3"/></g>';
   function wearSvg(wear, slot) { var it = wear && wear[slot] ? item(wear[slot]) : null; return it ? it.svg : ""; }
   function hogInner(wear, withDirt) {
     return '<g class="hogg">' +
@@ -616,13 +735,106 @@ svg .hogg { transform-origin: 160px 240px; }
     dressedKey = k;
     svg.innerHTML = hogInner(S.wear, true);
     svg.querySelector(".hogg").addEventListener("animationend", function (e) { e.currentTarget.classList.remove("jump", "wiggle", "chew"); });
+    ensureTub();
   }
-  dressMain();
-  (function () {
-    var html = "";
-    for (var i = 0; i < 22; i++) html += '<span style="left:' + (Math.random() * 96) + "%;top:" + (Math.random() * 55) + "%;animation-delay:" + (Math.random() * 2) + 's"></span>';
-    $("skyStars").innerHTML = html;
-  })();
+  function ensureTub() {
+    var t = svg.querySelector(".tubg");
+    if (S.room === "bath" && !t) svg.insertAdjacentHTML("beforeend", TUB);
+    if (S.room !== "bath" && t) t.remove();
+  }
+
+  // ================= ROOMS =================
+  var GROUND_SVG = '<svg viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 Q100 0 200 22 T400 18 V100 H0 Z" fill="#5a9e3e"/><path d="M0 45 Q120 20 230 40 T400 36 V100 H0 Z" fill="#7cbf5a"/><g fill="#ffffff"><circle cx="40" cy="62" r="3"/><circle cx="330" cy="70" r="3"/><circle cx="270" cy="85" r="2.5"/></g><g fill="#ffc83d"><circle cx="40" cy="62" r="1.2"/><circle cx="330" cy="70" r="1.2"/><circle cx="270" cy="85" r="1"/></g><g fill="#e2504c"><circle cx="90" cy="80" r="3"/><circle cx="360" cy="54" r="2.6"/></g></svg>';
+  var BASE_HTML = {
+    fridge: '<button type="button" class="base fridge" data-act="feed" aria-label="Chladnička – papať"><i class="h1"></i><i class="h2"></i><span>🍎</span></button>',
+    toybox: '<button type="button" class="base toybox" data-act="games" aria-label="Hračky – hry"><span class="toys">🧸⚽</span></button>',
+    bed: '<button type="button" class="base bed" data-act="sleep" aria-label="Posteľ – spinkať"></button>',
+    tub: '<div class="showerhead" id="shower"></div>',
+    gate: '<button type="button" class="base gate" data-act="trip" aria-label="Bránka – ísť na výlet"><span>🎒</span>Výlet</button>'
+  };
+  function roomInto(el, roomId, home) {
+    var r = ROOM[roomId], h = home[roomId] || {}, out = "";
+    if (roomId === "yard") {
+      out += '<div class="yard-sky"></div><div class="sun"></div><div class="moon"></div><div class="ground">' + GROUND_SVG + '</div><div class="fence"></div>';
+    } else {
+      out += '<div class="wall"></div><div class="floor"></div><div class="baseboard"></div>';
+    }
+    out += BASE_HTML[r.base];
+    r.slots.forEach(function (sl) {
+      var f = h[sl] && FURN_BY_ID[h[sl]]; if (!f) return;
+      var p = SLOT_POS[sl];
+      out += '<button type="button" class="furn" data-f="' + f.id + '" aria-label="' + f.n + '" style="left:' + p.x + '%;' +
+        (p.top != null ? "top:" + p.top + "%" : "bottom:" + p.bottom + "%") + ";font-size:" + (p.size * .2).toFixed(1) + "rem;font-size:" + p.size + 'cqw">' + f.e + '</button>';
+    });
+    el.innerHTML = out;
+    if (roomId !== "yard") {
+      el.querySelector(".wall").style.background = WALLS[h.wall].css;
+      el.querySelector(".floor").style.background = FLOORS[h.floor].css;
+    }
+  }
+  function drawRoom() { roomInto(roomEl, S.room, S.home); ensureTub(); drawBar(true); }
+  roomEl.addEventListener("click", function (e) {
+    var b = e.target.closest(".base, .furn");
+    if (!b || !roomEl.contains(b)) return;
+    if (b.classList.contains("furn")) {
+      b.classList.remove("wig"); void b.offsetWidth; b.classList.add("wig");
+      sfx.pop(); S.happy = clamp(S.happy + 1);
+      return;
+    }
+    if (b.dataset.act) { b.classList.remove("wig"); void b.offsetWidth; b.classList.add("wig"); roomAction(b.dataset.act); }
+  });
+  roomEl.addEventListener("animationend", function (e) { e.target.classList && e.target.classList.remove("wig"); });
+
+  var tabsEl = $("tabs");
+  ROOMS.forEach(function (r) {
+    var b = mk("button", "act", null, tabsEl); b.id = "tab-" + r.id;
+    b.innerHTML = "<span></span>"; b.firstChild.textContent = r.e; b.appendChild(document.createTextNode(r.n));
+    b.addEventListener("click", function () { goRoom(r.id); });
+  });
+  function goRoom(id) {
+    if (mode === "feed") closeTray();
+    if (mode !== "idle" || id === S.room) return;
+    S.room = id; sfx.door();
+    drawRoom(); anim("jump"); say(ROOM[id].line, 3500);
+    render(); save();
+  }
+
+  // room action bar
+  var barKey = "";
+  function drawBar(force) {
+    var acts = [];
+    if (mode === "play") acts = [["stopplay", "⏹️ Koniec hry"]];
+    else if (mode === "feed") acts = [["feed", "✕ Zavrieť", "alt"]];
+    else if (mode === "bath") acts = [["bath", "✅ Hotovo", "alt"]];
+    else if (mode === "sleep") acts = [["sleep", "☀️ Zobudiť"]];
+    else ({
+      living: [["games", "🎲 Hry"]],
+      kitchen: [["feed", "🍎 Papať"]],
+      bed: [["sleep", "🌙 Spinkať"], ["dress", "👕 Šatník", "alt"]],
+      bath: [["bath", "🛁 Kúpať"]],
+      yard: [["trip", "🎒 Výlet"]]
+    })[S.room].forEach(function (a) { acts.push(a); });
+    var key = S.room + "|" + JSON.stringify(acts);
+    if (!force && key === barKey) return;
+    barKey = key;
+    var bar = $("roombar"); bar.innerHTML = "";
+    mk("span", "roomname", ROOM[S.room].e + " " + ROOM[S.room].n, bar);
+    mk("span", "sp", null, bar);
+    acts.forEach(function (a) {
+      var b = mk("button", "ract" + (a[2] ? " " + a[2] : ""), a[1], bar);
+      b.addEventListener("click", function () { roomAction(a[0]); });
+    });
+  }
+  function roomAction(act) {
+    if (act === "stopplay") { endPlay(); return; }
+    if (act === "feed") { if (mode === "feed") closeTray(); else if (mode === "idle") openTray(); return; }
+    if (mode === "feed") closeTray();
+    if (act === "games" && mode === "idle") openGames();
+    else if (act === "sleep") { if (mode === "sleep") wake(false); else if (mode === "idle") startSleep(); }
+    else if (act === "bath") { if (mode === "bath") endBath(false); else if (mode === "idle") startBath(); }
+    else if (act === "trip" && mode === "idle") openTrip();
+    else if (act === "dress" && mode === "idle") openShop("clothes");
+  }
 
   // ================= HELPERS =================
   var mode = "idle"; // idle | feed | play | bath | sleep | screen
@@ -672,53 +884,50 @@ svg .hogg { transform-origin: 160px 240px; }
 
   // ================= RENDER =================
   function setBar(id, v) { var el = $("m-" + id); el.style.width = Math.max(4, v) + "%"; el.className = v < 30 ? "low" : v < 60 ? "mid" : ""; }
-  function setBtn(id, icon, text) { var b = $(id), h = "<span>" + icon + "</span>" + text; if (b.innerHTML !== h) b.innerHTML = h; }
+  function cheapestShop() {
+    var prices = [];
+    ITEMS.forEach(function (it) { if (S.owned.indexOf(it.id) < 0) prices.push(it.price); });
+    FURN.forEach(function (f) { if (!ownsHome("i:" + f.id, f.p)) prices.push(f.p); });
+    Object.keys(WALLS).forEach(function (k) { if (!ownsHome("w:" + k, WALLS[k].p)) prices.push(WALLS[k].p); });
+    Object.keys(FLOORS).forEach(function (k) { if (!ownsHome("f:" + k, FLOORS[k].p)) prices.push(FLOORS[k].p); });
+    return prices.length ? Math.min.apply(null, prices) : null;
+  }
   function render() {
     dressMain();
     setBar("hunger", S.hunger); setBar("happy", S.happy); setBar("energy", S.energy); setBar("clean", S.clean);
     $("starCount").textContent = S.stars;
     var dirt = svg.querySelector(".dirt");
     if (dirt) dirt.setAttribute("opacity", S.clean > 70 ? 0 : ((70 - S.clean) / 70).toFixed(2));
-    var cheap = ITEMS.filter(function (it) { return S.owned.indexOf(it.id) < 0; }).sort(function (a, b) { return a.price - b.price; })[0];
-    $("progress").textContent = foodTotal() === 0 ? "Zásoby jedla sú prázdne. Choď na výlet 🎒 nazbierať!"
-      : !cheap ? "Ježko má celý šatník! Výborne!"
-      : S.stars >= cheap.price ? "Máš dosť ⭐ na " + cheap.acc + "! Choď do obchodu 🛍️"
-      : "Ešte " + (cheap.price - S.stars) + " ⭐ a kúpiš Ježkovi " + cheap.acc + ".";
+    var cheap = cheapestShop();
+    $("progress").textContent = foodTotal() === 0 ? "Zásoby jedla sú prázdne. Choď na dvor 🌳 a na výlet!"
+      : cheap == null ? "Máš úplne všetko z obchodu! Výborne!"
+      : S.stars >= cheap ? "Máš dosť ⭐ na nákup! Choď do obchodu 🛍️"
+      : "Ešte " + (cheap - S.stars) + " ⭐ a môžeš nakupovať v obchode 🛍️";
     var low = Math.min(S.hunger, S.happy, S.energy, S.clean), mouth = svg.querySelector(".mouth");
     mouth.setAttribute("d", mode === "sleep" ? "M274 205 Q283 209 292 205" : low < 30 ? "M272 209 Q283 199 294 209" : low < 55 ? "M273 205 L293 205" : "M272 203 Q283 213 294 203");
     svg.classList.toggle("sleepy", mode === "sleep");
     scene.classList.toggle("night", mode === "sleep");
-    var idle = mode === "idle";
-    $("btnFeed").classList.toggle("need", idle && S.hunger < 35);
-    $("btnPlay").classList.toggle("need", idle && S.happy < 35);
-    $("btnBath").classList.toggle("need", idle && S.clean < 35);
-    $("btnSleep").classList.toggle("need", idle && S.energy < 30);
-    $("btnTrip").classList.toggle("need", idle && foodTotal() === 0 && S.energy >= 25);
-    var own = { feed: "btnFeed", play: "btnPlay", bath: "btnBath", sleep: "btnSleep" }[mode];
-    ["btnFeed", "btnPlay", "btnBath", "btnSleep", "btnTrip"].forEach(function (id) {
-      var b = $(id), mine = id === own;
-      b.setAttribute("aria-pressed", mine ? "true" : "false");
-      b.disabled = mode === "screen" || (mode !== "idle" && mode !== "feed" && !mine);
+    var free = mode === "idle" || mode === "feed";
+    var need = { kitchen: S.hunger < 35, living: S.happy < 35, bath: S.clean < 35, bed: S.energy < 30, yard: foodTotal() === 0 && S.energy >= 25 };
+    ROOMS.forEach(function (r) {
+      var b = $("tab-" + r.id);
+      b.setAttribute("aria-pressed", r.id === S.room ? "true" : "false");
+      b.disabled = !free && r.id !== S.room;
+      b.classList.toggle("need", free && r.id !== S.room && !!need[r.id]);
     });
-    $("shopBtn").disabled = $("albumBtn").disabled = !(mode === "idle" || mode === "feed");
-    setBtn("btnSleep", mode === "sleep" ? "☀️" : "🌙", mode === "sleep" ? "Zobudiť" : "Spinkať");
-    setBtn("btnBath", mode === "bath" ? "✅" : "🛁", mode === "bath" ? "Hotovo" : "Kúpať");
-    setBtn("btnPlay", mode === "play" ? "⏹️" : "🎲", mode === "play" ? "Koniec" : "Hry");
+    $("shopBtn").disabled = $("albumBtn").disabled = !free;
     $("soundBtn").textContent = S.sound ? "🔊" : "🔇";
     $("soundBtn").setAttribute("aria-label", S.sound ? "Vypnúť zvuk" : "Zapnúť zvuk");
+    drawBar(false);
   }
   function idleTalk() {
     if (mode !== "idle" || Date.now() < lastSay) return;
-    var t;
-    if (S.hunger < 35) t = foodTotal() ? "Som hladný! Daj mi papať!" : "Som hladný! Poďme na výlet nájsť jedlo!";
-    else if (S.energy < 30) t = "Som ospalý... Uložíš ma spať?";
-    else if (S.clean < 35) t = "Fuj, som celý zablatený!";
-    else if (S.happy < 35) t = "Je mi smutno. Zahráme sa?";
-    else {
-      var lines = ["Ľúbim ťa!", "Pohladkaj ma!", "Fŕŕ fŕŕ!", "Poďme na výlet!", "Si môj najlepší kamarát!", "Kto nás dnes stretne na výlete?"];
-      if (foodTotal() < 3) lines.push("Dochádza nám jedlo. Ideme na výlet?");
-      t = pick(lines);
-    }
+    var t, r = S.room;
+    if (S.hunger < 35) t = r === "kitchen" ? "Som hladný! Otvor chladničku!" : foodTotal() ? "Som hladný! Poďme do kuchyne 🍳" : "Som hladný a nemáme jedlo. Na výlet!";
+    else if (S.energy < 30) t = r === "bed" ? "Som ospalý... Ťukni na posteľ." : "Som ospalý... Poďme do spálne 🛏️";
+    else if (S.clean < 35) t = r === "bath" ? "Ťukni na mňa a okúpeme sa!" : "Fuj, som zablatený! Do kúpeľne 🛁";
+    else if (S.happy < 35) t = r === "living" ? "Zahráme sa? Ťukni na hračky!" : "Je mi smutno. Poďme sa hrať 🛋️";
+    else t = pick(["Ľúbim ťa!", "Pohladkaj ma!", "Fŕŕ fŕŕ!", "Páči sa mi náš domček!", "Si môj najlepší kamarát!", "Kúpime niečo pekné do izby?"]);
     say(t, 6000);
   }
 
@@ -740,9 +949,13 @@ svg .hogg { transform-origin: 160px 240px; }
   }, 1000);
   document.addEventListener("visibilitychange", function () { if (document.hidden) save(); });
 
-  // ================= PET =================
+  // ================= TAP JEŽKO =================
   var lastPet = 0;
-  function pet() {
+  function tapHog() {
+    if (S.room === "bath") {
+      if (mode === "idle") { startBath(); return; }
+      if (mode === "bath") { if (bath && bath.step === 0) pourWater(); return; }
+    }
     if (mode === "sleep") { say("Pssst... Ježko spinká.", 2000); return; }
     if (mode !== "idle" && mode !== "feed") return;
     if (Date.now() - lastPet < 350) return;
@@ -752,10 +965,10 @@ svg .hogg { transform-origin: 160px 240px; }
     if (Math.random() < .35) say(pick(["Hihi, to šteklí!", "Fŕŕ!", "Ešte, ešte!", "Mňam, pohladkanie!"]), 2000);
     render();
   }
-  hogwrap.addEventListener("click", function () { if (mode !== "bath") pet(); });
-  hogwrap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pet(); } });
+  hogwrap.addEventListener("click", tapHog);
+  hogwrap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tapHog(); } });
 
-  // ================= FEED (from the food store) =================
+  // ================= FEED =================
   var tray = null, eating = false;
   function closeTray() { if (tray) { tray.remove(); tray = null; } if (mode === "feed") mode = "idle"; render(); }
   function openTray() {
@@ -781,11 +994,7 @@ svg .hogg { transform-origin: 160px 240px; }
     if (S.hunger >= 95) { sfx.no(); anim("wiggle"); say("Už som plný! Bruško mám ako balón.", 2500); return; }
     if (id !== "kibble" && !(S.food[id] > 0)) return;
     eating = true;
-    if (id !== "kibble") {
-      S.food[id]--;
-      var em = btn.querySelector("em"); em.textContent = S.food[id];
-      if (!S.food[id]) btn.remove();
-    }
+    if (id !== "kibble") { S.food[id]--; btn.querySelector("em").textContent = S.food[id]; if (!S.food[id]) btn.remove(); }
     var s = scene.getBoundingClientRect(), b = btn.getBoundingClientRect();
     var fl = mk("div", "flying", f.e, scene);
     fl.style.left = (b.left - s.left + b.width / 2 - 18) + "px"; fl.style.top = (b.top - s.top) + "px";
@@ -804,13 +1013,13 @@ svg .hogg { transform-origin: 160px 240px; }
     }, 650);
   }
 
-  // ================= BATH (4 steps) =================
+  // ================= BATH: only tapping and rubbing Ježko =================
   var bath = null;
   var BATH_STEPS = [
-    { tool: "🚰", name: "Voda", say: "Najprv napusti vaničku! Ťukaj na kohútik 🚰", hint: "Napúšťaj vodu" },
-    { tool: "🧼", name: "Mydlo", say: "Teraz ma namydli! Prechádzaj mydlom po mne.", hint: "Namydli Ježka" },
-    { tool: "🚿", name: "Sprcha", say: "Opláchni penu sprchou!", hint: "Opláchni penu" },
-    { tool: "🌬️", name: "Fén", say: "Brrr, som mokrý! Usuš ma fénom.", hint: "Usuš Ježka" }
+    { icon: "🚿", cursor: "", say: "Ťukaj na mňa – pustíme vodu!", hint: "Ťukaj na Ježka" },
+    { icon: "🧼", cursor: "🧼", say: "Teraz ma šúchaj – namydlíme sa!", hint: "Šúchaj – mydlíme" },
+    { icon: "💦", cursor: "🚿", say: "Šúchaj ďalej – opláchneme penu!", hint: "Šúchaj – oplachujeme" },
+    { icon: "🌬️", cursor: "🌬️", say: "Brrr, som mokrý! Šúchaj ma do sucha.", hint: "Šúchaj – sušíme" }
   ];
   function svgEl(tag, attrs, parent) {
     var el = document.createElementNS(SVGNS, tag);
@@ -824,27 +1033,17 @@ svg .hogg { transform-origin: 160px 240px; }
   }
   function onHog(p) { var dx = (p.x - 165) / 150, dy = (p.y - 170) / 92; return dx * dx + dy * dy < 1 && p.y < 238; }
   function startBath() {
+    if (S.room !== "bath") return;
     if (tray) closeTray();
+    ensureTub();
     mode = "bath";
-    var layer = svgEl("g", { "class": "bathlayer" }, svg);
-    bath = {
-      step: 0, start: S.clean, water: 0, layer: layer,
-      foamG: svgEl("g", {}, layer), dropG: svgEl("g", {}, layer),
-      lastAdd: null, timers: [], els: []
-    };
-    var tub = svgEl("g", {}, layer);
-    bath.waterEl = svgEl("ellipse", { cx: 170, cy: 200, rx: 0, ry: 13, fill: "#8fd0f5", stroke: "#5aa7e0", "stroke-width": 3, opacity: .9 }, tub);
-    svgEl("path", { d: "M12 198 H328 L306 262 Q170 276 34 262 Z", fill: "#ffffff", stroke: "#3a2618", "stroke-width": 4, "stroke-linejoin": "round" }, tub);
-    svgEl("path", { d: "M24 214 H316", stroke: "#cfe8f7", "stroke-width": 6, "stroke-linecap": "round" }, tub);
-    svgEl("rect", { x: 60, y: 262, width: 18, height: 12, rx: 4, fill: "#ffc83d", stroke: "#3a2618", "stroke-width": 3 }, tub);
-    svgEl("rect", { x: 262, y: 262, width: 18, height: 12, rx: 4, fill: "#ffc83d", stroke: "#3a2618", "stroke-width": 3 }, tub);
-
-    var tools = mk("div", "tools", null, scene); bath.els.push(tools);
-    bath.toolBtns = BATH_STEPS.map(function (st, i) {
-      var b = mk("button", "tool", st.tool, tools); b.setAttribute("aria-label", st.name);
-      b.addEventListener("click", function (e) { e.stopPropagation(); if (i === 0 && bath && bath.step === 0) pourWater(); });
-      return b;
-    });
+    var layer = document.createElementNS(SVGNS, "g");
+    layer.setAttribute("class", "bathlayer");
+    svg.insertBefore(layer, svg.querySelector(".tubg"));
+    bath = { step: 0, start: S.clean, water: 0, layer: layer, foamG: svgEl("g", {}, layer), dropG: svgEl("g", {}, layer),
+             waterEl: svg.querySelector(".tubwater"), lastAdd: null, timers: [], els: [], total: 0 };
+    var steps = mk("div", "steps", null, scene); bath.els.push(steps);
+    bath.stepEls = BATH_STEPS.map(function (st) { return mk("div", "stp", st.icon, steps); });
     bath.cursor = mk("div", "cursor", "", scene); bath.cursor.hidden = true; bath.els.push(bath.cursor);
     bath.hint = mk("div", "hint top", null, scene); bath.els.push(bath.hint);
     bath.hint.innerHTML = '<span></span><span class="pb"><i></i></span>';
@@ -853,27 +1052,26 @@ svg .hogg { transform-origin: 160px 240px; }
     render();
   }
   function setStep(i) {
-    bath.step = i;
+    bath.step = i; bath.total = 0; bath.lastAdd = null;
     var st = BATH_STEPS[i];
-    bath.toolBtns.forEach(function (b, k) {
-      b.classList.toggle("cur", k === i); b.classList.toggle("ok", k < i); b.disabled = k !== i || k !== 0;
-      if (k === 0 && i === 0) b.disabled = false;
-    });
-    bath.cursor.textContent = st.tool;
+    bath.stepEls.forEach(function (el, k) { el.classList.toggle("cur", k === i); el.classList.toggle("ok", k < i); });
+    bath.cursor.textContent = st.cursor;
     bath.hint.firstChild.textContent = st.hint;
-    setProg(0);
-    say(st.say, 4500);
-    anim("wiggle");
+    setProg(0); say(st.say, 4500); anim("wiggle");
   }
   function setProg(p) { if (bath) bath.hint.querySelector("i").style.width = Math.round(Math.min(1, p) * 100) + "%"; }
   function pourWater() {
-    bath.water++;
-    sfx.water();
-    var b = bath.toolBtns[0].getBoundingClientRect(), s = scene.getBoundingClientRect();
-    for (var i = 0; i < 4; i++) fx("💧", b.right - s.left + 10 + i * 18, b.top - s.top + 10 + Math.random() * 20, "drip");
-    bath.waterEl.setAttribute("rx", 37 * bath.water);
-    setProg(bath.water / 4);
-    if (bath.water >= 4) {
+    if (bath.busy) return;
+    bath.water++; sfx.water(); anim("wiggle");
+    var sh = $("shower"), s = scene.getBoundingClientRect();
+    if (sh) {
+      var r = sh.getBoundingClientRect();
+      for (var i = 0; i < 6; i++) fx("💧", r.left - s.left + 6 + Math.random() * (r.width - 12), r.bottom - s.top + Math.random() * 30, "drip");
+    }
+    bath.waterEl.setAttribute("rx", 30 * bath.water);
+    setProg(bath.water / 5);
+    if (bath.water >= 5) {
+      bath.busy = true;
       say("Juchú, vanička je plná!", 2000);
       var dp = hogPoint(.1, .76), duck = mk("button", "duck", "🦆", scene);
       duck.setAttribute("aria-label", "Gumená kačička");
@@ -881,7 +1079,8 @@ svg .hogg { transform-origin: 160px 240px; }
       duck.addEventListener("pointerdown", function (e) { e.stopPropagation(); sfx.squeak(); duck.classList.remove("squeak"); void duck.offsetWidth; duck.classList.add("squeak"); S.happy = clamp(S.happy + 1); });
       duck.addEventListener("animationend", function () { duck.classList.remove("squeak"); });
       bath.els.push(duck);
-      setTimeout(function () { if (bath) setStep(1); }, 900);
+      sfx.star();
+      setTimeout(function () { if (bath) { bath.busy = false; setStep(1); } }, 1000);
     }
   }
   function spawnBubble() {
@@ -903,9 +1102,10 @@ svg .hogg { transform-origin: 160px 240px; }
     bath.cursor.style.left = (e.clientX - s.left) + "px"; bath.cursor.style.top = (e.clientY - s.top) + "px";
     if (bath.step === 0 || bath.busy) return;
     var p = toSvg(e);
+    if (!onHog(p)) return;
     var last = bath.lastAdd, far = !last || Math.hypot(p.x - last.x, p.y - last.y) > 11;
     if (bath.step === 1) {
-      if (!onHog(p) || !far) return;
+      if (!far) return;
       bath.lastAdd = p;
       svgEl("circle", { cx: p.x + rnd(10) - 5, cy: p.y + rnd(10) - 5, r: 9 + rnd(8), fill: "#ffffff", stroke: "#cfe8f7", "stroke-width": 2 }, bath.foamG);
       if (Math.random() < .3) sfx.bub();
@@ -914,29 +1114,27 @@ svg .hogg { transform-origin: 160px 240px; }
       S.clean = Math.max(S.clean, bath.start + (100 - bath.start) * 0.6 * Math.min(1, prog));
       if (prog >= 1) nextStep("Ha-ha, som celý penový!");
     } else if (bath.step === 2) {
-      if (far) { bath.lastAdd = p; fx("💧", e.clientX - s.left + rnd(30) - 15, e.clientY - s.top + 20, "drip"); if (Math.random() < .3) sfx.bub(); }
-      var wet = { x: p.x, y: p.y + 35 };
+      if (far) { bath.lastAdd = p; fx("💧", e.clientX - s.left + rnd(30) - 15, e.clientY - s.top + 10, "drip"); if (Math.random() < .3) sfx.bub(); }
+      if (!bath.total) bath.total = Math.max(1, bath.foamG.childNodes.length);
       Array.prototype.slice.call(bath.foamG.childNodes).forEach(function (c) {
-        if (Math.hypot(c.cx.baseVal.value - wet.x, c.cy.baseVal.value - wet.y) < 42) {
+        if (Math.hypot(c.cx.baseVal.value - p.x, c.cy.baseVal.value - p.y) < 46) {
           if (bath.dropG.childNodes.length < 26) svgEl("ellipse", { cx: c.cx.baseVal.value, cy: c.cy.baseVal.value, rx: 4, ry: 6, fill: "#8fd0f5", stroke: "#3d7fbf", "stroke-width": 1.5 }, bath.dropG);
           c.remove();
         }
       });
-      if (!bath.total) bath.total = Math.max(1, bath.foamG.childNodes.length);
       var left = bath.foamG.childNodes.length;
       setProg(1 - left / bath.total);
       S.clean = Math.max(S.clean, bath.start + (100 - bath.start) * (0.6 + 0.3 * (1 - left / bath.total)));
       if (left === 0) {
         while (bath.dropG.childNodes.length < 12) svgEl("ellipse", { cx: 70 + rnd(220), cy: 120 + rnd(90), rx: 4, ry: 6, fill: "#8fd0f5", stroke: "#3d7fbf", "stroke-width": 1.5 }, bath.dropG);
-        bath.total = 0;
         nextStep("Brrr, je mi zima!");
       }
     } else if (bath.step === 3) {
       if (far) { bath.lastAdd = p; if (Math.random() < .3) fx("💨", e.clientX - s.left + 20, e.clientY - s.top); }
-      Array.prototype.slice.call(bath.dropG.childNodes).forEach(function (c) {
-        if (Math.hypot(c.cx.baseVal.value - p.x, c.cy.baseVal.value - p.y) < 45) c.remove();
-      });
       if (!bath.total) bath.total = Math.max(1, bath.dropG.childNodes.length);
+      Array.prototype.slice.call(bath.dropG.childNodes).forEach(function (c) {
+        if (Math.hypot(c.cx.baseVal.value - p.x, c.cy.baseVal.value - p.y) < 46) c.remove();
+      });
       var l2 = bath.dropG.childNodes.length;
       setProg(1 - l2 / bath.total);
       if (l2 === 0) finishBath();
@@ -944,13 +1142,13 @@ svg .hogg { transform-origin: 160px 240px; }
   }
   function nextStep(line) {
     bath.busy = true; sfx.star(); say(line, 1500);
-    setTimeout(function () { if (bath) { bath.busy = false; bath.lastAdd = null; setStep(bath.step + 1); } }, 1200);
+    setTimeout(function () { if (bath) { bath.busy = false; setStep(bath.step + 1); } }, 1200);
   }
   function finishBath() {
     bath.busy = true;
     S.clean = 100; S.happy = clamp(S.happy + 10);
     for (var i = 0; i < 6; i++) { var p = hogPoint(.2 + Math.random() * .7, .2 + Math.random() * .4); fx("✨", p.x, p.y); }
-    bath.toolBtns[3].classList.add("ok"); bath.toolBtns[3].classList.remove("cur");
+    bath.stepEls[3].classList.add("ok"); bath.stepEls[3].classList.remove("cur");
     setProg(1);
     var star = bath.start < 85;
     setTimeout(function () { endBath(true); if (star) giveStar(); }, 1600);
@@ -960,6 +1158,7 @@ svg .hogg { transform-origin: 160px 240px; }
     bath.timers.forEach(clearInterval);
     bath.layer.remove();
     bath.els.forEach(function (el) { el.remove(); });
+    if (bath.waterEl) bath.waterEl.setAttribute("rx", 0);
     scene.querySelectorAll(".pbub").forEach(function (el) { el.remove(); });
     bath = null; mode = "idle";
     if (done) { say("Som čistučký a voňavý!", 3500); anim("jump"); sfx.wake(); }
@@ -1007,7 +1206,7 @@ svg .hogg { transform-origin: 160px 240px; }
     if (panel.cleanup) panel.cleanup();
     panel.el.remove(); panel = null;
     if (mode === "screen") mode = "idle";
-    if (!silent) { render(); save(); }
+    if (!silent) { drawRoom(); render(); save(); }
   }
   function toast(text, hold) {
     if (!panel) return;
@@ -1034,15 +1233,37 @@ svg .hogg { transform-origin: 160px 240px; }
   }
 
   // ================= SHOP =================
-  var shopSel = null;
-  function openShop() {
-    openScreen("Obchod s oblečením");
-    shopSel = S.wear.head || (ITEMS.filter(function (it) { return S.owned.indexOf(it.id) < 0; })[0] || ITEMS[0]).id;
+  var shop = { tab: "clothes", room: "living", sel: {} };
+  var TABS = [["clothes", "👕 Oblečenie"], ["furn", "🛋️ Nábytok"], ["wall", "🎨 Steny"], ["floor", "🟫 Podlahy"]];
+  function openShop(tab) {
+    openScreen("Obchod");
+    shop.tab = tab || "clothes"; shop.room = S.room; shop.sel = {};
     drawShop();
   }
+  function shopRedraw() { var y = panel.body.scrollTop; drawShop(); panel.body.scrollTop = y; }
   function drawShop() {
     resetBody(false);
-    var sel = item(shopSel), owned = S.owned.indexOf(sel.id) >= 0, worn = S.wear[sel.slot] === sel.id;
+    if ((shop.tab === "wall" || shop.tab === "floor") && shop.room === "yard") shop.room = "living";
+    var tabs = mk("div", "tabs", null, panel.body);
+    TABS.forEach(function (t) {
+      var b = mk("button", "pill" + (shop.tab === t[0] ? " go" : ""), t[1], tabs);
+      b.addEventListener("click", function () { shop.tab = t[0]; sfx.flip(); drawShop(); });
+    });
+    if (shop.tab !== "clothes") {
+      var chips = mk("div", "roomchips", null, panel.body);
+      ROOMS.forEach(function (r) {
+        if (r.id === "yard" && shop.tab !== "furn") return;
+        var b = mk("button", "pill" + (shop.room === r.id ? " go" : ""), r.e + " " + r.n, chips);
+        b.addEventListener("click", function () { shop.room = r.id; sfx.flip(); drawShop(); });
+      });
+    }
+    ({ clothes: shopClothes, furn: shopFurn, wall: shopSurface, floor: shopSurface })[shop.tab]();
+  }
+  function buyFx(price) { S.stars -= price; sfx.buy(); confetti(); bumpStars(); S.happy = clamp(S.happy + 10); }
+  function shopClothes() {
+    var selId = shop.sel.clothes || S.wear.head || (ITEMS.filter(function (it) { return S.owned.indexOf(it.id) < 0; })[0] || ITEMS[0]).id;
+    shop.sel.clothes = selId;
+    var sel = item(selId), owned = S.owned.indexOf(sel.id) >= 0, worn = S.wear[sel.slot] === sel.id;
     var tryWear = Object.assign({}, S.wear); tryWear[sel.slot] = sel.id;
     var top = mk("div", "shop-top", null, panel.body);
     top.innerHTML = '<div class="pv">' + miniHog(tryWear) + '</div><div class="info"><b></b><span></span><div class="row"></div></div>';
@@ -1054,24 +1275,90 @@ svg .hogg { transform-origin: 160px 240px; }
     else { btn.textContent = "Chýba ti " + (sel.price - S.stars) + " ⭐"; btn.disabled = true; }
     btn.addEventListener("click", function () {
       if (owned) { if (worn) delete S.wear[sel.slot]; else S.wear[sel.slot] = sel.id; sfx.pet(); }
-      else {
-        if (S.stars < sel.price) return;
-        S.stars -= sel.price; S.owned.push(sel.id); S.wear[sel.slot] = sel.id;
-        sfx.buy(); confetti(); bumpStars(); S.happy = clamp(S.happy + 15);
-      }
-      save(); render(); drawShop();
+      else { if (S.stars < sel.price) return; buyFx(sel.price); S.owned.push(sel.id); S.wear[sel.slot] = sel.id; }
+      save(); render(); shopRedraw();
     });
     Object.keys(SLOTS).forEach(function (slot) {
       mk("div", "slot-title", SLOTS[slot], panel.body);
       var grid = mk("div", "shopgrid", null, panel.body);
       ITEMS.filter(function (it) { return it.slot === slot; }).forEach(function (it) {
         var have = S.owned.indexOf(it.id) >= 0, w = {}; w[slot] = it.id;
-        var b = mk("button", "item" + (it.id === shopSel ? " sel" : ""), null, grid);
+        var b = mk("button", "item" + (it.id === selId ? " sel" : ""), null, grid);
         b.innerHTML = '<div class="thumb">' + miniHog(w, THUMB_VB[slot]) + '</div><div class="nm"></div><div class="pr' + (have ? " owned" : "") + '"></div>' + (S.wear[slot] === it.id ? '<span class="worn">oblečené</span>' : "");
         b.querySelector(".nm").textContent = it.name;
         b.querySelector(".pr").textContent = have ? "✓ máš" : it.price + " ⭐";
-        b.addEventListener("click", function () { shopSel = it.id; sfx.flip(); var y = panel.body.scrollTop; drawShop(); panel.body.scrollTop = y; });
+        b.addEventListener("click", function () { shop.sel.clothes = it.id; sfx.flip(); shopRedraw(); });
       });
+    });
+  }
+  function roomPreview(parent, roomId, home) {
+    var box = mk("div", "pvbox", null, parent);
+    var r = mk("div", "pvroom", null, box);
+    roomInto(r, roomId, home);
+    var hw = mk("div", "pvhog", null, box);
+    hw.innerHTML = '<svg class="minihog" viewBox="0 0 340 260" style="overflow:visible">' + hogInner(S.wear, false) + (roomId === "bath" ? TUB : "") + '</svg>';
+  }
+  function topInfo(parent, title, sub, btnText, disabled, onClick) {
+    var info = mk("div", "info", null, parent);
+    var txt = mk("div", null, null, info);
+    mk("b", null, title, txt); mk("br", null, null, txt); mk("span", null, sub, txt);
+    var b = mk("button", "pill go", btnText, info); b.disabled = !!disabled;
+    b.addEventListener("click", onClick);
+  }
+  function shopFurn() {
+    var room = shop.room, list = FURN.filter(function (f) { return f.room === room; });
+    var sel = FURN_BY_ID[shop.sel["furn_" + room]] || list.filter(function (f) { return !S.home[room][f.slot]; })[0] || list[0];
+    shop.sel["furn_" + room] = sel.id;
+    var owned = ownsHome("i:" + sel.id, sel.p), placed = S.home[room][sel.slot] === sel.id;
+    var tmp = clone(S.home); tmp[room][sel.slot] = sel.id;
+    var top = mk("div", "roomtop", null, panel.body);
+    roomPreview(top, room, tmp);
+    var txt = owned ? (placed ? "Je v izbe." : "Toto už máš.") : "Cena: " + sel.p + " ⭐";
+    var bt = owned ? (placed ? "Odložiť" : "Dať do izby") : S.stars >= sel.p ? "Kúpiť za " + sel.p + " ⭐" : "Chýba ti " + (sel.p - S.stars) + " ⭐";
+    topInfo(top, sel.e + " " + sel.n, txt, bt, !owned && S.stars < sel.p, function () {
+      if (owned) { if (placed) delete S.home[room][sel.slot]; else S.home[room][sel.slot] = sel.id; sfx.pet(); }
+      else { if (S.stars < sel.p) return; buyFx(sel.p); S.homeOwned.push("i:" + sel.id); S.home[room][sel.slot] = sel.id; }
+      save(); render(); shopRedraw();
+    });
+    ROOM[room].slots.forEach(function (slot) {
+      mk("div", "slot-title", SLOT_NAMES[slot], panel.body);
+      var grid = mk("div", "shopgrid", null, panel.body);
+      list.filter(function (f) { return f.slot === slot; }).forEach(function (f) {
+        var have = ownsHome("i:" + f.id, f.p);
+        var b = mk("button", "item" + (f.id === sel.id ? " sel" : ""), null, grid);
+        mk("div", "thumb", f.e, b); mk("div", "nm", f.n, b);
+        mk("div", "pr" + (have ? " owned" : ""), have ? "✓ máš" : f.p + " ⭐", b);
+        if (S.home[room][slot] === f.id) mk("span", "worn", "v izbe", b);
+        b.addEventListener("click", function () { shop.sel["furn_" + room] = f.id; sfx.flip(); shopRedraw(); });
+      });
+    });
+  }
+  function shopSurface() {
+    var isWall = shop.tab === "wall", DEF = isWall ? WALLS : FLOORS, pre = isWall ? "w:" : "f:", key = isWall ? "wall" : "floor";
+    var room = shop.room, ids = Object.keys(DEF);
+    var selId = shop.sel[key + "_" + room] || S.home[room][key];
+    shop.sel[key + "_" + room] = selId;
+    var d = DEF[selId], owned = ownsHome(pre + selId, d.p), used = S.home[room][key] === selId;
+    var tmp = clone(S.home); tmp[room][key] = selId;
+    var top = mk("div", "roomtop", null, panel.body);
+    roomPreview(top, room, tmp);
+    var txt = owned ? (used ? "Táto je v izbe." : "Túto už máš.") : "Cena: " + d.p + " ⭐";
+    var bt = used ? "Už je v izbe" : owned ? "Dať do izby" : S.stars >= d.p ? "Kúpiť za " + d.p + " ⭐" : "Chýba ti " + (d.p - S.stars) + " ⭐";
+    topInfo(top, d.n, txt, bt, used || (!owned && S.stars < d.p), function () {
+      if (!owned) { if (S.stars < d.p) return; buyFx(d.p); S.homeOwned.push(pre + selId); } else sfx.pet();
+      S.home[room][key] = selId;
+      save(); render(); shopRedraw();
+    });
+    mk("div", "slot-title", isWall ? "Tapety na steny" : "Podlahy", panel.body);
+    var grid = mk("div", "shopgrid", null, panel.body);
+    ids.forEach(function (id) {
+      var x = DEF[id], have = ownsHome(pre + id, x.p);
+      var b = mk("button", "item" + (id === selId ? " sel" : ""), null, grid);
+      var sw = mk("div", "thumb sw", null, b); sw.style.background = x.css;
+      mk("div", "nm", x.n, b);
+      mk("div", "pr" + (have ? " owned" : ""), have ? (x.p ? "✓ máš" : "zadarmo") : x.p + " ⭐", b);
+      if (S.home[room][key] === id) mk("span", "worn", "v izbe", b);
+      b.addEventListener("click", function () { shop.sel[key + "_" + room] = id; sfx.flip(); shopRedraw(); });
     });
   }
 
@@ -1108,7 +1395,7 @@ svg .hogg { transform-origin: 160px 240px; }
     playSpawned++;
     var t = mk("button", "target", pick(TARGETS), scene); t.setAttribute("aria-label", "Chytiť");
     var w = scene.clientWidth, h = scene.clientHeight;
-    t.style.left = (10 + Math.random() * (w - 80)) + "px"; t.style.top = (h * 0.18 + Math.random() * h * 0.42) + "px";
+    t.style.left = (10 + Math.random() * (w - 80)) + "px"; t.style.top = (h * 0.22 + Math.random() * h * 0.4) + "px";
     var gone = false;
     function remove() { if (gone) return; gone = true; t.classList.add("gone"); setTimeout(function () { t.remove(); }, 300); }
     t.addEventListener("pointerdown", function (e) {
@@ -1246,21 +1533,21 @@ svg .hogg { transform-origin: 160px 240px; }
     playRound();
   }
 
-  // ================= TRIP (random place, step by step) =================
-  var trip = null;
+  // ================= TRIP =================
+  var trip = null, trip_summary_line = "To bol super výlet!";
   function openTrip() {
-    if (S.energy < 25) { sfx.no(); anim("wiggle"); say("Som príliš unavený na výlet. Najprv spinkať! 🌙", 3500); return; }
+    if (S.energy < 25) { sfx.no(); anim("wiggle"); say("Som príliš unavený na výlet. Najprv spinkať! 🛏️", 3500); return; }
     openScreen("Výlet");
     startTrip();
   }
   function buildSteps(p) {
     var foods = shuffle(["bush", "dig"].concat(p.tree ? ["tree"] : []));
     var extra = shuffle(["shiny", "puddle", "rain", "friend"].concat(foods.slice(2)));
-    return ["friend", foods[0], foods[1], extra[0], extra[1]].sort(function () { return Math.random() - .5; });
+    return shuffle(["friend", foods[0], foods[1], extra[0], extra[1]]);
   }
+  function alive() { return trip && trip.alive && panel; }
   function startTrip() {
-    var options = PLACES.filter(function (p) { return p.id !== S.lastPlace; });
-    var p = pick(options);
+    var p = pick(PLACES.filter(function (q) { return q.id !== S.lastPlace; }));
     S.lastPlace = p.id;
     S.energy = clamp(S.energy - 10); S.happy = clamp(S.happy + 5);
     setTitle(p.icon + " " + p.name); resetBody(true);
@@ -1276,36 +1563,30 @@ svg .hogg { transform-origin: 160px 240px; }
     trip.steps.forEach(function () { mk("i", null, null, dots); });
     next.addEventListener("click", walkOn);
     panel.cleanup = function () { if (trip) trip.alive = false; trip = null; };
-    panel.onClose = function () { say(trip_summary_line, 3500); anim("jump"); };
     trip_summary_line = "To bol super výlet!";
-    drawDeco(false);
+    panel.onClose = function () { say(trip_summary_line, 3500); anim("jump"); };
+    drawDeco();
     toast("Juchú! Dnes ideme na výlet: " + p.name + "!", 2600);
     sfx.step();
     setTimeout(function () { if (alive()) walkOn(); }, 1600);
   }
-  var trip_summary_line = "To bol super výlet!";
-  function alive() { return trip && trip.alive && panel; }
-  function drawDeco(slideOld) {
-    var old = Array.prototype.slice.call(trip.deco.children);
-    old.forEach(function (el) { el.classList.add("out"); setTimeout(function () { el.remove(); }, 950); });
+  function drawDeco() {
+    Array.prototype.slice.call(trip.deco.children).forEach(function (el) { el.classList.add("out"); setTimeout(function () { el.remove(); }, 950); });
     for (var i = 0; i < 4; i++) {
       var d = mk("span", null, pick(trip.p.deco), trip.deco);
-      d.style.left = (12 + i * 25 + Math.random() * 10) + "%";
-      d.style.bottom = (40 + Math.random() * 12) + "%";
-      d.style.fontSize = (2.2 + Math.random() * 1.8) + "rem";
-      d.style.opacity = .85;
+      d.style.left = (12 + i * 25 + Math.random() * 10) + "%"; d.style.bottom = (40 + Math.random() * 12) + "%";
+      d.style.fontSize = (2.2 + Math.random() * 1.8) + "rem"; d.style.opacity = .85;
     }
   }
   function walkOn() {
     if (!alive()) return;
-    trip.next.hidden = true; trip.choices.innerHTML = "";
-    trip.stage.innerHTML = "";
+    trip.next.hidden = true; trip.choices.innerHTML = ""; trip.stage.innerHTML = "";
     trip.walker.style.left = "18%"; trip.walker.classList.remove("left");
     trip.step++;
-    Array.prototype.forEach.call(trip.dots.children, function (d, i) { d.classList.toggle("on", i < trip.step + 1 && trip.step < trip.steps.length); });
+    Array.prototype.forEach.call(trip.dots.children, function (d, i) { d.classList.toggle("on", i <= trip.step && trip.step < trip.steps.length); });
     if (trip.step >= trip.steps.length) { endTrip(); return; }
     S.energy = clamp(S.energy - 2); S.hunger = clamp(S.hunger - 2); render();
-    drawDeco(true);
+    drawDeco();
     trip.walker.classList.remove("step"); void trip.walker.offsetWidth; trip.walker.classList.add("step");
     sfx.step();
     setTimeout(function () { if (alive()) ENC[trip.steps[trip.step]](stepDone); }, 950);
@@ -1339,9 +1620,7 @@ svg .hogg { transform-origin: 160px 240px; }
       b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
     });
   }
-  function giftFood(id, n, fromEl) {
-    for (var i = 0; i < n; i++) setTimeout(function () { if (alive()) addFood(id, fromEl); }, i * 250);
-  }
+  function giftFood(id, n, fromEl) { for (var i = 0; i < n; i++) setTimeout(function () { if (alive()) addFood(id, fromEl); }, i * 250); }
   function giveTreasure(id, fromEl) {
     var t = TREASURES[id];
     var pop = mk("div", "found", t.e, trip.stage);
@@ -1351,14 +1630,11 @@ svg .hogg { transform-origin: 160px 240px; }
     if (!S.treasures[id]) {
       S.treasures[id] = true; trip.newTreasures.push(id);
       toast("Poklad: " + t.e + " " + t.n + "! Ide do zbierky 📒", 3000);
-      giveStar(1);
-      return true;
+      giveStar(1); return;
     }
     toast(t.e + " " + t.n + " už máme. Tu je aspoň jabĺčko!", 2500);
     giftFood("apple", 1, fromEl);
-    return false;
   }
-
   var ENC = {
     bush: function (done) {
       var f = trip.p.bush, b = thing("bush pop-in", "", 64, 14);
@@ -1378,11 +1654,8 @@ svg .hogg { transform-origin: 160px 240px; }
       var f = pick(trip.p.tree), t = thing("tree pop-in", "", 66, 10), shakes = 0;
       t.setAttribute("aria-label", "Strom");
       mk("span", "crown", "🌳", t);
-      var spots = [[30, 18], [58, 12], [44, 34], [74, 30]];
-      var fruits = spots.map(function (s) {
-        var fr = mk("button", "fruit", FOODS[f].e, t);
-        fr.style.left = s[0] + "%"; fr.style.top = s[1] + "%";
-        return fr;
+      var fruits = [[30, 18], [58, 12], [44, 34], [74, 30]].map(function (s) {
+        var fr = mk("button", "fruit", FOODS[f].e, t); fr.style.left = s[0] + "%"; fr.style.top = s[1] + "%"; return fr;
       });
       toast("Strom plný " + FOODS[f].e + "! Zatras ním – ťukni 3×.", 3000);
       var left = fruits.length;
@@ -1394,10 +1667,7 @@ svg .hogg { transform-origin: 160px 240px; }
         if (shakes === 3) {
           sfx.boing();
           fruits.forEach(function (fr, i) {
-            setTimeout(function () {
-              fr.style.top = (86 + rnd(8)) + "%"; fr.style.left = (i * 26 - 10 + rnd(8)) + "%";
-              fr.classList.add("down");
-            }, i * 120);
+            setTimeout(function () { fr.style.top = (86 + rnd(8)) + "%"; fr.style.left = (i * 26 - 10 + rnd(8)) + "%"; fr.classList.add("down"); }, i * 120);
             fr.addEventListener("click", function (e) {
               e.stopPropagation(); if (!fr.classList.contains("down")) return;
               addFood(f, fr); fr.remove(); left--;
@@ -1421,11 +1691,10 @@ svg .hogg { transform-origin: 160px 240px; }
         fx("💨", r.left - c.left + rnd(r.width), r.top - c.top, null, trip.root);
         if (digs === 4) {
           m.remove();
-          var n = 2, left = n;
+          var left = 2;
           toast("Našli sme " + FOODS[f].n.toLowerCase() + "! Pozbieraj.", 2500);
-          for (var i = 0; i < n; i++) {
-            var it = thing("pop-in", FOODS[f].e, 56 + i * 12, 12);
-            it.style.fontSize = "2.6rem";
+          for (var i = 0; i < 2; i++) {
+            var it = thing("pop-in", FOODS[f].e, 56 + i * 12, 12); it.style.fontSize = "2.6rem";
             it.addEventListener("click", function (e) { var el = e.currentTarget; addFood(f, el); el.remove(); left--; if (!left) done(); });
           }
         }
@@ -1511,13 +1780,19 @@ svg .hogg { transform-origin: 160px 240px; }
         toast(f.e + " " + f.thanks + (isNew ? " Nový kamarát v zbierke!" : ""), 3600);
         if (isNew) { trip.newFriends.push(id); setTimeout(function () { giveStar(1); }, 600); }
         if (f.reward && f.reward.food) giftFood(f.reward.food, f.reward.n, el);
-        if (f.reward && f.reward.treasure) setTimeout(function () { if (!alive()) return; if (S.treasures[f.reward.treasure]) giftFood("apple", 1, el); else { S.treasures[f.reward.treasure] = true; trip.newTreasures.push(f.reward.treasure); var pop = mk("div", "found", TREASURES[f.reward.treasure].e, trip.stage); pop.style.left = el.style.left; pop.style.bottom = "40%"; setTimeout(function () { pop.remove(); }, 1700); } }, 300);
+        if (f.reward && f.reward.treasure) setTimeout(function () {
+          if (!alive()) return;
+          var tid = f.reward.treasure;
+          if (S.treasures[tid]) { giftFood("apple", 1, el); return; }
+          S.treasures[tid] = true; trip.newTreasures.push(tid);
+          var pop = mk("div", "found", TREASURES[tid].e, trip.stage); pop.style.left = el.style.left; pop.style.bottom = "40%";
+          setTimeout(function () { pop.remove(); }, 1700);
+        }, 300);
         setTimeout(function () { if (alive()) done(); }, 900);
       }
       setTimeout(function () { if (alive()) TASKS[f.task](f, el, finish); }, 900);
     }
   };
-
   var TASKS = {
     give: function (f, el, finish) {
       var left = 3;
@@ -1540,8 +1815,7 @@ svg .hogg { transform-origin: 160px 240px; }
     },
     gift: function (f, el, finish) {
       moveWalker(46);
-      var ids = FOOD_ORDER.filter(function (id) { return id === "kibble" || S.food[id] > 0; });
-      ids.forEach(function (id) {
+      FOOD_ORDER.filter(function (id) { return id === "kibble" || S.food[id] > 0; }).forEach(function (id) {
         var b = mk("button", "pill fd", null, trip.choices);
         b.innerHTML = "<span></span>"; b.firstChild.textContent = FOODS[id].e;
         b.appendChild(document.createTextNode(id === "kibble" ? "" : "×" + S.food[id]));
@@ -1589,14 +1863,13 @@ svg .hogg { transform-origin: 160px 240px; }
       });
     }
   };
-
   function endTrip() {
     var got = Object.keys(trip.got).map(function (id) { return FOODS[id].e + "×" + trip.got[id]; }).join("  ");
-    var lines = (got ? "Nazbierali sme: " + got : "Tentoraz bez jedla.");
+    var lines = got ? "Nazbierali sme: " + got : "Tentoraz bez jedla.";
     var extras = trip.newFriends.map(function (id) { return FRIENDS[id].e; }).concat(trip.newTreasures.map(function (id) { return TREASURES[id].e; }));
     if (extras.length) lines += "\nNové v zbierke: " + extras.join(" ");
     giveStar(1);
-    trip_summary_line = got ? "Super výlet! Máme plný košík!" : "To bol super výlet!";
+    trip_summary_line = got ? "Super výlet! Jedlo je v chladničke 🍳" : "To bol super výlet!";
     var canGo = S.energy >= 25;
     var card = resultCard("🧺", lines + "  +1 ⭐", [
       [canGo ? "🎒 Ďalší výlet" : "😴 Ježko je unavený", function () { if (S.energy >= 25) startTrip(); }, "go", !canGo],
@@ -1630,18 +1903,15 @@ svg .hogg { transform-origin: 160px 240px; }
     });
   }
 
-  // ================= BUTTONS =================
-  $("btnFeed").addEventListener("click", function () { if (mode === "feed") closeTray(); else if (mode === "idle") openTray(); });
-  $("btnPlay").addEventListener("click", function () { if (mode === "feed") closeTray(); if (mode === "play") endPlay(); else if (mode === "idle") openGames(); });
-  $("btnBath").addEventListener("click", function () { if (mode === "feed") closeTray(); if (mode === "bath") endBath(false); else if (mode === "idle") startBath(); });
-  $("btnSleep").addEventListener("click", function () { if (mode === "feed") closeTray(); if (mode === "sleep") wake(false); else if (mode === "idle") startSleep(); });
-  $("btnTrip").addEventListener("click", function () { if (mode === "feed") closeTray(); if (mode === "idle") openTrip(); });
-  $("shopBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openShop(); });
+  // ================= HEADER =================
+  $("shopBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openShop(S.room === "bed" ? "clothes" : "furn"); });
   $("albumBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openAlbum(); });
   $("soundBtn").addEventListener("click", function () { S.sound = !S.sound; render(); save(); if (S.sound) sfx.pet(); });
 
+  dressMain();
+  drawRoom();
   render();
-  setTimeout(function () { say("Ahoj! Ja som Ježko! Postaráš sa o mňa?", 4000); }, 300);
+  setTimeout(function () { say("Ahoj! Ja som Ježko! Vitaj v mojom domčeku!", 4000); }, 300);
 })();
 </script>
 </body>
