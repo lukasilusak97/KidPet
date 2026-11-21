@@ -1021,26 +1021,27 @@ svg .hogg { transform-origin: 160px 240px; }
     mode = "feed";
     tray = mk("div", "foodtray", null, scene);
     FOOD_ORDER.forEach(function (id) {
-      var n = id === "kibble" ? Infinity : (S.food[id] || 0);
+      var n = S.food[id] || 0;
       if (!n) return;
       var f = FOODS[id], b = mk("button", "food", null, tray);
       b.innerHTML = "<span></span><b></b><em></em>";
       b.querySelector("span").textContent = f.e; b.querySelector("b").textContent = f.n;
       var em = b.querySelector("em");
-      if (id === "kibble") { em.textContent = "∞"; em.className = "inf"; } else em.textContent = n;
+      em.textContent = n;
       b.addEventListener("click", function () { feed(id, b); });
     });
-    if (!foodTotal()) mk("div", "traynote", "Ostali len granule. Na výlete 🎒 nazbieraš dobroty!", tray);
-    say(foodTotal() ? "Čo mi dáš papať?" : "Máme len granule...", 3000);
+    if (!foodTotal()) mk("div", "traynote", "Chladnička je prázdna! Choď na dvor 🌳 a na výlet 🎒 nazbierať jedlo.", tray);
+    else if (!(S.food.kibble > 0) && foodTotal() < 3) mk("div", "traynote", "Jedla je málo. Na výlete 🎒 nazbieraš ďalšie!", tray);
+    say(foodTotal() ? "Čo mi dáš papať?" : "Chladnička je prázdna... Poďme na výlet!", 3000);
     render();
   }
   function feed(id, btn) {
     if (eating) return;
     var f = FOODS[id];
     if (S.hunger >= 95) { sfx.no(); anim("wiggle"); say("Už som plný! Bruško mám ako balón.", 2500); return; }
-    if (id !== "kibble" && !(S.food[id] > 0)) return;
+    if (!(S.food[id] > 0)) return;
     eating = true;
-    if (id !== "kibble") { S.food[id]--; btn.querySelector("em").textContent = S.food[id]; if (!S.food[id]) btn.remove(); }
+    S.food[id]--; btn.querySelector("em").textContent = S.food[id]; if (!S.food[id]) btn.remove();
     var s = scene.getBoundingClientRect(), b = btn.getBoundingClientRect();
     var fl = mk("div", "flying", f.e, scene);
     fl.style.left = (b.left - s.left + b.width / 2 - 18) + "px"; fl.style.top = (b.top - s.top) + "px";
@@ -1871,13 +1872,20 @@ svg .hogg { transform-origin: 160px 240px; }
     },
     gift: function (f, el, finish) {
       moveWalker(46);
-      FOOD_ORDER.filter(function (id) { return id === "kibble" || S.food[id] > 0; }).forEach(function (id) {
+      var have = FOOD_ORDER.filter(function (id) { return S.food[id] > 0; });
+      if (!have.length) {
+        var hug = mk("button", "pill", "🤗 Objať namiesto jedla", trip.choices);
+        hug.addEventListener("click", function () { trip.choices.innerHTML = ""; sfx.pet(); finish(); });
+        toast("Nemáme jedlo, ale môžeme " + f.e + " objať!", 2600);
+        return;
+      }
+      have.forEach(function (id) {
         var b = mk("button", "pill fd", null, trip.choices);
         b.innerHTML = "<span></span>"; b.firstChild.textContent = FOODS[id].e;
-        b.appendChild(document.createTextNode(id === "kibble" ? "" : "×" + S.food[id]));
+        b.appendChild(document.createTextNode("×" + S.food[id]));
         b.setAttribute("aria-label", "Darovať " + FOODS[id].n);
         b.addEventListener("click", function () {
-          if (id !== "kibble") { if (!(S.food[id] > 0)) return; S.food[id]--; }
+          if (!(S.food[id] > 0)) return; S.food[id]--;
           trip.choices.innerHTML = "";
           flyEmoji(trip.root, FOODS[id].e, b.getBoundingClientRect(), el.getBoundingClientRect(), function () { if (alive()) { sfx.eat(); finish(); } });
         });
@@ -1953,7 +1961,6 @@ svg .hogg { transform-origin: 160px 240px; }
     var h = mk("h3", null, null, foods); mk("span", null, "🧺 Zásoby jedla", h); mk("small", null, foodTotal() + " ks", h);
     var g = mk("div", "stickers", null, foods);
     FOOD_ORDER.forEach(function (id) {
-      if (id === "kibble") return;
       var n = S.food[id] || 0, d = mk("div", "sticker" + (n ? " got" : ""), null, g);
       mk("span", "e", FOODS[id].e, d); mk("span", "n", FOODS[id].n + " ×" + n, d);
     });
@@ -1961,9 +1968,24 @@ svg .hogg { transform-origin: 160px 240px; }
 
   // ================= DAILY LIMIT =================
   var locked = false, lockEl = null, settingsOpen = false, warned = false;
+  var DAILY_KIBBLE = 2, KIBBLE_CAP = 3, dailyGift = false, started = false;
   function checkDay() {
     var t = today();
-    if (S.playDay !== t) { S.playDay = t; S.playSec = 0; warned = false; if (locked) unlock(); }
+    if (S.playDay !== t) {
+      if (S.playDay) {
+        var before = S.food.kibble || 0;
+        S.food.kibble = Math.min(KIBBLE_CAP, before + DAILY_KIBBLE);
+        if (S.food.kibble > before) dailyGift = true;
+      }
+      S.playDay = t; S.playSec = 0; warned = false;
+      if (locked) unlock();
+      save();
+    }
+    if (dailyGift && started && mode === "idle" && !locked) {
+      dailyGift = false;
+      say("Nový deň! Do chladničky pribudli granule 🥣. Na dobroty poďme na výlet!", 6000);
+      lastSay = Date.now() + 6000;
+    }
   }
   function checkLimit() {
     var lim = S.settings.limit;
@@ -2095,6 +2117,8 @@ svg .hogg { transform-origin: 160px 240px; }
   render();
   if (S.settings.limit && S.playSec >= S.settings.limit * 60) lock();
   setTimeout(function () {
+    started = true;
+    if (dailyGift) { checkDay(); return; }
     say(wokeWhileAway ? "Dobré ráno! Vyspal som sa do ružova!" : S.sleeping ? "Chrrr... Ježko ešte spinká." : "Ahoj! Ja som Ježko! Vitaj v mojom domčeku!", 4000);
   }, 300);
 })();

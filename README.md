@@ -6,7 +6,7 @@ Otvor `index.html` v prehliadači (funguje aj na mobile a tablete, bez inštalá
 
 **Izby** (dole sa medzi nimi prepína):
 - 🛋️ **Obývačka** – ťukni na hračky alebo „Hry“ a zahráš sa (Chytačka, Pexeso, Jabĺčka, Kde je Ježko?)
-- 🍳 **Kuchyňa** – ťukni na chladničku a daj Ježkovi papať zo zásob
+- 🍳 **Kuchyňa** – ťukni na chladničku a daj Ježkovi papať zo zásob. Na začiatku je tam len 1 jablko, každý deň pribudnú 2 granule (najviac 3), ostatné jedlo treba nazbierať na výlete
 - 🛏️ **Spálňa** – ťukni na posteľ a Ježko ide spinkať; „Šatník“ na obliekanie
 - 🛁 **Kúpeľňa** – ťukni na Ježka a začne kúpanie:
   1. ťukaním na Ježka napustíš vodu,
