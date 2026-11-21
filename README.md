@@ -24,3 +24,12 @@ Otvor `index.html` v prehliadači (funguje aj na mobile a tablete, bez inštalá
 **Zbierka** (📒) – kamaráti z výletov, poklady a zásoby jedla.
 
 Hra sa ukladá v prehliadači.
+
+**Nastavenia** (⚙️, chránené jednoduchou otázkou pre rodičov):
+- zvuk zapnutý / vypnutý
+- denný čas hrania (15 / 30 / 45 min, 1 hodina, bez limitu) – potom Ježko zaspí a hra sa odomkne až na druhý deň; tlačidlo „Dnes ešte +15 min“
+- tempo potrieb (pomaly – vydrží celý deň, normálne – pár hodín)
+- dĺžka spánku (5 / 15 / 30 / 60 min) – spánok beží aj pri zavretej hre
+- vymazanie postupu (s potvrdením)
+
+Potreby klesajú pomaly v hodinách, nie v minútach, a nikdy neklesnú pod 20, keď je hra zavretá. Ježko nikdy neochorie ani neumrie.

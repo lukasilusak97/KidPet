@@ -25,6 +25,7 @@
   --font: "Baloo 2", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   color-scheme: light;
 }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
   margin: 0; background: var(--sky-bottom); color: var(--ink); font-family: var(--font);
@@ -333,6 +334,29 @@ svg .hogg { transform-origin: 160px 240px; }
 .sticker .n { font-size: .72rem; font-weight: 700; text-align: center; line-height: 1.1; overflow-wrap: anywhere; }
 .sticker:not(.got) .e { filter: grayscale(1) brightness(0); opacity: .18; }
 
+/* settings & lock */
+.set-sec { background: #ffffff; border: 3px solid var(--soft); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; display: grid; gap: 6px; }
+.set-sec h3 { margin: 0; font-size: 1.05rem; }
+.set-sec p { margin: 0; font-size: .9rem; color: var(--bark); font-weight: 600; }
+.opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.opts .pill { font-size: .9rem; }
+.pill.danger { background: var(--berry); color: #ffffff; }
+.gate { display: grid; gap: 10px; justify-items: center; text-align: center; padding-top: 12px; }
+.gate h3 { margin: 0; font-size: 1.3rem; }
+.gate p { margin: 0; font-weight: 700; font-size: 1.15rem; }
+.gate input { font: inherit; font-size: 1.6rem; width: 120px; text-align: center; border: 3px solid var(--bark); border-radius: 14px; padding: 2px 4px; background: #ffffff; color: var(--ink); }
+.gate .row { display: flex; gap: 8px; }
+.lock {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; box-sizing: border-box;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px;
+  background: linear-gradient(var(--night-top), var(--night-bottom));
+}
+.lock .card { background: var(--paper); border: 4px solid var(--bark); border-radius: 24px; padding: 18px; max-width: 340px; text-align: center; display: grid; gap: 10px; }
+.lock .card .minihog { width: 190px; margin: 0 auto; }
+.lock h2 { margin: 0; color: var(--bark); font-size: 1.5rem; line-height: 1.15; }
+.lock p { margin: 0; font-weight: 700; font-size: 1.1rem; }
+.lock .pill { justify-self: center; font-size: .9rem; opacity: .8; }
+
 /* ---------- room tabs ---------- */
 .actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .act {
@@ -379,7 +403,7 @@ svg .hogg { transform-origin: 160px 240px; }
       <span class="chip" id="starChip" title="Hviezdičky">⭐ <span id="starCount">0</span></span>
       <button class="iconbtn" id="shopBtn" type="button" aria-label="Obchod" title="Obchod">🛍️</button>
       <button class="iconbtn" id="albumBtn" type="button" aria-label="Zbierka kamarátov a pokladov" title="Zbierka">📒</button>
-      <button class="iconbtn" id="soundBtn" type="button" aria-label="Vypnúť zvuk" title="Zvuk">🔊</button>
+      <button class="iconbtn" id="setBtn" type="button" aria-label="Nastavenia pre rodičov" title="Nastavenia">⚙️</button>
     </div>
     <div class="meters">
       <div class="meter"><div class="lbl"><b>🍎</b>Bruško</div><div class="bar"><i id="m-hunger"></i></div></div>
@@ -476,6 +500,16 @@ svg .hogg { transform-origin: 160px 240px; }
     { id: "hills", name: "Hory", icon: "⛰️", deco: ["🌲", "🪨", "⛰️", "🌲", "🌿"], bush: "blue", tree: null, dig: ["mush"],
       friends: ["goat", "owl", "bear"], bg: "linear-gradient(#cfe4f7, #ffffff 30%, #c9ccd6 31%, #a3aab8 52%, #8fae79 53%, #6f9a5c)" }
   ];
+
+  // ---- pacing: needs drop per hour, not per minute, so Ježko doesn't need constant attention ----
+  var PACE = {
+    slow:   { hunger: 4,  happy: 3.5, clean: 3, energy: 3 },
+    normal: { hunger: 10, happy: 8,   clean: 6, energy: 7 }
+  };
+  var DEFAULT_SETTINGS = { limit: 30, pace: "normal", sleepMin: 15 };
+  function rates() { return PACE[S.settings.pace] || PACE.normal; }
+  function sleepRate() { return 100 / (Math.max(1, S.settings.sleepMin) * 60); }
+  function today() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
 
   // ---- home: rooms, walls, floors, furniture ----
   var ROOMS = [
@@ -598,7 +632,8 @@ svg .hogg { transform-origin: 160px 240px; }
   function fresh() {
     return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 3, sound: true, last: Date.now(),
              owned: [], wear: {}, food: { apple: 3, straw: 2, cater: 1 }, friends: {}, treasures: {}, lastPlace: "",
-             room: "living", home: defaultHome(), homeOwned: [] };
+             room: "living", home: defaultHome(), homeOwned: [],
+             settings: Object.assign({}, DEFAULT_SETTINGS), playDay: "", playSec: 0, sleeping: false };
   }
   var S = fresh();
   function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : null; }
@@ -613,6 +648,9 @@ svg .hogg { transform-origin: 160px 240px; }
     if (!hadFood) S.food = { apple: 3, straw: 2, cater: 1 };
     S.friends = obj(S.friends) || {};
     S.treasures = obj(S.treasures) || {};
+    S.settings = Object.assign({}, DEFAULT_SETTINGS, obj(S.settings) || {});
+    S.sleeping = !!S.sleeping;
+    S.playSec = typeof S.playSec === "number" ? S.playSec : 0;
     var dh = defaultHome(), h = obj(S.home) || {};
     ROOMS.forEach(function (r) {
       var cur = obj(h[r.id]) || {};
@@ -624,17 +662,23 @@ svg .hogg { transform-origin: 160px 240px; }
     if (!ROOM[S.room]) S.room = "living";
     var old = { bow: "bow", hat: "tophat", crown: "crown" }[S.acc];
     if (old) { if (S.owned.indexOf(old) < 0) S.owned.push(old); S.wear.head = old; }
-    delete S.acc; delete S.sleeping; delete S.finds; delete S.visited;
+    delete S.acc; delete S.finds; delete S.visited;
   }
   try { var raw = localStorage.getItem(KEY); if (raw) load(JSON.parse(raw)); } catch (e) {}
   if (window.claude && window.claude.hot && window.claude.hot.data && window.claude.hot.data.S) load(window.claude.hot.data.S);
+  // Time away: needs drop at the same gentle hourly pace, never below 20. Sleep keeps going while the app is closed.
+  var wokeWhileAway = false;
   (function catchUp() {
     var away = Math.max(0, (Date.now() - (S.last || Date.now())) / 1000);
-    if (away > 30) {
-      var k = Math.min(away, 6 * 3600) * 0.02;
-      S.hunger = Math.max(25, S.hunger - k); S.happy = Math.max(25, S.happy - k * 0.8);
-      S.clean = Math.max(25, S.clean - k * 0.6); S.energy = Math.max(30, S.energy - k * 0.5);
-    }
+    if (away < 5) return;
+    away = Math.min(away, 3 * 24 * 3600);
+    var r = rates(), h = away / 3600;
+    function dec(k, amt) { if (S[k] > 20) S[k] = Math.max(20, S[k] - amt); }
+    dec("hunger", r.hunger * h * (S.sleeping ? .5 : 1)); dec("happy", r.happy * h); dec("clean", r.clean * h);
+    if (S.sleeping) {
+      S.energy = Math.min(100, S.energy + away * sleepRate());
+      if (S.energy >= 100) { S.sleeping = false; wokeWhileAway = true; }
+    } else dec("energy", r.energy * h);
   })();
   function save() { S.last = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
@@ -915,9 +959,7 @@ svg .hogg { transform-origin: 160px 240px; }
       b.disabled = !free && r.id !== S.room;
       b.classList.toggle("need", free && r.id !== S.room && !!need[r.id]);
     });
-    $("shopBtn").disabled = $("albumBtn").disabled = !free;
-    $("soundBtn").textContent = S.sound ? "🔊" : "🔇";
-    $("soundBtn").setAttribute("aria-label", S.sound ? "Vypnúť zvuk" : "Zapnúť zvuk");
+    $("shopBtn").disabled = $("albumBtn").disabled = $("setBtn").disabled = !free;
     drawBar(false);
   }
   function idleTalk() {
@@ -933,17 +975,21 @@ svg .hogg { transform-origin: 160px 240px; }
 
   // ================= TICK =================
   setInterval(function () {
+    checkDay();
+    var r = rates();
     if (mode === "sleep") {
-      S.energy = clamp(S.energy + 3); S.hunger = clamp(S.hunger - 0.03);
-      if (Math.random() < .5) { var p = hogPoint(.72, .25); fx("💤", p.x + Math.random() * 20, p.y); }
+      S.energy = clamp(S.energy + sleepRate()); S.hunger = clamp(S.hunger - r.hunger / 7200);
+      if (Math.random() < .4) { var p = hogPoint(.72, .25); fx("💤", p.x + Math.random() * 20, p.y); }
+      updateSleepHint();
       if (S.energy >= 100) wake(true);
     } else {
-      S.hunger = clamp(S.hunger - 0.09);
-      S.happy = clamp(S.happy - (mode === "play" || mode === "screen" || mode === "bath" ? 0 : 0.07));
-      S.energy = clamp(S.energy - 0.06);
-      S.clean = clamp(S.clean - (mode === "bath" ? 0 : 0.05));
+      S.hunger = clamp(S.hunger - r.hunger / 3600);
+      S.happy = clamp(S.happy - (mode === "play" || mode === "screen" || mode === "bath" ? 0 : r.happy / 3600));
+      S.energy = clamp(S.energy - r.energy / 3600);
+      S.clean = clamp(S.clean - (mode === "bath" ? 0 : r.clean / 3600));
       if (Math.random() < .06 && mode === "idle") { svg.classList.add("blink"); setTimeout(function () { svg.classList.remove("blink"); }, 180); }
     }
+    if (!document.hidden && !locked && !settingsOpen && mode !== "sleep") { S.playSec++; checkLimit(); }
     idleTalk(); render();
     if (Math.floor(Date.now() / 1000) % 5 === 0) save();
   }, 1000);
@@ -1169,13 +1215,23 @@ svg .hogg { transform-origin: 160px 240px; }
   scene.addEventListener("pointerleave", function () { if (bath) bath.cursor.hidden = true; });
 
   // ================= SLEEP =================
-  var sleepStart = 0;
+  var sleepStart = 0, sleepHint = null;
+  function sleepMinutesLeft() { return Math.max(1, Math.ceil((100 - S.energy) / sleepRate() / 60)); }
+  function updateSleepHint() { if (sleepHint) sleepHint.textContent = "💤 Ježko sa zobudí asi o " + sleepMinutesLeft() + " min"; }
+  function enterSleep() {
+    mode = "sleep"; S.sleeping = true; sleepStart = S.energy;
+    if (!sleepHint) sleepHint = mk("div", "hint top", null, scene);
+    updateSleepHint();
+  }
   function startSleep() {
     if (S.energy > 90) { say("Ešte nie som ospalý!", 2500); sfx.no(); return; }
-    mode = "sleep"; sleepStart = S.energy; sfx.sleep(); say("Dobrú noc...", 2500); render();
+    enterSleep(); sfx.sleep();
+    say("Dobrú noc... Kým spinkám, choď sa pohrať von 🙂", 5000);
+    render(); save();
   }
   function wake(full) {
-    mode = "idle"; sfx.wake();
+    mode = "idle"; S.sleeping = false; sfx.wake();
+    if (sleepHint) { sleepHint.remove(); sleepHint = null; }
     if (full) { say("Dobré ráno! Som plný energie!", 3500); anim("jump"); if (sleepStart < 70) giveStar(); }
     else say("Ešte som chcel spinkať...", 2500);
     render(); save();
@@ -1378,7 +1434,7 @@ svg .hogg { transform-origin: 160px 240px; }
       mk("span", "ico", gm.icon, b); mk("b", null, gm.name, b); mk("small", null, gm.desc, b);
       b.addEventListener("click", function () {
         if (S.energy < 15) { sfx.no(); toast("Ježko je unavený. Najprv spinkať!", 3000); return; }
-        sfx.flip(); S.energy = clamp(S.energy - 5); gm.run();
+        sfx.flip(); S.energy = clamp(S.energy - 8); S.hunger = clamp(S.hunger - 3); gm.run();
       });
     });
   }
@@ -1549,7 +1605,7 @@ svg .hogg { transform-origin: 160px 240px; }
   function startTrip() {
     var p = pick(PLACES.filter(function (q) { return q.id !== S.lastPlace; }));
     S.lastPlace = p.id;
-    S.energy = clamp(S.energy - 10); S.happy = clamp(S.happy + 5);
+    S.energy = clamp(S.energy - 15); S.happy = clamp(S.happy + 5);
     setTitle(p.icon + " " + p.name); resetBody(true);
     var root = mk("div", "trip", null, panel.body); root.style.background = p.bg;
     var deco = mk("div", "deco", null, root), stage = mk("div", "stage", null, root);
@@ -1903,15 +1959,144 @@ svg .hogg { transform-origin: 160px 240px; }
     });
   }
 
+  // ================= DAILY LIMIT =================
+  var locked = false, lockEl = null, settingsOpen = false, warned = false;
+  function checkDay() {
+    var t = today();
+    if (S.playDay !== t) { S.playDay = t; S.playSec = 0; warned = false; if (locked) unlock(); }
+  }
+  function checkLimit() {
+    var lim = S.settings.limit;
+    if (!lim) return;
+    var left = lim * 60 - S.playSec;
+    if (left <= 180 && !warned && mode === "idle") { warned = true; say("Čoskoro pôjdem spinkať. Ešte chvíľku sa pohráme!", 6000); }
+    if (left <= 0) lock();
+  }
+  function lock() {
+    if (locked) return;
+    locked = true;
+    if (panel) closeScreen(true);
+    if (bath) endBath(false);
+    if (mode === "play") endPlay();
+    if (tray) closeTray();
+    mode = "idle";
+    save();
+    lockEl = mk("div", "lock", null, document.body);
+    var card = mk("div", "card", null, lockEl);
+    card.innerHTML = miniHog().replace('class="minihog"', 'class="minihog sleepy"');
+    mk("h2", null, "Dnešné hranie skončilo", card);
+    mk("p", null, "Ježko si potrebuje oddýchnuť a ty tiež. Uvidíme sa zajtra! 🌙", card);
+    var b = mk("button", "pill", "⚙️ Pre rodičov", card);
+    b.addEventListener("click", function () { lockEl.hidden = true; openSettings(); });
+    sfx.sleep();
+  }
+  function unlock() { locked = false; if (lockEl) { lockEl.remove(); lockEl = null; } drawRoom(); render(); }
+  function afterSettings() {
+    settingsOpen = false;
+    if (locked) {
+      if (S.settings.limit && S.playSec >= S.settings.limit * 60) lockEl.hidden = false;
+      else unlock();
+    }
+  }
+
+  // ================= SETTINGS (behind a simple parent question) =================
+  function openSettings() {
+    settingsOpen = true;
+    openScreen("Nastavenia");
+    drawGate();
+  }
+  function drawGate() {
+    resetBody(false); panel.onClose = afterSettings;
+    var a = 6 + rnd(7), b = 4 + rnd(6);
+    var g = mk("div", "gate", null, panel.body);
+    mk("h3", null, "Len pre rodičov", g);
+    mk("p", null, "Koľko je " + a + " + " + b + "?", g);
+    var inp = mk("input", null, null, g); inp.type = "text"; inp.inputMode = "numeric"; inp.id = "gateIn"; inp.autocomplete = "off"; inp.setAttribute("aria-label", "Výsledok");
+    var row = mk("div", "row", null, g);
+    var ok = mk("button", "pill go", "Pokračovať", row);
+    function check() {
+      if (parseInt(inp.value, 10) === a + b) { sfx.pet(); drawSettings(); }
+      else { sfx.no(); drawGate(); toast("To nie je správne. Skúste znova.", 2000); }
+    }
+    ok.addEventListener("click", check);
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    setTimeout(function () { try { inp.focus(); } catch (e) {} }, 50);
+  }
+  function opts(parent, list, current, onPick) {
+    var row = mk("div", "opts", null, parent);
+    list.forEach(function (o) {
+      var b = mk("button", "pill" + (o[0] === current ? " go" : ""), o[1], row);
+      b.addEventListener("click", function () { onPick(o[0]); save(); sfx.flip(); drawSettings(); });
+    });
+  }
+  function section(title, text) {
+    var sec = mk("div", "set-sec", null, panel.body);
+    mk("h3", null, title, sec);
+    if (text) mk("p", null, text, sec);
+    return sec;
+  }
+  function drawSettings() {
+    var y = panel.body.scrollTop;
+    resetBody(false); panel.onClose = afterSettings;
+    var sec = section("🔊 Zvuk");
+    opts(sec, [[true, "Zapnutý"], [false, "Vypnutý"]], S.sound, function (v) { S.sound = v; });
+
+    var played = Math.floor(S.playSec / 60);
+    sec = section("⏰ Denný čas hrania", "Po uplynutí času Ježko zaspí a hra sa odomkne až zajtra. Čas sa počíta len vtedy, keď je hra otvorená a Ježko nespí. Dnes odohrané: " + played + " min.");
+    opts(sec, [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 hodina"], [0, "Bez limitu"]], S.settings.limit, function (v) { S.settings.limit = v; });
+    var extra = mk("div", "opts", null, sec);
+    var more = mk("button", "pill", "Dnes ešte +15 min", extra);
+    more.addEventListener("click", function () { S.playSec = Math.max(0, S.playSec - 900); save(); sfx.pet(); drawSettings(); });
+
+    sec = section("🐢 Ako rýchlo Ježko potrebuje starostlivosť", "Potreby klesajú pomaly aj vtedy, keď je hra zavretá. Ježko nikdy neochorie ani neumrie, keď sa oň nikto nestará, len posmutnie. Najviac ho unavujú a hladom trápia výlety a hry.");
+    opts(sec, [["slow", "Pomaly – vydrží celý deň"], ["normal", "Normálne – pár hodín"]], S.settings.pace, function (v) { S.settings.pace = v; });
+
+    sec = section("💤 Ako dlho Ježko spinká", "Spánok beží aj pri zatvorenej hre. Je to prirodzená prestávka v hraní.");
+    opts(sec, [[5, "5 min"], [15, "15 min"], [30, "30 min"], [60, "1 hodina"]], S.settings.sleepMin, function (v) { S.settings.sleepMin = v; });
+
+    sec = section("🗑️ Začať odznova", "Vymaže hviezdičky, oblečenie, nábytok, zásoby jedla aj zbierku. Nastavenia zostanú.");
+    var delRow = mk("div", "opts", null, sec);
+    var del = mk("button", "pill danger", "Vymazať postup", delRow);
+    del.addEventListener("click", function () {
+      delRow.innerHTML = "";
+      mk("p", null, "Naozaj vymazať všetko? Nedá sa to vrátiť späť.", sec);
+      var row2 = mk("div", "opts", null, sec);
+      var yes = mk("button", "pill danger", "Áno, vymazať", row2);
+      var no = mk("button", "pill", "Nie", row2);
+      no.addEventListener("click", drawSettings);
+      yes.addEventListener("click", resetProgress);
+    });
+    panel.body.scrollTop = y;
+  }
+  function resetProgress() {
+    var keep = { settings: S.settings, sound: S.sound, playDay: S.playDay, playSec: S.playSec };
+    S = fresh();
+    Object.assign(S, keep);
+    dressedKey = null;
+    if (sleepHint) { sleepHint.remove(); sleepHint = null; }
+    save();
+    closeScreen(true);
+    afterSettings();
+    mode = "idle";
+    drawRoom(); render(); confetti();
+    say("Ahoj! Ja som Ježko! Začíname odznova.", 4000);
+  }
+
   // ================= HEADER =================
   $("shopBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openShop(S.room === "bed" ? "clothes" : "furn"); });
   $("albumBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openAlbum(); });
-  $("soundBtn").addEventListener("click", function () { S.sound = !S.sound; render(); save(); if (S.sound) sfx.pet(); });
+  $("setBtn").addEventListener("click", function () { if (mode === "idle" || mode === "feed") openSettings(); });
 
   dressMain();
+  if (S.sleeping) { S.room = "bed"; }
   drawRoom();
+  if (S.sleeping) enterSleep();
+  checkDay();
   render();
-  setTimeout(function () { say("Ahoj! Ja som Ježko! Vitaj v mojom domčeku!", 4000); }, 300);
+  if (S.settings.limit && S.playSec >= S.settings.limit * 60) lock();
+  setTimeout(function () {
+    say(wokeWhileAway ? "Dobré ráno! Vyspal som sa do ružova!" : S.sleeping ? "Chrrr... Ježko ešte spinká." : "Ahoj! Ja som Ježko! Vitaj v mojom domčeku!", 4000);
+  }, 300);
 })();
 </script>
 </body>
