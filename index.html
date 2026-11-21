@@ -341,11 +341,11 @@ svg .hogg { transform-origin: 160px 240px; }
 .opts { display: flex; gap: 6px; flex-wrap: wrap; }
 .opts .pill { font-size: .9rem; }
 .pill.danger { background: var(--berry); color: #ffffff; }
-.gate { display: grid; gap: 10px; justify-items: center; text-align: center; padding-top: 12px; }
-.gate h3 { margin: 0; font-size: 1.3rem; }
-.gate p { margin: 0; font-weight: 700; font-size: 1.15rem; }
-.gate input { font: inherit; font-size: 1.6rem; width: 120px; text-align: center; border: 3px solid var(--bark); border-radius: 14px; padding: 2px 4px; background: #ffffff; color: var(--ink); }
-.gate .row { display: flex; gap: 8px; }
+.pgate { display: grid; gap: 10px; justify-items: center; text-align: center; padding-top: 12px; }
+.pgate h3 { margin: 0; font-size: 1.3rem; }
+.pgate p { margin: 0; font-weight: 700; font-size: 1.15rem; }
+.pgate input { font: inherit; font-size: 1.6rem; width: 120px; text-align: center; border: 3px solid var(--bark); border-radius: 14px; padding: 2px 4px; background: #ffffff; color: var(--ink); }
+.pgate .row { display: flex; gap: 8px; }
 .lock {
   position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; box-sizing: border-box;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px;
@@ -2008,7 +2008,7 @@ svg .hogg { transform-origin: 160px 240px; }
   function drawGate() {
     resetBody(false); panel.onClose = afterSettings;
     var a = 6 + rnd(7), b = 4 + rnd(6);
-    var g = mk("div", "gate", null, panel.body);
+    var g = mk("div", "pgate", null, panel.body);
     mk("h3", null, "Len pre rodičov", g);
     mk("p", null, "Koľko je " + a + " + " + b + "?", g);
     var inp = mk("input", null, null, g); inp.type = "text"; inp.inputMode = "numeric"; inp.id = "gateIn"; inp.autocomplete = "off"; inp.setAttribute("aria-label", "Výsledok");
