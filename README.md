@@ -27,11 +27,12 @@ Každá úloha má 5 otázok, za chybu sa netrestá, iba „Skús to ešte raz�
 - 🙈 Schovávačka – nájdi schovaných kamarátov
 Za každú dokončenú úlohu Ježko dostane nálepku do zbierky a 2 ⭐.
 
-**Obchod** (🛍️) – za hviezdičky ⭐:
-- 👕 oblečenie pre Ježka
-- 🛋️ nábytok a dekorácie do každej izby aj na dvor
-- 🎨 tapety na steny
-- 🟫 podlahy
+**Obchod** (🛍️) – za hviezdičky ⭐, robený pre deti, ktoré ešte nečítajú:
+- hore sú 4 veľké obrázkové tlačidlá: 👕 oblečenie, 🛋️ nábytok, 🖼️ steny, 🟫 podlaha
+- nábytok, steny a podlaha sú vždy pre izbu, v ktorej práve si
+- ťuknutím na obrázok uvidíš náhľad a hlas povie, čo to je a koľko to stojí
+- jedno veľké tlačidlo: zelené „⭐ Kúpiť“, sivé „🔒 Chýba ⭐“, alebo „Použiť“ / „Dať preč“
+- na kartičkách: ⭐ cena, 🔒 ešte nemáš dosť hviezdičiek, ✔ už máš
 
 **Zbierka** (📒) – kamaráti z výletov, poklady a zásoby jedla.
 

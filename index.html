@@ -334,6 +334,37 @@ svg .hogg { transform-origin: 160px 240px; }
 .sticker .n { font-size: .72rem; font-weight: 700; text-align: center; line-height: 1.1; overflow-wrap: anywhere; }
 .sticker:not(.got) .e { filter: grayscale(1) brightness(0); opacity: .18; }
 
+/* kid shop */
+.shophead { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.wallet { font-size: 1.2rem; font-weight: 800; background: var(--sun); border: 3px solid var(--bark); border-radius: 999px; padding: 0 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cats { display: flex; gap: 5px; flex: 1; justify-content: flex-end; }
+.catbtn { width: 56px; flex: none; border: 3px solid var(--bark); border-radius: 16px; background: var(--paper); display: grid; justify-items: center; padding: 2px 0 3px; cursor: pointer; font-size: .68rem; font-weight: 800; line-height: 1.1; box-shadow: 0 3px 0 var(--bark); }
+.catbtn span { font-size: 1.5rem; line-height: 1.15; }
+.catbtn.on { background: var(--sun); transform: translateY(2px); box-shadow: 0 1px 0 var(--bark); }
+.shoptop { position: sticky; top: -12px; z-index: 5; background: var(--paper); margin: -12px -12px 10px; padding: 10px 12px 8px; border-bottom: 3px solid var(--soft); }
+.pvwrap { display: grid; grid-template-columns: 1.35fr 1fr; align-items: center; gap: 8px; background: var(--soft); border-radius: 18px; padding: 6px; }
+.pvwrap .pvbox { max-width: none; }
+.pvrow { display: grid; gap: 6px; min-width: 0; text-align: center; }
+.pvhogbox { width: 100%; margin: 0 auto; }
+.pvname { font-weight: 800; font-size: 1.1rem; line-height: 1.1; overflow-wrap: anywhere; }
+.bigbuy { font-family: inherit; font-size: 1.1rem; font-weight: 800; border: 4px solid var(--bark); border-radius: 16px; padding: 4px 6px; line-height: 1.15; cursor: pointer; box-shadow: 0 4px 0 var(--bark); background: var(--leaf); color: #ffffff; }
+.bigbuy:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bark); }
+.bigbuy.buy { animation: nudge 1.8s ease-in-out infinite; }
+.bigbuy.nope { background: #e3dccd; color: var(--ink); box-shadow: none; }
+.bigbuy.use { background: var(--sun); color: var(--ink); }
+.bigbuy.off { background: var(--paper); color: var(--ink); }
+.kgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+.kcard { position: relative; border: 3px solid var(--soft); border-radius: 16px; background: #ffffff; padding: 4px 4px 5px; cursor: pointer; display: grid; gap: 4px; justify-items: center; min-width: 0; }
+.kthumb { width: 100%; aspect-ratio: 1; border-radius: 12px; background: var(--soft); display: grid; place-items: center; font-size: 2.7rem; line-height: 1; overflow: hidden; box-sizing: border-box; }
+.kthumb svg { width: 100%; height: 100%; }
+.kprice { font-weight: 800; font-size: .95rem; background: var(--sun); border: 2px solid var(--bark); border-radius: 999px; padding: 0 8px; white-space: nowrap; }
+.kcard.owned .kprice { background: var(--leaf); color: #ffffff; }
+.kcard.poor .kthumb { opacity: .45; }
+.kcard.poor .kprice { background: #e3dccd; }
+.kcard.poor .kprice::before { content: "🔒 "; }
+.kcard.sel { border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun); }
+.kcard.active::after { content: "✔"; position: absolute; top: -7px; right: -7px; width: 24px; height: 24px; border-radius: 50%; background: var(--leaf); color: #ffffff; display: grid; place-items: center; font-weight: 800; border: 2px solid var(--paper); }
+
 /* kindergarten */
 .school { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px; box-sizing: border-box;
   background: linear-gradient(#fdf3d8 0 80%, #c9925e 80%); }
@@ -1333,65 +1364,20 @@ svg .hogg { transform-origin: 160px 240px; }
     if (stars >= 3) confetti();
   }
 
-  // ================= SHOP =================
-  var shop = { tab: "clothes", room: "living", sel: {} };
-  var TABS = [["clothes", "👕 Oblečenie"], ["furn", "🛋️ Nábytok"], ["wall", "🎨 Steny"], ["floor", "🟫 Podlahy"]];
-  function openShop(tab) {
-    openScreen("Obchod");
-    shop.tab = tab || "clothes"; shop.room = S.room; shop.sel = {};
+  // ================= SHOP (picture-first, one big button, spoken help) =================
+  var shop = { cat: "clothes", sel: {} };
+  var CATS = [["clothes", "👕", "Oblečenie"], ["furn", "🛋️", "Nábytok"], ["wall", "🖼️", "Steny"], ["floor", "🟫", "Podlaha"]];
+  function starWord(n) { return n === 1 ? "hviezdičku" : n >= 2 && n <= 4 ? "hviezdičky" : "hviezdičiek"; }
+  function openShop(cat) {
+    openScreen("🛍️ Obchod");
+    shop.sel = {};
+    shop.cat = cat || "clothes";
+    if (S.room === "yard" && (shop.cat === "wall" || shop.cat === "floor")) shop.cat = "furn";
     drawShop();
+    speak("Vitaj v obchode! Ťukni na obrázok a pozri sa, ako to vyzerá.");
   }
   function shopRedraw() { var y = panel.body.scrollTop; drawShop(); panel.body.scrollTop = y; }
-  function drawShop() {
-    resetBody(false);
-    if ((shop.tab === "wall" || shop.tab === "floor") && shop.room === "yard") shop.room = "living";
-    var tabs = mk("div", "tabs", null, panel.body);
-    TABS.forEach(function (t) {
-      var b = mk("button", "pill" + (shop.tab === t[0] ? " go" : ""), t[1], tabs);
-      b.addEventListener("click", function () { shop.tab = t[0]; sfx.flip(); drawShop(); });
-    });
-    if (shop.tab !== "clothes") {
-      var chips = mk("div", "roomchips", null, panel.body);
-      ROOMS.forEach(function (r) {
-        if (r.id === "yard" && shop.tab !== "furn") return;
-        var b = mk("button", "pill" + (shop.room === r.id ? " go" : ""), r.e + " " + r.n, chips);
-        b.addEventListener("click", function () { shop.room = r.id; sfx.flip(); drawShop(); });
-      });
-    }
-    ({ clothes: shopClothes, furn: shopFurn, wall: shopSurface, floor: shopSurface })[shop.tab]();
-  }
   function buyFx(price) { S.stars -= price; sfx.buy(); confetti(); bumpStars(); S.happy = clamp(S.happy + 10); }
-  function shopClothes() {
-    var selId = shop.sel.clothes || S.wear.head || (ITEMS.filter(function (it) { return S.owned.indexOf(it.id) < 0; })[0] || ITEMS[0]).id;
-    shop.sel.clothes = selId;
-    var sel = item(selId), owned = S.owned.indexOf(sel.id) >= 0, worn = S.wear[sel.slot] === sel.id;
-    var tryWear = Object.assign({}, S.wear); tryWear[sel.slot] = sel.id;
-    var top = mk("div", "shop-top", null, panel.body);
-    top.innerHTML = '<div class="pv">' + miniHog(tryWear) + '</div><div class="info"><b></b><span></span><div class="row"></div></div>';
-    top.querySelector("b").textContent = sel.name;
-    top.querySelector("span").textContent = owned ? (worn ? "Ježko to má oblečené!" : "Toto už máš.") : "Cena: " + sel.price + " ⭐";
-    var btn = mk("button", "pill go", null, top.querySelector(".row"));
-    if (owned) btn.textContent = worn ? "Vyzliecť" : "Obliecť";
-    else if (S.stars >= sel.price) btn.textContent = "Kúpiť za " + sel.price + " ⭐";
-    else { btn.textContent = "Chýba ti " + (sel.price - S.stars) + " ⭐"; btn.disabled = true; }
-    btn.addEventListener("click", function () {
-      if (owned) { if (worn) delete S.wear[sel.slot]; else S.wear[sel.slot] = sel.id; sfx.pet(); }
-      else { if (S.stars < sel.price) return; buyFx(sel.price); S.owned.push(sel.id); S.wear[sel.slot] = sel.id; }
-      save(); render(); shopRedraw();
-    });
-    Object.keys(SLOTS).forEach(function (slot) {
-      mk("div", "slot-title", SLOTS[slot], panel.body);
-      var grid = mk("div", "shopgrid", null, panel.body);
-      ITEMS.filter(function (it) { return it.slot === slot; }).forEach(function (it) {
-        var have = S.owned.indexOf(it.id) >= 0, w = {}; w[slot] = it.id;
-        var b = mk("button", "item" + (it.id === selId ? " sel" : ""), null, grid);
-        b.innerHTML = '<div class="thumb">' + miniHog(w, THUMB_VB[slot]) + '</div><div class="nm"></div><div class="pr' + (have ? " owned" : "") + '"></div>' + (S.wear[slot] === it.id ? '<span class="worn">oblečené</span>' : "");
-        b.querySelector(".nm").textContent = it.name;
-        b.querySelector(".pr").textContent = have ? "✓ máš" : it.price + " ⭐";
-        b.addEventListener("click", function () { shop.sel.clothes = it.id; sfx.flip(); shopRedraw(); });
-      });
-    });
-  }
   function roomPreview(parent, roomId, home) {
     var box = mk("div", "pvbox", null, parent);
     var r = mk("div", "pvroom", null, box);
@@ -1399,67 +1385,101 @@ svg .hogg { transform-origin: 160px 240px; }
     var hw = mk("div", "pvhog", null, box);
     hw.innerHTML = '<svg class="minihog" viewBox="0 0 340 260" style="overflow:visible">' + hogInner(S.wear, false) + (roomId === "bath" ? TUB : "") + '</svg>';
   }
-  function topInfo(parent, title, sub, btnText, disabled, onClick) {
-    var info = mk("div", "info", null, parent);
-    var txt = mk("div", null, null, info);
-    mk("b", null, title, txt); mk("br", null, null, txt); mk("span", null, sub, txt);
-    var b = mk("button", "pill go", btnText, info); b.disabled = !!disabled;
-    b.addEventListener("click", onClick);
-  }
-  function shopFurn() {
-    var room = shop.room, list = FURN.filter(function (f) { return f.room === room; });
-    var sel = FURN_BY_ID[shop.sel["furn_" + room]] || list.filter(function (f) { return !S.home[room][f.slot]; })[0] || list[0];
-    shop.sel["furn_" + room] = sel.id;
-    var owned = ownsHome("i:" + sel.id, sel.p), placed = S.home[room][sel.slot] === sel.id;
-    var tmp = clone(S.home); tmp[room][sel.slot] = sel.id;
-    var top = mk("div", "roomtop", null, panel.body);
-    roomPreview(top, room, tmp);
-    var txt = owned ? (placed ? "Je v izbe." : "Toto už máš.") : "Cena: " + sel.p + " ⭐";
-    var bt = owned ? (placed ? "Odložiť" : "Dať do izby") : S.stars >= sel.p ? "Kúpiť za " + sel.p + " ⭐" : "Chýba ti " + (sel.p - S.stars) + " ⭐";
-    topInfo(top, sel.e + " " + sel.n, txt, bt, !owned && S.stars < sel.p, function () {
-      if (owned) { if (placed) delete S.home[room][sel.slot]; else S.home[room][sel.slot] = sel.id; sfx.pet(); }
-      else { if (S.stars < sel.p) return; buyFx(sel.p); S.homeOwned.push("i:" + sel.id); S.home[room][sel.slot] = sel.id; }
-      save(); render(); shopRedraw();
-    });
-    ROOM[room].slots.forEach(function (slot) {
-      mk("div", "slot-title", SLOT_NAMES[slot], panel.body);
-      var grid = mk("div", "shopgrid", null, panel.body);
-      list.filter(function (f) { return f.slot === slot; }).forEach(function (f) {
-        var have = ownsHome("i:" + f.id, f.p);
-        var b = mk("button", "item" + (f.id === sel.id ? " sel" : ""), null, grid);
-        mk("div", "thumb", f.e, b); mk("div", "nm", f.n, b);
-        mk("div", "pr" + (have ? " owned" : ""), have ? "✓ máš" : f.p + " ⭐", b);
-        if (S.home[room][slot] === f.id) mk("span", "worn", "v izbe", b);
-        b.addEventListener("click", function () { shop.sel["furn_" + room] = f.id; sfx.flip(); shopRedraw(); });
+  // Every category becomes the same simple list of entries.
+  function shopEntries() {
+    var room = S.room, list = [];
+    if (shop.cat === "clothes") {
+      ITEMS.forEach(function (it) {
+        var w = {}; w[it.slot] = it.id;
+        list.push({ id: it.id, name: it.name, price: it.price, owned: S.owned.indexOf(it.id) >= 0, active: S.wear[it.slot] === it.id,
+          thumb: miniHog(w, THUMB_VB[it.slot]), where: "na sebe",
+          preview: function (box) { var t = Object.assign({}, S.wear); t[it.slot] = it.id; var hb = mk("div", "pvhogbox", null, box); hb.innerHTML = miniHog(t); },
+          buy: function () { S.owned.push(it.id); S.wear[it.slot] = it.id; },
+          on: function () { S.wear[it.slot] = it.id; }, off: function () { delete S.wear[it.slot]; } });
       });
-    });
+    } else if (shop.cat === "furn") {
+      FURN.filter(function (f) { return f.room === room; }).forEach(function (f) {
+        list.push({ id: f.id, name: f.n, price: f.p, owned: ownsHome("i:" + f.id, f.p), active: S.home[room][f.slot] === f.id,
+          emoji: f.e, where: "v izbe",
+          preview: function (box) { var t = clone(S.home); t[room][f.slot] = f.id; roomPreview(box, room, t); },
+          buy: function () { S.homeOwned.push("i:" + f.id); S.home[room][f.slot] = f.id; },
+          on: function () { S.home[room][f.slot] = f.id; }, off: function () { delete S.home[room][f.slot]; } });
+      });
+    } else {
+      var isWall = shop.cat === "wall", DEF = isWall ? WALLS : FLOORS, pre = isWall ? "w:" : "f:", key = isWall ? "wall" : "floor";
+      Object.keys(DEF).forEach(function (id) {
+        var d = DEF[id];
+        list.push({ id: id, name: d.n, price: d.p, owned: ownsHome(pre + id, d.p), active: S.home[room][key] === id,
+          swatch: d.css, where: "v izbe", fixed: true,
+          preview: function (box) { var t = clone(S.home); t[room][key] = id; roomPreview(box, room, t); },
+          buy: function () { S.homeOwned.push(pre + id); S.home[room][key] = id; },
+          on: function () { S.home[room][key] = id; } });
+      });
+    }
+    return list.sort(function (a, b) { return a.price - b.price; });
   }
-  function shopSurface() {
-    var isWall = shop.tab === "wall", DEF = isWall ? WALLS : FLOORS, pre = isWall ? "w:" : "f:", key = isWall ? "wall" : "floor";
-    var room = shop.room, ids = Object.keys(DEF);
-    var selId = shop.sel[key + "_" + room] || S.home[room][key];
-    shop.sel[key + "_" + room] = selId;
-    var d = DEF[selId], owned = ownsHome(pre + selId, d.p), used = S.home[room][key] === selId;
-    var tmp = clone(S.home); tmp[room][key] = selId;
-    var top = mk("div", "roomtop", null, panel.body);
-    roomPreview(top, room, tmp);
-    var txt = owned ? (used ? "Táto je v izbe." : "Túto už máš.") : "Cena: " + d.p + " ⭐";
-    var bt = used ? "Už je v izbe" : owned ? "Dať do izby" : S.stars >= d.p ? "Kúpiť za " + d.p + " ⭐" : "Chýba ti " + (d.p - S.stars) + " ⭐";
-    topInfo(top, d.n, txt, bt, used || (!owned && S.stars < d.p), function () {
-      if (!owned) { if (S.stars < d.p) return; buyFx(d.p); S.homeOwned.push(pre + selId); } else sfx.pet();
-      S.home[room][key] = selId;
+  function drawShop() {
+    resetBody(false);
+    var topbox = mk("div", "shoptop", null, panel.body);
+    var head = mk("div", "shophead", null, topbox);
+    mk("span", "wallet", "⭐ " + S.stars, head);
+    var cats = mk("div", "cats", null, head);
+    CATS.forEach(function (c) {
+      if (S.room === "yard" && (c[0] === "wall" || c[0] === "floor")) return;
+      var b = mk("button", "catbtn" + (shop.cat === c[0] ? " on" : ""), null, cats);
+      mk("span", null, c[1], b); b.appendChild(document.createTextNode(c[2]));
+      b.setAttribute("aria-label", c[2]);
+      b.addEventListener("click", function () { shop.cat = c[0]; sfx.flip(); speak(c[2]); drawShop(); });
+    });
+
+    var list = shopEntries();
+    var sel = list.filter(function (e) { return e.id === shop.sel[shop.cat]; })[0]
+      || list.filter(function (e) { return e.active && !e.fixed; })[0]
+      || list.filter(function (e) { return !e.owned; })[0] || list[0];
+    shop.sel[shop.cat] = sel.id;
+
+    var pv = mk("div", "pvwrap", null, topbox);
+    sel.preview(pv);
+    var prow = mk("div", "pvrow", null, pv);
+    mk("div", "pvname", sel.name, prow);
+    var btn = mk("button", "bigbuy", null, prow);
+    if (!sel.owned) {
+      if (S.stars >= sel.price) { btn.textContent = "⭐ " + sel.price + "  Kúpiť"; btn.classList.add("buy"); }
+      else { btn.textContent = "🔒 Chýba " + (sel.price - S.stars) + " ⭐"; btn.classList.add("nope"); }
+    } else if (sel.active) {
+      if (sel.fixed) { btn.textContent = "✔ Už je " + sel.where; btn.classList.add("nope"); }
+      else { btn.textContent = "↩️ Dať preč"; btn.classList.add("off"); }
+    } else { btn.textContent = "✅ Použiť"; btn.classList.add("use"); }
+    btn.addEventListener("click", function () {
+      if (!sel.owned) {
+        if (S.stars < sel.price) { sfx.no(); speak("Ešte potrebuješ " + (sel.price - S.stars) + " " + starWord(sel.price - S.stars) + ". Choď na výlet alebo do škôlky!"); return; }
+        buyFx(sel.price); sel.buy(); speak("Juchú! Kúpené!");
+      } else if (sel.active) {
+        if (sel.fixed) return;
+        sel.off(); sfx.flip();
+      } else { sel.on(); sfx.pet(); speak("Hotovo!"); }
       save(); render(); shopRedraw();
     });
-    mk("div", "slot-title", isWall ? "Tapety na steny" : "Podlahy", panel.body);
-    var grid = mk("div", "shopgrid", null, panel.body);
-    ids.forEach(function (id) {
-      var x = DEF[id], have = ownsHome(pre + id, x.p);
-      var b = mk("button", "item" + (id === selId ? " sel" : ""), null, grid);
-      var sw = mk("div", "thumb sw", null, b); sw.style.background = x.css;
-      mk("div", "nm", x.n, b);
-      mk("div", "pr" + (have ? " owned" : ""), have ? (x.p ? "✓ máš" : "zadarmo") : x.p + " ⭐", b);
-      if (S.home[room][key] === id) mk("span", "worn", "v izbe", b);
-      b.addEventListener("click", function () { shop.sel[key + "_" + room] = id; sfx.flip(); shopRedraw(); });
+
+    var grid = mk("div", "kgrid", null, panel.body);
+    list.forEach(function (e) {
+      var poor = !e.owned && S.stars < e.price;
+      var c = mk("button", "kcard" + (e.id === sel.id ? " sel" : "") + (e.owned ? " owned" : "") + (poor ? " poor" : "") + (e.active ? " active" : ""), null, grid);
+      c.setAttribute("aria-label", e.name);
+      var th = mk("div", "kthumb", null, c);
+      if (e.thumb) th.innerHTML = e.thumb;
+      else if (e.swatch) th.style.background = e.swatch;
+      else th.textContent = e.emoji;
+      mk("span", "kprice", e.owned ? "✔" : "⭐ " + e.price, c);
+      c.addEventListener("click", function () {
+        shop.sel[shop.cat] = e.id; sfx.flip();
+        var msg = e.name + ". ";
+        if (e.owned) msg += e.active ? "Toto je " + e.where + "." : "Toto už máš.";
+        else if (S.stars >= e.price) msg += "Stojí " + e.price + " " + starWord(e.price) + ".";
+        else msg += "Stojí " + e.price + " " + starWord(e.price) + ". Ešte potrebuješ " + (e.price - S.stars) + ".";
+        speak(msg);
+        shopRedraw();
+      });
     });
   }
 
