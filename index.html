@@ -631,7 +631,7 @@ svg .hogg { transform-origin: 160px 240px; }
   // ================= STATE =================
   function fresh() {
     return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 3, sound: true, last: Date.now(),
-             owned: [], wear: {}, food: { apple: 3, straw: 2, cater: 1 }, friends: {}, treasures: {}, lastPlace: "",
+             owned: [], wear: {}, food: { apple: 1 }, friends: {}, treasures: {}, lastPlace: "",
              room: "living", home: defaultHome(), homeOwned: [],
              settings: Object.assign({}, DEFAULT_SETTINGS), playDay: "", playSec: 0, sleeping: false };
   }
@@ -645,7 +645,7 @@ svg .hogg { transform-origin: 160px 240px; }
     S.homeOwned = Array.isArray(S.homeOwned) ? S.homeOwned : [];
     S.wear = obj(S.wear) || {};
     S.food = obj(S.food) || {};
-    if (!hadFood) S.food = { apple: 3, straw: 2, cater: 1 };
+    if (!hadFood) S.food = { apple: 1 };
     S.friends = obj(S.friends) || {};
     S.treasures = obj(S.treasures) || {};
     S.settings = Object.assign({}, DEFAULT_SETTINGS, obj(S.settings) || {});
