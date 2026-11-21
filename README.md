@@ -15,6 +15,18 @@ Otvor `index.html` v prehliadači (funguje aj na mobile a tablete, bez inštalá
   4. šúchaním ho usušíš.
 - 🌳 **Dvor** – cez bránku ide Ježko na výlet na náhodné miesto, zbiera jedlo a stretáva zvieratká
 
+**🏫 Škôlka** (na dvore tlačidlo „Škôlka“) – pani učiteľka Sova 🦉 a kamaráti zo zvieratiek.
+Úlohy číta nahlas (slovenský hlas zariadenia), takže ich zvládnu aj deti, ktoré ešte nečítajú.
+Každá úloha má 5 otázok, za chybu sa netrestá, iba „Skús to ešte raz“:
+- 🔢 Počítanie – ťukaním počítaš obrázky (najprv do 5, potom do 10)
+- 🎨 Farby – nájdi správnu farbu
+- 🔺 Tvary – kruh, štvorec, trojuholník, hviezda, srdce
+- 🐮 Kto to robí? – zvuky zvieratiek
+- 🧩 Čo nepatrí? – nájdi tú inú vec
+- 🐘 Veľký a malý – porovnaj veľkosti
+- 🙈 Schovávačka – nájdi schovaných kamarátov
+Za každú dokončenú úlohu Ježko dostane nálepku do zbierky a 2 ⭐.
+
 **Obchod** (🛍️) – za hviezdičky ⭐:
 - 👕 oblečenie pre Ježka
 - 🛋️ nábytok a dekorácie do každej izby aj na dvor

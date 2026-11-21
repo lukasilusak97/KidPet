@@ -334,6 +334,48 @@ svg .hogg { transform-origin: 160px 240px; }
 .sticker .n { font-size: .72rem; font-weight: 700; text-align: center; line-height: 1.1; overflow-wrap: anywhere; }
 .sticker:not(.got) .e { filter: grayscale(1) brightness(0); opacity: .18; }
 
+/* kindergarten */
+.school { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px; box-sizing: border-box;
+  background: linear-gradient(#fdf3d8 0 80%, #c9925e 80%); }
+.teach { display: flex; align-items: center; gap: 8px; }
+.teach .t { font-size: 2.8rem; line-height: 1; flex: none; }
+.teach .t.talk { animation: fjump .5s; }
+.teach .say { flex: 1; min-width: 0; background: var(--paper); border: 3px solid var(--bark); border-radius: 16px; padding: 4px 10px; font-weight: 800; font-size: 1.05rem; line-height: 1.25; }
+.teach .rep { flex: none; font-size: 1.3rem; padding: 2px 10px; }
+.board {
+  flex: 1; min-height: 0; background: #2f5d46; border: 8px solid #a8743f; border-radius: 12px; box-sizing: border-box;
+  display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 4px 8px; padding: 8px; overflow: hidden; position: relative; color: #fffaf0;
+}
+.board.play { background: radial-gradient(#a6dd84, #7cbf5a); }
+.board .bi { font-size: 2.4rem; line-height: 1; border: 0; background: none; padding: 2px; cursor: pointer; position: relative; color: inherit; }
+.board .bi.counted::after {
+  content: attr(data-n); position: absolute; right: -6px; top: -6px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--sun); color: var(--ink); font-size: .85rem; font-weight: 800; display: grid; place-items: center;
+}
+.board .bi.hidespot { font-size: 3rem; }
+.board .bi.found { animation: fjump .5s; }
+.board .chalk { width: 100%; text-align: center; font-size: 1.7rem; font-weight: 800; line-height: 1.2; }
+.board .bigblob { width: 96px; height: 96px; border-radius: 50%; border: 5px dashed #fffaf0; }
+.board svg { width: 110px; height: 110px; }
+.answers { display: grid; gap: 8px; grid-template-columns: repeat(var(--c, 3), 1fr); }
+.ans {
+  min-height: 74px; border: 4px solid var(--bark); border-radius: 18px; background: #ffffff; font-size: 2.4rem; font-weight: 800;
+  cursor: pointer; box-shadow: 0 4px 0 var(--bark); display: grid; place-items: center; padding: 4px; line-height: 1;
+}
+.ans:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bark); }
+.ans.no { opacity: .35; animation: wig2 .35s; }
+.ans.yes { background: #dff5d3; border-color: var(--leaf); }
+.ans .blob { width: 50px; height: 50px; border-radius: 50%; border: 3px solid rgba(58,38,24,.25); }
+.ans svg { width: 54px; height: 54px; }
+.kids { display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 60px; flex: none; }
+.kids .kh { width: 76px; }
+.kids .km { font-size: 2.5rem; line-height: 1; }
+.kids .happy { animation: fjump .55s; }
+.qdots { display: flex; gap: 4px; align-self: center; margin: 0 6px; }
+.qdots i { width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--bark); }
+.qdots i.on { background: var(--sun); }
+.lessongrid .gamecard small { color: var(--leaf); }
+
 /* settings & lock */
 .set-sec { background: #ffffff; border: 3px solid var(--soft); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; display: grid; gap: 6px; }
 .set-sec h3 { margin: 0; font-size: 1.05rem; }
@@ -506,7 +548,7 @@ svg .hogg { transform-origin: 160px 240px; }
     slow:   { hunger: 4,  happy: 3.5, clean: 3, energy: 3 },
     normal: { hunger: 10, happy: 8,   clean: 6, energy: 7 }
   };
-  var DEFAULT_SETTINGS = { limit: 30, pace: "normal", sleepMin: 15 };
+  var DEFAULT_SETTINGS = { limit: 30, pace: "normal", sleepMin: 15, voice: true };
   function rates() { return PACE[S.settings.pace] || PACE.normal; }
   function sleepRate() { return 100 / (Math.max(1, S.settings.sleepMin) * 60); }
   function today() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
@@ -517,7 +559,7 @@ svg .hogg { transform-origin: 160px 240px; }
     { id: "kitchen", n: "Kuchyňa",  e: "🍳", slots: ["wallL", "wallR", "floorL"], base: "fridge", line: "Kuchyňa! Čo dobré máme v chladničke?" },
     { id: "bed",     n: "Spálňa",   e: "🛏️", slots: ["wallL", "wallR", "floorR"], base: "bed", line: "Spálňa. Tu sa krásne spinká." },
     { id: "bath",    n: "Kúpeľňa",  e: "🛁", slots: ["wallL", "wallR", "floorL", "floorR"], base: "tub", line: "Kúpeľňa! Ťukni na mňa a okúpeme sa." },
-    { id: "yard",    n: "Dvor",     e: "🌳", slots: ["farL", "floorL", "floorR"], base: "gate", line: "Dvor! Pôjdeme cez bránku na výlet?" }
+    { id: "yard",    n: "Dvor",     e: "🌳", slots: ["farL", "floorL", "floorR"], base: "gate", line: "Dvor! Pôjdeme na výlet alebo do škôlky?" }
   ];
   var ROOM = {}; ROOMS.forEach(function (r) { ROOM[r.id] = r; });
   var SLOT_POS = {
@@ -631,7 +673,7 @@ svg .hogg { transform-origin: 160px 240px; }
   // ================= STATE =================
   function fresh() {
     return { hunger: 70, happy: 75, energy: 80, clean: 65, stars: 3, sound: true, last: Date.now(),
-             owned: [], wear: {}, food: { apple: 1 }, friends: {}, treasures: {}, lastPlace: "",
+             owned: [], wear: {}, food: { apple: 1 }, friends: {}, treasures: {}, school: {}, lastPlace: "",
              room: "living", home: defaultHome(), homeOwned: [],
              settings: Object.assign({}, DEFAULT_SETTINGS), playDay: "", playSec: 0, sleeping: false };
   }
@@ -648,6 +690,7 @@ svg .hogg { transform-origin: 160px 240px; }
     if (!hadFood) S.food = { apple: 1 };
     S.friends = obj(S.friends) || {};
     S.treasures = obj(S.treasures) || {};
+    S.school = obj(S.school) || {};
     S.settings = Object.assign({}, DEFAULT_SETTINGS, obj(S.settings) || {});
     S.sleeping = !!S.sleeping;
     S.playSec = typeof S.playSec === "number" ? S.playSec : 0;
@@ -856,7 +899,7 @@ svg .hogg { transform-origin: 160px 240px; }
       kitchen: [["feed", "🍎 Papať"]],
       bed: [["sleep", "🌙 Spinkať"], ["dress", "👕 Šatník", "alt"]],
       bath: [["bath", "🛁 Kúpať"]],
-      yard: [["trip", "🎒 Výlet"]]
+      yard: [["trip", "🎒 Výlet"], ["school", "🏫 Škôlka"]]
     })[S.room].forEach(function (a) { acts.push(a); });
     var key = S.room + "|" + JSON.stringify(acts);
     if (!force && key === barKey) return;
@@ -878,6 +921,7 @@ svg .hogg { transform-origin: 160px 240px; }
     else if (act === "bath") { if (mode === "bath") endBath(false); else if (mode === "idle") startBath(); }
     else if (act === "trip" && mode === "idle") openTrip();
     else if (act === "dress" && mode === "idle") openShop("clothes");
+    else if (act === "school" && mode === "idle") openSchool();
   }
 
   // ================= HELPERS =================
@@ -1943,6 +1987,237 @@ svg .hogg { transform-origin: 160px 240px; }
     if (extras.length) confetti();
   }
 
+  // ================= SCHOOL (kindergarten) =================
+  var voice = null;
+  function pickVoice() {
+    try {
+      var vs = window.speechSynthesis.getVoices() || [];
+      voice = vs.filter(function (v) { return /^sk/i.test(v.lang); })[0] || vs.filter(function (v) { return /^cs/i.test(v.lang); })[0] || null;
+      return vs.length;
+    } catch (e) { return 0; }
+  }
+  if ("speechSynthesis" in window) { pickVoice(); try { window.speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {} }
+  function speak(t) {
+    if (!S.sound || !S.settings.voice || !("speechSynthesis" in window)) return;
+    try {
+      var n = pickVoice();
+      if (!voice && n > 0) return;              // no Slovak/Czech voice: stay quiet rather than mispronounce
+      var clean = t.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, "").trim();
+      if (!clean) return;
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(clean);
+      if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = "sk-SK";
+      u.rate = .9; u.pitch = 1.15;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function hush() { try { window.speechSynthesis.cancel(); } catch (e) {} }
+
+  var NUMS = ["jeden", "dva", "tri", "štyri", "päť", "šesť", "sedem", "osem", "deväť", "desať"];
+  var COUNT_ITEMS = [["🍎", "jabĺčok"], ["🍓", "jahôd"], ["🐞", "lienok"], ["🌸", "kvietkov"], ["⭐", "hviezdičiek"], ["🐟", "rybičiek"], ["🍄", "hríbikov"], ["🎈", "balónov"]];
+  var COLORS = [["červenú", "#e2504c"], ["modrú", "#3d7fbf"], ["žltú", "#ffd23d"], ["zelenú", "#4f9a3a"], ["oranžovú", "#f08a24"], ["fialovú", "#8e5cc4"], ["ružovú", "#f59ab0"]];
+  var SHAPES = {
+    circle:   { n: "kruh", d: '<circle cx="50" cy="50" r="38"/>' },
+    square:   { n: "štvorec", d: '<rect x="14" y="14" width="72" height="72" rx="4"/>' },
+    triangle: { n: "trojuholník", d: '<path d="M50 10 L90 86 L10 86 Z"/>' },
+    star:     { n: "hviezda", d: '<path d="M50 8 L61 38 L93 38 L67 57 L77 89 L50 70 L23 89 L33 57 L7 38 L39 38 Z"/>' },
+    heart:    { n: "srdce", d: '<path d="M50 86 C14 62 8 40 20 26 C32 12 46 18 50 30 C54 18 68 12 80 26 C92 40 86 62 50 86 Z"/>' }
+  };
+  function shapeSvg(id, fill, stroke, sw) {
+    return '<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round">' + SHAPES[id].d + '</g></svg>';
+  }
+  var SOUNDS = [["🐶", "haf haf"], ["🐱", "mňau"], ["🐮", "búú"], ["🐷", "chro chro"], ["🐑", "bé bé"], ["🐔", "kot kot kodák"], ["🐸", "kvak kvak"], ["🦆", "kvá kvá"], ["🐴", "íha-há"], ["🐝", "bzz bzz"]];
+  var GROUPS = [
+    { n: "ovocie", items: ["🍎", "🍐", "🍓", "🍒", "🍌", "🍇"] },
+    { n: "zvieratká", items: ["🐶", "🐱", "🐰", "🐻", "🦊", "🐭"] },
+    { n: "autíčka a vláčiky", items: ["🚗", "🚌", "🚲", "🚂", "🚜", "🚒"] },
+    { n: "kvietky", items: ["🌷", "🌻", "🌼", "🌹", "🌸"] },
+    { n: "oblečenie", items: ["👕", "👖", "🧦", "🧢", "👗"] }
+  ];
+  var SIZE_ITEMS = ["🐘", "🐻", "🌳", "🍎", "🚗", "🐟", "🎈", "🏠"];
+  var PRAISE = ["Výborne!", "Super!", "Bravó!", "Šikovne!", "Áno, správne!", "Paráda!"];
+  var MATES = ["bunny", "squirrel", "frog", "bear", "mouse", "fox", "duck", "deer", "cousin", "goat"];
+
+  function qCount(c) {
+    var max = (S.school.count || 0) >= 3 ? 10 : 5, n = 1 + rnd(max), it = pick(COUNT_ITEMS), counted = 0;
+    for (var i = 0; i < n; i++) {
+      var b = mk("button", "bi", it[0], c.board); b.setAttribute("aria-label", "Spočítať");
+      b.addEventListener("click", function (e) {
+        var el = e.currentTarget;
+        if (el.classList.contains("counted")) return;
+        counted++; el.dataset.n = counted; el.classList.add("counted"); sfx.pop(); speak(NUMS[counted - 1]);
+      });
+    }
+    var opts = [n];
+    while (opts.length < 3) { var o = 1 + rnd(max); if (opts.indexOf(o) < 0) opts.push(o); }
+    return { say: "Koľko je tu " + it[1] + "? Ťukaj na ne a počítaj so mnou!",
+             choices: shuffle(opts).map(function (o) { return { text: String(o), ok: o === n }; }), cols: 3 };
+  }
+  function qColor(c) {
+    var all = shuffle(COLORS), t = all[0], opts = shuffle(all.slice(0, 4));
+    var blob = mk("div", "bigblob", null, c.board); blob.style.background = t[1];
+    return { say: "Ťukni na " + t[0] + " farbu!",
+             choices: opts.map(function (o) { return { blob: o[1], ok: o === t, label: o[0] }; }), cols: 4 };
+  }
+  function qShape(c) {
+    var ids = shuffle(Object.keys(SHAPES)), t = ids[0], opts = shuffle(ids.slice(0, 3)), fills = shuffle(["#e2504c", "#3d7fbf", "#ffd23d", "#4f9a3a", "#8e5cc4"]);
+    c.board.insertAdjacentHTML("beforeend", shapeSvg(t, "none", "#fffaf0", 6));
+    return { say: "Kde je " + SHAPES[t].n + "? Nájdi rovnaký tvar!",
+             choices: opts.map(function (o, i) { return { html: shapeSvg(o, fills[i], "#3a2618", 4), ok: o === t, label: SHAPES[o].n }; }), cols: 3 };
+  }
+  function qSound(c) {
+    var all = shuffle(SOUNDS), t = all[0], opts = shuffle(all.slice(0, 3));
+    mk("div", "chalk", "„" + t[1] + "!“", c.board);
+    return { say: "Kto robí " + t[1] + "?", choices: opts.map(function (o) { return { text: o[0], ok: o === t }; }), cols: 3 };
+  }
+  function qOdd(c) {
+    var gs = shuffle(GROUPS), g = gs[0], other = gs[1], odd = pick(other.items);
+    var items = shuffle(shuffle(g.items).slice(0, 3).concat([odd]));
+    mk("div", "chalk", "Čo sem nepatrí? 🤔", c.board);
+    return { say: "Tri veci patria k sebe. Ktorá sem nepatrí?",
+             choices: items.map(function (x) { return { text: x, ok: x === odd }; }), cols: 4,
+             right: "Áno! Ostatné sú " + g.n + "." };
+  }
+  function qSize(c) {
+    var e = pick(SIZE_ITEMS), big = Math.random() < .5, sizes = shuffle([1.3, 2.2, 3.3]);
+    mk("div", "chalk", big ? "najväčší ⬆️" : "najmenší ⬇️", c.board);
+    var target = big ? 3.3 : 1.3;
+    return { say: big ? "Ktorý obrázok je najväčší?" : "Ktorý obrázok je najmenší?",
+             choices: sizes.map(function (z) { return { text: e, size: z, ok: z === target }; }), cols: 3 };
+  }
+  var LESSONS = [
+    { id: "count", e: "🔢", n: "Počítanie", d: "Spočítaj obrázky", q: qCount },
+    { id: "colors", e: "🎨", n: "Farby", d: "Nájdi správnu farbu", q: qColor },
+    { id: "shapes", e: "🔺", n: "Tvary", d: "Kruh, štvorec, hviezda...", q: qShape },
+    { id: "sounds", e: "🐮", n: "Kto to robí?", d: "Zvuky zvieratiek", q: qSound },
+    { id: "odd", e: "🧩", n: "Čo nepatrí?", d: "Nájdi tú inú vec", q: qOdd },
+    { id: "size", e: "🐘", n: "Veľký a malý", d: "Porovnaj veľkosti", q: qSize },
+    { id: "hide", e: "🙈", n: "Schovávačka", d: "Nájdi kamarátov", play: true }
+  ];
+
+  function openSchool() {
+    if (S.energy < 15) { sfx.no(); anim("wiggle"); say("Som unavený, do škôlky pôjdem po spinkaní. 🛏️", 3500); return; }
+    openScreen("🏫 Škôlka");
+    schoolMenu(true);
+  }
+  function teachRow(parent) {
+    var row = mk("div", "teach", null, parent);
+    var t = mk("span", "t", "🦉", row); t.setAttribute("aria-hidden", "true");
+    var sayEl = mk("div", "say", null, row);
+    var rep = mk("button", "pill rep", "🔈", row); rep.setAttribute("aria-label", "Zopakovať");
+    var last = "";
+    rep.addEventListener("click", function () { speak(last); t.classList.remove("talk"); void t.offsetWidth; t.classList.add("talk"); });
+    return function (text) { last = text; sayEl.textContent = text; t.classList.remove("talk"); void t.offsetWidth; t.classList.add("talk"); speak(text); };
+  }
+  function schoolMenu(first) {
+    setTitle("🏫 Škôlka"); resetBody(false);
+    panel.cleanup = hush;
+    panel.onClose = function () { say("V škôlke bolo super!", 3000); anim("jump"); };
+    var teach = teachRow(panel.body);
+    teach(first ? "Ahoj, ja som pani učiteľka Sova! Čo sa dnes naučíme?" : "Čo budeme robiť teraz?");
+    var g = mk("div", "gamegrid lessongrid", null, panel.body);
+    g.style.marginTop = "10px";
+    LESSONS.forEach(function (L) {
+      var b = mk("button", "gamecard", null, g);
+      mk("span", "ico", L.e, b); mk("b", null, L.n, b);
+      var got = S.school[L.id] || 0;
+      mk("small", null, got ? "Nálepky: " + got + " 🏅" : L.d, b);
+      b.addEventListener("click", function () {
+        if (S.energy < 10) { sfx.no(); teach("Ježko je už unavený. Poďte si oddýchnuť a príďte zas!"); return; }
+        sfx.flip(); startLesson(L);
+      });
+    });
+  }
+  function startLesson(L) {
+    S.energy = clamp(S.energy - 6); S.hunger = clamp(S.hunger - 3);
+    setTitle(L.e + " " + L.n); resetBody(true); extraBtn("🏫 Späť", function () { schoolMenu(false); });
+    var live = true;
+    panel.cleanup = function () { live = false; hush(); };
+    panel.onClose = function () { say("V škôlke bolo super!", 3000); anim("jump"); };
+    var root = mk("div", "school", null, panel.body);
+    var teach = teachRow(root);
+    var board = mk("div", "board", null, root);
+    var answers = mk("div", "answers", null, root);
+    var kids = mk("div", "kids", null, root);
+    var hog = mk("div", "kh", null, kids); hog.innerHTML = miniHog();
+    var mates = shuffle(MATES).slice(0, 2).map(function (id) { return FRIENDS[id]; });
+    var m1 = mk("span", "km", mates[0].e, kids);
+    var dots = mk("div", "qdots", null, kids);
+    var m2 = mk("span", "km", mates[1].e, kids);
+    var TOTAL = L.play ? 1 : 5, qi = 0;
+    for (var i = 0; i < TOTAL; i++) mk("i", null, null, dots);
+    function cheer() {
+      [hog, m1, m2].forEach(function (k, i) { setTimeout(function () { k.classList.remove("happy"); void k.offsetWidth; k.classList.add("happy"); }, i * 120); });
+      var c = root.getBoundingClientRect(), r = kids.getBoundingClientRect();
+      for (var j = 0; j < 3; j++) fx(pick(["⭐", "❤️", "✨"]), r.left - c.left + 30 + rnd(Math.max(1, r.width - 60)), r.top - c.top, null, root);
+    }
+    function finish() {
+      if (!live) return;
+      dots.children[TOTAL - 1].classList.add("on");
+      S.school[L.id] = (S.school[L.id] || 0) + 1; S.happy = clamp(S.happy + 10);
+      cheer(); giveStar(2);
+      var txt = "Výborne! Ježko dostal nálepku zo škôlky!";
+      teach(txt);
+      setTimeout(function () {
+        if (!live) return;
+        resultCard("🏅" + L.e, txt + "  +2 ⭐", [
+          ["🔁 Ešte raz", function () { if (S.energy < 10) { sfx.no(); return; } startLesson(L); }, "go", S.energy < 10],
+          ["🏫 Škôlka", function () { schoolMenu(false); }]
+        ]);
+      }, 900);
+    }
+    function nextQ() {
+      if (!live) return;
+      if (qi >= TOTAL) { finish(); return; }
+      Array.prototype.forEach.call(dots.children, function (d, i) { d.classList.toggle("on", i < qi); });
+      board.innerHTML = ""; board.className = "board"; answers.innerHTML = "";
+      var Q = L.q({ board: board });
+      teach(Q.say);
+      answers.style.setProperty("--c", Q.cols);
+      var solved = false;
+      Q.choices.forEach(function (ch) {
+        var b = mk("button", "ans", null, answers);
+        if (ch.blob) { var bl = mk("span", "blob", null, b); bl.style.background = ch.blob; }
+        else if (ch.html) b.innerHTML = ch.html;
+        else { b.textContent = ch.text; if (ch.size) b.style.fontSize = ch.size + "rem"; }
+        b.setAttribute("aria-label", ch.label || ch.text || "odpoveď");
+        b.addEventListener("click", function () {
+          if (solved || b.classList.contains("no")) return;
+          if (ch.ok) {
+            solved = true; b.classList.add("yes"); sfx.star(); cheer();
+            S.happy = clamp(S.happy + 2);
+            teach((Q.right ? Q.right + " " : "") + pick(PRAISE));
+            qi++;
+            setTimeout(nextQ, 1700);
+          } else {
+            b.classList.add("no"); sfx.no(); teach("Skús to ešte raz. " + Q.say);
+          }
+        });
+      });
+    }
+    function hideAndSeek() {
+      board.className = "board play";
+      var hiders = shuffle(MATES).slice(0, 3).map(function (id) { return FRIENDS[id]; });
+      var spots = shuffle(["🌳", "🌲", "🪨", "🌿", "🌳", "🪵"]), where = shuffle([0, 1, 2, 3, 4, 5]).slice(0, 3), left = 3;
+      answers.style.display = "none";
+      teach("Kamaráti sa schovali! Ťukaj na kríky a stromy a nájdi ich.");
+      spots.forEach(function (sp, i) {
+        var b = mk("button", "bi hidespot", sp, board); b.setAttribute("aria-label", "Pozrieť sa sem");
+        b.addEventListener("click", function () {
+          if (b.disabled) return; b.disabled = true;
+          var k = where.indexOf(i);
+          if (k >= 0) {
+            var f = hiders[k];
+            b.textContent = f.e; b.classList.add("found"); sfx.hello(); left--;
+            teach(f.n + ": Tu som! " + (left ? "Ešte " + NUMS[left - 1] + "." : "Všetci sú nájdení!"));
+            if (!left) setTimeout(finish, 1200);
+          } else { b.style.opacity = .4; sfx.flip(); teach("Tu nikto nie je. Hľadaj ďalej!"); }
+        });
+      });
+    }
+    if (L.play) hideAndSeek(); else nextQ();
+  }
+
   // ================= ALBUM =================
   function openAlbum() {
     var fc = Object.keys(FRIENDS).filter(function (k) { return S.friends[k]; }).length;
@@ -1956,6 +2231,14 @@ svg .hogg { transform-origin: 160px 240px; }
         var got = !!sec[2][k], d = mk("div", "sticker" + (got ? " got" : ""), null, g);
         mk("span", "e", sec[1][k].e, d); mk("span", "n", got ? sec[1][k].n : "?", d);
       });
+    });
+    var sch = mk("div", "album-sec", null, panel.body);
+    var sh = mk("h3", null, null, sch); mk("span", null, "🏫 Nálepky zo škôlky", sh);
+    mk("small", null, LESSONS.reduce(function (a, L) { return a + (S.school[L.id] || 0); }, 0) + " ks", sh);
+    var sg = mk("div", "stickers", null, sch);
+    LESSONS.forEach(function (L) {
+      var n = S.school[L.id] || 0, d = mk("div", "sticker" + (n ? " got" : ""), null, sg);
+      mk("span", "e", L.e, d); mk("span", "n", L.n + " ×" + n, d);
     });
     var foods = mk("div", "album-sec", null, panel.body);
     var h = mk("h3", null, null, foods); mk("span", null, "🧺 Zásoby jedla", h); mk("small", null, foodTotal() + " ks", h);
@@ -2072,6 +2355,9 @@ svg .hogg { transform-origin: 160px 240px; }
 
     sec = section("🐢 Ako rýchlo Ježko potrebuje starostlivosť", "Potreby klesajú pomaly aj vtedy, keď je hra zavretá. Ježko nikdy neochorie ani neumrie, keď sa oň nikto nestará, len posmutnie. Najviac ho unavujú a hladom trápia výlety a hry.");
     opts(sec, [["slow", "Pomaly – vydrží celý deň"], ["normal", "Normálne – pár hodín"]], S.settings.pace, function (v) { S.settings.pace = v; });
+
+    sec = section("🗣️ Hlas pani učiteľky", "V škôlke pani učiteľka číta úlohy nahlas, aby ich zvládli aj deti, ktoré ešte nečítajú. Použije sa slovenský hlas zariadenia, ak ho zariadenie má.");
+    opts(sec, [[true, "Zapnutý"], [false, "Vypnutý"]], S.settings.voice, function (v) { S.settings.voice = v; if (!v) hush(); });
 
     sec = section("💤 Ako dlho Ježko spinká", "Spánok beží aj pri zatvorenej hre. Je to prirodzená prestávka v hraní.");
     opts(sec, [[5, "5 min"], [15, "15 min"], [30, "30 min"], [60, "1 hodina"]], S.settings.sleepMin, function (v) { S.settings.sleepMin = v; });
